@@ -1,11 +1,13 @@
 # Ethereum Galaxy - Server
 
-Node.js server for [Ethereum Galaxy](https://github.com/loopingdoge/ethereum-galaxy), currently live [here](https://loopingdoge.github.io/ethereum-galaxy).
+Node.js server for [Ethereum Galaxy](https://github.com/Ross94/ethereum-galaxy).
 
 These scripts retrieves the transactions from the ethereum blockchain and save it as a graph, where:
 
 *   Nodes => addresses
 *   Edges => transactions
+
+Current configuration retrieves transactions divided in blocks of 1h, 4h, 6h, 12h and 24h.
 
 The supported output formats are:
 

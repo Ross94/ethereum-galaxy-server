@@ -29,6 +29,42 @@ module.exports = {
             }
         },
         {
+            name: 'Eth 6h',
+            script: './build/index.js',
+            env: {
+                NODE_ENV: 'development',
+                ETH_HOURS: 6
+            },
+            env_production: {
+                NODE_ENV: 'production',
+                ETH_HOURS: 6
+            }
+        },
+        {
+            name: 'Eth 12h',
+            script: './build/index.js',
+            env: {
+                NODE_ENV: 'development',
+                ETH_HOURS: 12
+            },
+            env_production: {
+                NODE_ENV: 'production',
+                ETH_HOURS: 12
+            }
+        },
+        {
+            name: 'Eth 24h',
+            script: './build/index.js',
+            env: {
+                NODE_ENV: 'development',
+                ETH_HOURS: 24
+            },
+            env_production: {
+                NODE_ENV: 'production',
+                ETH_HOURS: 24
+            }
+        },
+        {
             name: 'Web server',
             script: './build/server.js',
             env: {
