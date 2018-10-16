@@ -40,6 +40,7 @@ module.exports = (infuraApiKey: string) => {
     )
 
     async function queryBlocks(blocksIndexes, cb) {
+        //download blocks
         const blocksPromises = blocksIndexes.map(x =>
             web3.eth
                 .getBlock(x, true)
@@ -54,8 +55,10 @@ module.exports = (infuraApiKey: string) => {
                 })
         )
 
+        //get blocks from Promises
         const blocks = _.compact(await Promise.all(blocksPromises))
 
+        //get transactions from blocks
         const onlyTransactions = blocks.map(b => ({
             transactions: b.transactions
                 .map(t => transformTransaction(t, web3.utils.fromWei))
@@ -76,10 +79,12 @@ module.exports = (infuraApiKey: string) => {
 
     async function scanBlocks(range: Range, doLayout: boolean = true) {
         logger.log('Retrieving blocks...')
+        //create an array, size = end - start
         const blocksIndexes = Array(range.end - range.start)
             .fill(1)
             .map((one, index) => range.start + one + (index - 1))
 
+        //divide array in chunck of 240 elems
         const blocksIndexesAtATime = _.chunk(blocksIndexes, 240)
 
         const blockChunks = []
@@ -116,6 +121,7 @@ module.exports = (infuraApiKey: string) => {
 
         logger.log('Processing nodes...')
 
+        //get source and target from stransactions and merge them
         const sourceIds = transactions.map(t => t.source)
         const targetIds = transactions.map(t => t.target)
         const nodeIds = _.uniq(_.compact(_.union(sourceIds, targetIds)))
