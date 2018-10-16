@@ -97,7 +97,31 @@ By default the server will calculate a 3D layout of the graph, but this is a ver
 Running:
 
 ```
-$ node ./build/start-no-layout.js --api <INFURA_API_KEY> --start 500 --end 600
+$ node ./build/start-no-layout.js --api <INFURA_API_KEY> --start 6000000 --end 6000100
 ```
 
 will generate the graph of the blocks in the range of 500-600.
+
+## Test
+
+Add `src/test` package for test.
+
+### block.js
+
+Download a block from its number. Command:
+
+```
+$ node ./build/start-no-layout.js --api <INFURA_API_KEY> --block 6000000
+```
+
+---
+
+### transaction.js
+
+Show all transactions from its number.
+The format is: transaction hash, source and target.
+Command:
+
+```
+$ node ./build/start-no-layout.js --api <INFURA_API_KEY> --block 6000000
+```
