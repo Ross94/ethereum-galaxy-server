@@ -16,20 +16,31 @@ const missingArgs = requiredArgs.filter(arg => commander[arg] === undefined)
 
 if (missingArgs.length > 0) {
     console.log(
-        `${colors.red('error:')}    Missing required argument${
+        `${colors.red('ERROR:')}    Missing required argument${
             missingArgs.length > 1 ? 's' : ''
         } ${colors.blue(missingArgs.join(', '))}`
     )
     commander.help()
 }
 
-const infuraApiKey = commander.api
+if (commander.start > commander.end) {
+    console.log(`${colors.red('ERROR:')}    End must be major of start`)
+} else {
+    if (commander.start == commander.end) {
+        console.log(
+            `${colors.yellow(
+                'WARNING: '
+            )}  End and start are equals this will product empty files`
+        )
+    }
+    const infuraApiKey = commander.api
 
-const { scanBlocks } = createEth(infuraApiKey)
+    const { scanBlocks } = createEth(infuraApiKey)
 
-const blockRange = {
-    start: commander.start,
-    end: commander.end
+    const blockRange = {
+        start: commander.start,
+        end: commander.end
+    }
+
+    scanBlocks(blockRange, false)
 }
-
-scanBlocks(blockRange, false)
