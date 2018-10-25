@@ -35,12 +35,12 @@ if (commander.start > commander.end) {
     }
     const infuraApiKey = commander.api
 
-    const { scanBlocks } = createEth(infuraApiKey)
+    const { scanBlocksGroupped } = createEth(infuraApiKey)
 
     const blockRange = {
         start: commander.start,
         end: commander.end
     }
 
-    scanBlocks(blockRange, false)
+    scanBlocksGroupped(blockRange)
 }

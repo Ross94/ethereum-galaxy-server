@@ -54,7 +54,26 @@ function dumpPajek(filepath: string, { nodes, links }: Graph) {
     })
 }
 
+function deleteFile(filepath: string) {
+    fs.unlink(filepath, err => {
+        if (err) {
+        }
+    })
+}
+
+function dumpTransactions(filepath: string, transactions: string[]) {
+    ensureDirExists(filepath)
+
+    const stream = fs.createWriteStream(filepath, { flags: 'a' })
+
+    transactions.forEach(t => stream.write(t + '\n'))
+
+    stream.end()
+}
+
 module.exports = {
+    deleteFile,
+    dumpTransactions,
     dumpJSON,
     dumpInfo,
     dumpPajek,
