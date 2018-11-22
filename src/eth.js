@@ -2,22 +2,16 @@ const Web3 = require('web3')
 const _ = require('lodash')
 const saveGraph = require('ngraph.tobinary')
 
-const { ensureDirExists } = require('./utils')
+const { ensureDirExists, deleteFile } = require('./utils')
 const {
-    customFilename,
     baseFilename,
     jsonFilename,
     infoFilename,
     pajekFilename,
-    ngraphBasePath
+    ngraphBasePath,
+    customFilename
 } = require('./config')
-const {
-    dumpJSON,
-    dumpPajek,
-    dumpInfo,
-    deleteFile,
-    dumpTransactions
-} = require('./files')
+const { dumpJSON, dumpPajek, dumpInfo, dumpTransactions } = require('./files')
 const logger = require('./log')
 const calculateNgraphLayout = require('./ngraph-layout')
 
@@ -46,7 +40,7 @@ module.exports = (infuraApiKey: string) => {
         Web3.givenProvider || `https://mainnet.infura.io/${infuraApiKey}:8546`
     )
 
-    async function queryBlocks(blocksIndexes, cb) {
+    async function queryBlocks(blocksIndexes, cb = () => {}) {
         //download blocks
         const blocksPromises = blocksIndexes.map(x =>
             web3.eth
@@ -172,7 +166,7 @@ module.exports = (infuraApiKey: string) => {
             .fill(1)
             .map((one, index) => start + one + (index - 1))
     }
-
+    /*
     async function scanBlocksGroupped(range: Range) {
         deleteFile(customFilename())
 
@@ -208,7 +202,7 @@ module.exports = (infuraApiKey: string) => {
         }
 
         logger.log('Finished, cya')
-    }
+    }*/
 
     async function lastBlock() {
         const syncResult = await web3.eth.isSyncing()
@@ -221,8 +215,9 @@ module.exports = (infuraApiKey: string) => {
     }
 
     return {
+        queryBlocks,
         scanBlocks,
-        scanBlocksGroupped,
+        //scanBlocksGroupped,
         lastBlock
     }
 }

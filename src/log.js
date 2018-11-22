@@ -5,21 +5,46 @@ const ProgressBar = require('progress')
 const { ensureDirExists } = require('./utils')
 const { logFilename } = require('./config')
 
-type Level = 'LOG' | 'ERROR'
+const levels = {
+    LOG: {
+        text: 'LOG',
+        color: colors.green
+    },
+    WARNING: {
+        text: 'WARNING',
+        color: colors.yellow
+    },
+    ERROR: {
+        text: 'ERROR',
+        color: colors.red
+    },
+    ARGS: {
+        text: 'MISSING ARGS',
+        color: colors.cyan
+    }
+}
+
+function getLevel(level: string) {
+    for (var lv in levels) {
+        if (lv === level) {
+            return levels[lv]
+        }
+    }
+    return levels['log']
+}
 
 function logDate() {
     return `[${new Date().toISOString()}]`
 }
 
-function uncoloredLog(level: Level, str: string) {
-    const prefix = level === 'LOG' ? 'log:   ' : 'error: '
-    return `${prefix} ${logDate()} ${str}`
+function uncoloredLog(level: string, str: string) {
+    const info = getLevel(level)
+    return `${info.text} ${logDate()} ${str}`
 }
 
-function coloredLog(level: Level, str: string) {
-    const prefix = level === 'LOG' ? 'log:   ' : 'error: '
-    const prefixColor = level === 'LOG' ? colors.green : colors.red
-    return `${prefixColor(prefix)} ${colors.bold(logDate())} ${str}`
+function coloredLog(level: string, str: string) {
+    const info = getLevel(level)
+    return `${info.color(info.text)} ${colors.bold(logDate())} ${str}`
 }
 
 function createLogStream(path: string) {
@@ -37,6 +62,14 @@ function createLogger(path: string) {
         error: (str: string) => {
             console.log(coloredLog('ERROR', str))
             stream.write(uncoloredLog('ERROR', str) + '\n')
+        },
+        warning: (str: string) => {
+            console.log(coloredLog('WARNING', str))
+            stream.write(uncoloredLog('WARNING', str) + '\n')
+        },
+        args: (str: string) => {
+            console.log(coloredLog('ARGS', str))
+            stream.write(uncoloredLog('ARGS', str) + '\n')
         },
         end: () => {
             stream.end()

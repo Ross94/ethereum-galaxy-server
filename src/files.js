@@ -6,6 +6,8 @@ const { ensureDirExists } = require('./utils')
 
 import type { Graph, Node, Link, Range } from './eth'
 
+var transactionStream
+
 function dumpJSON(filepath: string, graph: Graph) {
     ensureDirExists(filepath)
 
@@ -54,25 +56,18 @@ function dumpPajek(filepath: string, { nodes, links }: Graph) {
     })
 }
 
-function deleteFile(filepath: string) {
-    fs.unlink(filepath, err => {
-        if (err) {
-        }
-    })
-}
-
-function dumpTransactions(filepath: string, transactions: string[]) {
+function setTransactionStream(filepath: string) {
     ensureDirExists(filepath)
 
-    const stream = fs.createWriteStream(filepath, { flags: 'a' })
+    transactionStream = fs.createWriteStream(filepath, { flags: 'a' })
+}
 
-    transactions.forEach(t => stream.write(t + '\n'))
-
-    stream.end()
+function dumpTransactions(transactions: string[]) {
+    transactions.forEach(t => transactionStream.write(t + '\n'))
 }
 
 module.exports = {
-    deleteFile,
+    setTransactionStream,
     dumpTransactions,
     dumpJSON,
     dumpInfo,

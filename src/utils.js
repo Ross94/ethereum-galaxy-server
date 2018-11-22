@@ -1,5 +1,10 @@
 const fs = require('fs')
 
+function checkResourceExists(resourcepath: string) {
+    return fs.existsSync(resourcepath)
+}
+
+//create filepath folder if does not exist
 function ensureDirExists(filepath: string) {
     const subdirsTokens = filepath.split('/')
     const subdirs = subdirsTokens.slice(1, subdirsTokens.length - 1)
@@ -8,12 +13,34 @@ function ensureDirExists(filepath: string) {
     )
 
     directoriesFullPath.forEach(directory => {
-        if (!fs.existsSync(directory)) {
+        if (!checkResourceExists(directory)) {
             fs.mkdirSync(directory)
         }
     })
 }
 
+function deleteFile(filepath: string) {
+    if (checkResourceExists(filepath)) {
+        fs.unlinkSync(filepath)
+    }
+}
+
+function deleteFolder(path: string) {
+    if (checkResourceExists(path)) {
+        fs.readdirSync(path).forEach((file, index) => {
+            var curPath = path + '/' + file
+            if (fs.lstatSync(curPath).isDirectory()) {
+                deleteFolder(curPath)
+            } else {
+                fs.unlinkSync(curPath)
+            }
+        })
+        fs.rmdirSync(path)
+    }
+}
+
 module.exports = {
-    ensureDirExists
+    ensureDirExists,
+    deleteFile,
+    deleteFolder
 }

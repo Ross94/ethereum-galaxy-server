@@ -9,14 +9,17 @@ const pajekFilename = () => `./graphs/${baseFilename()}/graph.net`
 
 const ngraphBasePath = () => `./graphs/${baseFilename()}/ngraph/`
 
-const customFilename = () => `./graphs/${baseFilename()}/custom.txt`
+const customFilename = () => `./graphs/all-time/custom.txt`
+
+const temporaryFilePath = () => `./graphs/temporary/`
 
 module.exports = {
-    customFilename,
     baseFilename,
     jsonFilename,
     infoFilename,
     logFilename,
     pajekFilename,
-    ngraphBasePath
+    ngraphBasePath,
+    customFilename,
+    temporaryFilePath
 }
