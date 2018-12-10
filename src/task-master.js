@@ -1,9 +1,10 @@
 const child_process = require('child_process')
 const { temporaryFilePath } = require('./config')
 const { deleteFolder, ensureDirExists } = require('./utils')
+const { saveInfo } = require('./files')
 const logger = require('./log')
 
-const CPUs = require('os').cpus().length //4
+const CPUs = require('os').cpus().length
 const chunkSize = 240
 
 module.exports = (start, end) => {
@@ -13,6 +14,8 @@ module.exports = (start, end) => {
         start: start,
         end: end
     }
+
+    var lastSaved = -1
 
     const progressBar = logger.progress(
         `Retrieving chunk (each one has size of ${chunkSize})...`,
@@ -57,6 +60,14 @@ module.exports = (start, end) => {
             child.on('message', function(message) {
                 switch (message.command) {
                     case 'new task':
+                        console.log(message.lastBlock)
+                        if (message.lastBlock > lastSaved) {
+                            lastSaved = message.lastBlock
+                            saveInfo(temporaryFilePath() + '/info.json', {
+                                start: start,
+                                end: lastSaved
+                            })
+                        }
                         const res = availableTask()
                         if (!res) {
                             response(message.pid, { command: 'end' })

@@ -5,10 +5,15 @@ const { temporaryFilePath } = require('./config')
 
 var eth
 
-function askTask() {
+function askTask(data) {
+    var lastblock = data
+    if (lastblock != undefined) {
+        lastblock = data[data.length - 1]
+    }
     process.send({
         pid: process.pid,
-        command: 'new task'
+        command: 'new task',
+        lastBlock: lastblock
     })
 }
 
@@ -22,7 +27,7 @@ process.on('message', function(message) {
             const fileTot = temporaryFilePath() + message.filename
             eth = createEth(message.api)
             setTransactionStream(fileTot)
-            askTask()
+            askTask(undefined)
             break
         case 'task':
             eth.queryBlocks(message.task).then(block_array => {
@@ -31,9 +36,9 @@ process.on('message', function(message) {
                         block_array
                             .filter(block => block.transactions.length > 0)
                             .map(block => block.transactions)
-                    ).map(t => convertTransaction(t))
+                    ).map(t => convertTransaction(t)),
+                    askTask(message.task)
                 )
-                askTask()
             })
             break
         case 'end':

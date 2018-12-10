@@ -56,17 +56,41 @@ function dumpPajek(filepath: string, { nodes, links }: Graph) {
     })
 }
 
+function saveInfo(filepath: string, range: Range) {
+    ensureDirExists(filepath)
+
+    const data = {
+        range: range
+    }
+
+    jsonfile.writeFile(filepath, data, { spaces: 2 }, err => {
+        if (err) logger.error(err)
+    })
+}
+
 function setTransactionStream(filepath: string) {
     ensureDirExists(filepath)
 
     transactionStream = fs.createWriteStream(filepath, { flags: 'a' })
 }
-
+function dumpTransactions(transactions: string[], cb) {
+    var writed = 0
+    transactions.map(e => e + '\n').forEach(e =>
+        transactionStream.write(e, () => {
+            writed++
+            if (writed == transactions.length) {
+                cb
+            }
+        })
+    )
+}
+/*
 function dumpTransactions(transactions: string[]) {
     transactions.forEach(t => transactionStream.write(t + '\n'))
-}
+}*/
 
 module.exports = {
+    saveInfo,
     setTransactionStream,
     dumpTransactions,
     dumpJSON,

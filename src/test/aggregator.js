@@ -1,21 +1,32 @@
 const _ = require('lodash')
+const RBTree = require('bintrees').RBTree
 
 const writer = require('./writer')
 const reader = require('./reader')
 
-const tempFiles = ['22.json', '33.json']
-//const tempFiles = ["0.json", "1.json"]
+const startTimer = require('./timer')
+const timer = startTimer()
 
 const nodesWriter = writer('nodes.json')
 const transactionsWriter = writer('transactions.json')
 
+//const path = "appoggio"
+const path = 'temporary'
+const tempFiles = getFiles(path).map(file => path + '/' + file)
+
 var nodesJson = undefined
 var tempJson = undefined
 
-var fileIndex = 0
-var nodesToWrite = []
-var transactionsToWrite = []
+var nextFile = 0
+var currentFile = -1
+var nodesToWrite = new RBTree((a, b) => {
+    return a.localeCompare(b)
+})
 var lastTempRead = false
+
+function getFiles(filePath) {
+    return require('fs').readdirSync(filePath)
+}
 
 function nodeParser(line) {
     const e = JSON.parse(line)
@@ -24,13 +35,22 @@ function nodeParser(line) {
 
 function nodesInitializer() {
     nodesJson = reader('nodes.json', nodeParser, (lines, options) => {
-        nodesToWrite = _.difference(nodesToWrite, _.flatten(lines))
+        _.flatten(lines).forEach(elem => nodesToWrite.remove(elem))
+
         if (options.endFile) {
             endTempBlock(() => {
                 resetElemsToWrite()
                 nodesInitializer()
                 if (lastTempRead) {
-                    nextTempFile()
+                    console.log(
+                        'duration of nodes extraction from ' +
+                            tempFiles[currentFile] +
+                            ': ' +
+                            timer.printableHMS(timer.getTimeFromLast())
+                    )
+                    writeTransactions(() => {
+                        nextTempFile()
+                    })
                 } else {
                     tempJson.nextLines()
                 }
@@ -43,15 +63,12 @@ function nodesInitializer() {
 
 function transactionParser(line) {
     const e = JSON.parse(line)
-    return {
-        ids: [e.source, e.target],
-        transaction: line
-    }
+    return [e.source, e.target]
 }
 
 function tempInitializer(filepath) {
     tempJson = reader(filepath, transactionParser, (lines, options) => {
-        convertLine(lines)
+        _.flatten(lines).forEach(elem => nodesToWrite.insert(elem))
         if (options.endFile) {
             lastTempRead = true
         }
@@ -59,45 +76,81 @@ function tempInitializer(filepath) {
     })
 }
 
-function convertLine(lines) {
-    function addNoDuplicates(array, elem) {
-        if (array.indexOf(elem) == -1) array.push(elem)
-    }
+function used() {
+    return ` ${Math.round(process.memoryUsage().heapTotal / 1024 / 1024 * 100) /
+        100} MB`
+}
 
-    lines.forEach(elem => {
-        elem.ids.forEach(e => addNoDuplicates(nodesToWrite, e))
-        transactionsToWrite.push(elem.transaction)
-    })
+function writeTransactions(cb) {
+    var lastLine = false
+    const transactionReader = reader(
+        tempFiles[currentFile],
+        line => {
+            return line
+        },
+        (lines, options) => {
+            if (options.endFile) {
+                lastLine = true
+            }
+            if (lines.length == 0 && lastLine) {
+                console.log(
+                    'duration of transactions copy from ' +
+                        tempFiles[currentFile] +
+                        ': ' +
+                        timer.printableHMS(timer.getTimeFromLast())
+                )
+                cb()
+            } else {
+                transactionsWriter.writeArray(
+                    lines.map(line => line + '\n'),
+                    () => {
+                        if (lastLine) {
+                            console.log(
+                                'duration of transactions copy from ' +
+                                    tempFiles[currentFile] +
+                                    ': ' +
+                                    timer.printableHMS(timer.getTimeFromLast())
+                            )
+                            cb()
+                        } else {
+                            transactionReader.nextLines()
+                        }
+                    }
+                )
+            }
+        }
+    )
+    console.log('start transactions copy from ' + tempFiles[currentFile])
+    transactionReader.nextLines()
 }
 
 function endTempBlock(cb) {
+    var writeNode = true
+
     function checkThreshold() {
-        if (writersEnd.nodes && writersEnd.transactions) {
+        if (writeNode) {
             cb()
         }
     }
 
-    const writersEnd = {
-        nodes: true,
-        transactions: true
-    }
-    if (nodesToWrite.length != 0) {
-        writersEnd.nodes = false
-        nodesWriter.writeArray(
-            nodesToWrite.map(elem => elemToJsonNode(elem) + '\n'),
-            () => {
-                writersEnd.nodes = true
-                checkThreshold()
-            }
-        )
+    function elemToJsonNode(elem) {
+        const jsonData = {}
+        jsonData['id'] = elem
+        return JSON.stringify(jsonData)
     }
 
-    if (transactionsToWrite.length != 0) {
-        writersEnd.transactions = false
-        transactionsWriter.writeArray(
-            transactionsToWrite.map(elem => elem + '\n'),
+    if (nodesToWrite.size != 0) {
+        writeNode = false
+        const app = []
+        const it = nodesToWrite.iterator()
+        var item
+        while ((item = it.next()) !== null) {
+            app.push(item)
+        }
+        nodesWriter.writeArray(
+            app.map(elem => elemToJsonNode(elem) + '\n'),
             () => {
-                writersEnd.transactions = true
+                writeNode = true
                 checkThreshold()
             }
         )
@@ -106,28 +159,29 @@ function endTempBlock(cb) {
     checkThreshold()
 }
 
-function elemToJsonNode(elem) {
-    const jsonData = {}
-    jsonData['id'] = elem
-    return JSON.stringify(jsonData)
-}
-
 function resetElemsToWrite() {
-    nodesToWrite = []
-    transactionsToWrite = []
+    nodesToWrite = new RBTree((a, b) => {
+        return a.localeCompare(b)
+    })
 }
 
 function nextTempFile() {
-    if (fileIndex < tempFiles.length) {
+    if (nextFile < tempFiles.length) {
         nodesInitializer()
-        tempInitializer(tempFiles[fileIndex])
-        fileIndex++
+        tempInitializer(tempFiles[nextFile])
+        currentFile = nextFile
+        nextFile++
         resetElemsToWrite()
         lastTempRead = false
+        console.log('start node extraction of ' + tempFiles[currentFile])
         tempJson.nextLines()
     } else {
-        console.log('all temp file scanned')
+        console.log(
+            'all temp files scanned total duration: ' +
+                timer.printableHMS(timer.getTimeFromStart())
+        )
     }
 }
 
+console.log('start files compact')
 nextTempFile()

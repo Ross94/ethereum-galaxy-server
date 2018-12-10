@@ -3,7 +3,8 @@ const execSync = require('child_process').execSync
 
 module.exports = (filepath, parseLogic, callback) => {
     const path = filepath
-    const chunkSize = 2
+    //const chunkSize = 2
+    const chunkSize = 2000000
     const linesNumber = execSync('wc -l < ' + filepath)
     const blocks = Math.ceil(linesNumber / chunkSize)
 
