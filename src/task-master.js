@@ -60,7 +60,6 @@ module.exports = (start, end) => {
             child.on('message', function(message) {
                 switch (message.command) {
                     case 'new task':
-                        console.log(message.lastBlock)
                         if (message.lastBlock > lastSaved) {
                             lastSaved = message.lastBlock
                             saveInfo(temporaryFilePath() + '/info.json', {

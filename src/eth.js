@@ -166,43 +166,6 @@ module.exports = (infuraApiKey: string) => {
             .fill(1)
             .map((one, index) => start + one + (index - 1))
     }
-    /*
-    async function scanBlocksGroupped(range: Range) {
-        deleteFile(customFilename())
-
-        const chunkSize = 240
-        const round = Math.ceil((range.end - range.start) / chunkSize)
-
-        logger.log('Retrieving blocks...')
-
-        for (var i = 0; i < round; i++) {
-            //initialize transactions structure (every element is a set of transactions)
-            const s = range.start + i * chunkSize
-            const e = s + chunkSize > range.end ? range.end : s + chunkSize
-            const blocksIndexes = initializeBlockSpace(s, e)
-            const progressBar = logger.progress(
-                `Retrieving chunk ${i + 1} of ${round}...`,
-                blocksIndexes.length
-            )
-
-            //Get transactions
-            const blocksChunk = await queryBlocks(blocksIndexes, () =>
-                progressBar.tick()
-            )
-
-            //processing transactions
-            const transactions = _.flatten(
-                blocksChunk
-                    .filter(block => block.transactions.length > 0)
-                    .map(block => block.transactions)
-            ).map(t => t.source + ':' + t.target + ':' + t.amount)
-
-            //write transaction
-            dumpTransactions(customFilename(), transactions)
-        }
-
-        logger.log('Finished, cya')
-    }*/
 
     async function lastBlock() {
         const syncResult = await web3.eth.isSyncing()
@@ -214,10 +177,14 @@ module.exports = (infuraApiKey: string) => {
         }
     }
 
+    async function getBlock(blockId) {
+        return await web3.eth.getBlock(blockId)
+    }
+
     return {
         queryBlocks,
         scanBlocks,
-        //scanBlocksGroupped,
-        lastBlock
+        lastBlock,
+        getBlock
     }
 }

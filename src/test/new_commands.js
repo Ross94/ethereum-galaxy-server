@@ -1,8 +1,5 @@
 const argv = require('named-argv')
-const colors = require('colors')
-const master = require('./task-master')
-const logger = require('./log')
-const createEth = require('./eth')
+const Web3 = require('web3')
 
 const params = argv.opts
 
@@ -10,8 +7,7 @@ var time = 0
 var block = 0
 var all = 0
 
-var eth
-var lastBlock
+var web3
 
 const PrecisionStandard = {
     FIRST: (index, precision) => index - precision,
@@ -20,9 +16,10 @@ const PrecisionStandard = {
 
 function main() {
     if (params.api != undefined) {
-        eth = createEth(params.api)
-        eth.lastBlock().then(lastBlock => {
-            lastBlock = lastBlock
+        web3 = new Web3(
+            Web3.givenProvider || `https://mainnet.infura.io/${params.api}:8546`
+        )
+        lastBlock().then(lastBlock => {
             //in this part check params and select the method to extract indexes
             if (
                 checkDateFormat(params.firstDate) &&
@@ -58,7 +55,7 @@ function main() {
                         if (
                             dateComparator(firstBlockDate, params.firstDate) >=
                                 0 &&
-                            dateComparator(lastDate, params.lastDate) < 0
+                            dateComparator(lastDate, params.lastDate) <= 0
                         ) {
                             Promise.all([
                                 dateToBlock(
@@ -70,12 +67,11 @@ function main() {
                                     PrecisionStandard.LAST
                                 )
                             ]).then(values => {
-                                const workers = master(values[0], values[1])
-                                workers.startWorkers(params.api)
+                                downloadPahse(values[0], values[1])
                             })
                         } else {
                             console.log(
-                                'Wrong params, firstDate start from ' +
+                                'Wrong params, firstDate must be after ' +
                                     firstBlockDate +
                                     ' and lastDate before ' +
                                     lastDate
@@ -84,15 +80,10 @@ function main() {
                     })
                 }
                 if (block == 1) {
-                    const workers = master(
-                        parseInt(params.firstBlock),
-                        parseInt(params.lastBlock)
-                    )
-                    workers.startWorkers(params.api)
+                    downloadPahse(params.firstBlock, params.lastBlock)
                 }
                 if (all == 1) {
-                    const workers = master(0, lastBlock)
-                    workers.startWorkers(params.api)
+                    downloadPahse(0, lastBlock)
                 }
             }
         })
@@ -101,25 +92,35 @@ function main() {
     }
 }
 
-//get date from block
-function blockToDate(blockId) {
-    return eth.getBlock(blockId).then(block => {
-        const date = new Date(block.timestamp * 1000)
-        return (
-            date.getUTCDate() +
-            '/' +
-            (parseInt(date.getUTCMonth()) + 1) +
-            '/' +
-            date.getUTCFullYear()
-        )
-    })
+//import from eth.js
+async function lastBlock() {
+    const syncResult = await web3.eth.isSyncing()
+    if (syncResult) {
+        return syncResult.currentBlock
+    } else {
+        const lastBlockNumber = await web3.eth.getBlockNumber()
+        return lastBlockNumber
+    }
 }
 
-//compare two date in dd/mm/yyyy format int as result
-// 0     -> equals
-// < 0   -> date1 later
-// > 0   -> date2 later
-//
+//get date from block
+async function blockToDate(blockId) {
+    const block = await web3.eth.getBlock(blockId)
+    const date = new Date(block.timestamp * 1000)
+    return (
+        date.getUTCDate() +
+        '/' +
+        (parseInt(date.getUTCMonth()) + 1) +
+        '/' +
+        date.getUTCFullYear()
+    )
+}
+
+/*compare two date in dd/mm/yyyy format int as result
+* 0 	-> equals
+* < 0 	-> date1 later
+* > 0	-> date2 later
+*/
 function dateComparator(date1, date2) {
     function process(date) {
         const parts = date.split('/')
@@ -130,11 +131,12 @@ function dateComparator(date1, date2) {
 
 //get first index in one date
 function dateToBlock(date, PrecisionStandard) {
-    return eth.lastBlock().then(lastBlockDate => {
+    return lastBlock().then(lastBlockDate => {
         const range = {
             lowerBound: 0,
             upperBound: lastBlockDate
         }
+
         return binaryIndexSearch(range, date, PrecisionStandard)
     })
 }
@@ -158,35 +160,21 @@ function binaryIndexSearch(range, date, PrecisionStandard) {
     })
 }
 
-//Find first or last block index in one date
-//* index, to check
-//* date, date to exam
-//* precision, number of  blocks to skip
-//* PrecisionStandard, specify if searched last or fist block in day
-//*
-//* algorithm compare date with date of previous or next block(dependes on PrecisionStandard, always called nextBlock).
-//* if is the same pass nextBlock recursively, if date doesn't match try with skipping less blocks,
-//* if skipping one block change date, this is the last or first block of day, return it.
-//
+/*Find first or last block index in one date
+* index, to check
+* date, date to exam
+* precision, number of  blocks to skip
+* PrecisionStandard, specify if searched last or fist block in day
+*
+* algorithm compare date with date of previous or next block(dependes on PrecisionStandard).
+* if is the same pass the index of previuos or next and go on recursively, if date doesn't match try with skipping less blocks,
+* if skipping one block change date, this is the last or first block of day, return it.
+*/
 function precisionSearch(index, date, precision, PrecisionStandard) {
-    var nextBlock = PrecisionStandard(index, precision)
-    //check to avoid out of bound
-    if (nextBlock < 0 || nextBlock > lastBlock) {
-        return precisionSearch(
-            index,
-            date,
-            Math.ceil(precision / 10),
-            PrecisionStandard
-        )
-    }
-    return blockToDate(nextBlock).then(blockDate => {
-        //block 0 timestamp = 0, so it return 01/01/1970, if this happens return 0
-        if (dateComparator(blockDate, '01/01/1970') == 0) {
-            return 0
-        }
+    return blockToDate(PrecisionStandard(index, precision)).then(blockDate => {
         if (dateComparator(blockDate, date) == 0) {
             return precisionSearch(
-                nextBlock,
+                PrecisionStandard(index, precision),
                 date,
                 precision,
                 PrecisionStandard
@@ -244,3 +232,7 @@ function checkDateFormat(date) {
 }
 
 main()
+
+function downloadPahse(start, stop) {
+    console.log('start: ' + start + ' stop: ' + stop)
+}
