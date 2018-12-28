@@ -3,9 +3,13 @@ const { temporaryFilePath } = require('./config')
 const { deleteFolder, ensureDirExists } = require('./utils')
 const { saveInfo } = require('./files')
 const logger = require('./log')
+const constraints = require('./constraints')
 
 const CPUs = require('os').cpus().length
 const chunkSize = 240
+
+const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
+var chunkNumber
 
 module.exports = (start, end) => {
     const workers = new Map()
@@ -15,15 +19,13 @@ module.exports = (start, end) => {
         end: end
     }
 
+    chunkNumber = Math.ceil((task.end - task.start) / chunkSize)
+
     var lastSaved = -1
 
-    const progressBar = logger.progress(
-        `Retrieving chunk (each one has size of ${chunkSize})...`,
-        Math.ceil((task.end - task.start) / chunkSize)
-    )
+    const progressBar = logger.progress(progressBarMsg, chunkNumber)
 
-    deleteFolder(temporaryFilePath())
-    ensureDirExists(temporaryFilePath())
+    ensureDirExists(constraints.getSaveFolder() + 'temporary/')
 
     function availableTask() {
         function getTask() {
@@ -54,7 +56,8 @@ module.exports = (start, end) => {
             workers.set(child.pid, child)
             child.send({
                 command: 'config',
-                filename: i + '.json',
+                filename:
+                    constraints.getSaveFolder() + 'temporary/' + i + '.json',
                 api: infuraApiKey
             })
             child.on('message', function(message) {
@@ -62,16 +65,26 @@ module.exports = (start, end) => {
                     case 'new task':
                         if (message.lastBlock > lastSaved) {
                             lastSaved = message.lastBlock
-                            saveInfo(temporaryFilePath() + '/info.json', {
-                                start: start,
-                                end: lastSaved
-                            })
+                            saveInfo(
+                                constraints.getSaveFolder() + 'info.json',
+                                {
+                                    start: start,
+                                    end: lastSaved
+                                }
+                            )
                         }
                         const res = availableTask()
                         if (!res) {
                             response(message.pid, { command: 'end' })
                         } else {
                             progressBar.tick()
+                            logger.log(
+                                progressBarMsg +
+                                    ' ' +
+                                    progressBar.curr +
+                                    '/' +
+                                    chunkNumber
+                            )
                             response(message.pid, {
                                 command: 'task',
                                 task: res
@@ -79,7 +92,7 @@ module.exports = (start, end) => {
                         }
                         break
                     default:
-                        console.log(
+                        logger.error(
                             '[child ' +
                                 message.child +
                                 '] send wrong command + ' +

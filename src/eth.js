@@ -8,11 +8,11 @@ const {
     jsonFilename,
     infoFilename,
     pajekFilename,
-    ngraphBasePath,
-    customFilename
+    ngraphBasePath
 } = require('./config')
-const { dumpJSON, dumpPajek, dumpInfo, dumpTransactions } = require('./files')
 const logger = require('./log')
+
+const { dumpJSON, dumpPajek, dumpInfo, dumpTransactions } = require('./files')
 const calculateNgraphLayout = require('./ngraph-layout')
 
 export type Range = {
@@ -78,6 +78,7 @@ module.exports = (infuraApiKey: string) => {
         }
     }
 
+    //used from live download
     async function scanBlocks(range: Range, doLayout: boolean = true) {
         logger.log('Retrieving blocks...')
         //create an array, size = end - start

@@ -1,6 +1,9 @@
 const schedule = require('node-schedule')
 
 const createEth = require('./eth')
+const { logFilename } = require('./config')
+const logger = require('./log')
+logger.setPath(logFilename())
 
 if (!process.env.INFURA_API_KEY) {
     throw new Error('INFURA_API_KEY env variable not found')

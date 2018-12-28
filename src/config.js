@@ -2,24 +2,34 @@ const howOftenToRun = process.env.ETH_HOURS || 1
 
 const baseFilename = () => `eth-${howOftenToRun}/${new Date().getHours()}`
 
-const logFilename = () => `./logs/${baseFilename()}.log`
-const jsonFilename = () => `./graphs/${baseFilename()}/graph.json`
-const infoFilename = () => `./graphs/${baseFilename()}/info.json`
-const pajekFilename = () => `./graphs/${baseFilename()}/graph.net`
+const jsonFilename = () => `./graphs/layout/${baseFilename()}/graph.json`
+const infoFilename = () => `./graphs/layout/${baseFilename()}/info.json`
+const pajekFilename = () => `./graphs/layout/${baseFilename()}/graph.net`
 
-const ngraphBasePath = () => `./graphs/${baseFilename()}/ngraph/`
+const ngraphBasePath = () => `./graphs/layout/${baseFilename()}/ngraph/`
+const logFilename = () => `./logs/layout/${baseFilename()}.log`
 
-const customFilename = () => `./graphs/all-time/custom.txt`
+const logNoLayoutAll = () => './logs/no-layout/all/'
+const logNoLayoutTime = () => './logs/no-layout/time/'
+const logNoLayoutBlock = () => './logs/no-layout/block/'
+const logLayoutServer = () => './logs/layout/server/'
 
-const temporaryFilePath = () => `./graphs/temporary/`
+const graphNoLayoutAll = () => './graphs/no-layout/all/'
+const graphNoLayoutTime = () => './graphs/no-layout/time/'
+const graphNoLayoutBlock = () => './graphs/no-layout/block/'
 
 module.exports = {
     baseFilename,
     jsonFilename,
     infoFilename,
-    logFilename,
     pajekFilename,
     ngraphBasePath,
-    customFilename,
-    temporaryFilePath
+    logFilename,
+    logNoLayoutAll,
+    logNoLayoutTime,
+    logNoLayoutBlock,
+    logLayoutServer,
+    graphNoLayoutAll,
+    graphNoLayoutTime,
+    graphNoLayoutBlock
 }

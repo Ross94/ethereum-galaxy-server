@@ -73,6 +73,7 @@ function setTransactionStream(filepath: string) {
 
     transactionStream = fs.createWriteStream(filepath, { flags: 'a' })
 }
+
 function dumpTransactions(transactions: string[], cb) {
     var writed = 0
     transactions.map(e => e + '\n').forEach(e =>

@@ -3,7 +3,6 @@ const colors = require('colors/safe')
 const ProgressBar = require('progress')
 
 const { ensureDirExists } = require('./utils')
-const { logFilename } = require('./config')
 
 const levels = {
     LOG: {
@@ -23,6 +22,8 @@ const levels = {
         color: colors.cyan
     }
 }
+
+var stream
 
 function getLevel(level: string) {
     for (var lv in levels) {
@@ -52,39 +53,34 @@ function createLogStream(path: string) {
     return fs.createWriteStream(path)
 }
 
-function createLogger(path: string) {
-    const stream = createLogStream(path)
-    return {
-        log: (str: string) => {
-            console.log(coloredLog('LOG', str))
-            stream.write(uncoloredLog('LOG', str) + '\n')
-        },
-        error: (str: string) => {
-            console.log(coloredLog('ERROR', str))
-            stream.write(uncoloredLog('ERROR', str) + '\n')
-        },
-        warning: (str: string) => {
-            console.log(coloredLog('WARNING', str))
-            stream.write(uncoloredLog('WARNING', str) + '\n')
-        },
-        args: (str: string) => {
-            console.log(coloredLog('ARGS', str))
-            stream.write(uncoloredLog('ARGS', str) + '\n')
-        },
-        end: () => {
-            stream.end()
-        },
-        progress: (message: string, maxTicks: number) => {
-            stream.write(uncoloredLog('LOG', message) + '\n')
-            return new ProgressBar(
-                `${coloredLog(
-                    'LOG',
-                    colors.cyan(message)
-                )} [:bar] :current/:total`,
-                { total: maxTicks, head: '>', width: 30 }
-            )
-        }
+const Logger = (module.exports = {
+    setPath: (path: string) => {
+        stream = createLogStream(path)
+    },
+    log: (str: string) => {
+        console.log(coloredLog('LOG', str))
+        stream.write(uncoloredLog('LOG', str) + '\n')
+    },
+    error: (str: string) => {
+        console.log(coloredLog('ERROR', str))
+        stream.write(uncoloredLog('ERROR', str) + '\n')
+    },
+    warning: (str: string) => {
+        console.log(coloredLog('WARNING', str))
+        stream.write(uncoloredLog('WARNING', str) + '\n')
+    },
+    args: (str: string) => {
+        console.log(coloredLog('ARGS', str))
+        stream.write(uncoloredLog('ARGS', str) + '\n')
+    },
+    end: () => {
+        stream.end()
+    },
+    progress: (message: string, maxTicks: number) => {
+        stream.write(uncoloredLog('LOG', message + ' 0/' + maxTicks) + '\n')
+        return new ProgressBar(
+            `${coloredLog('LOG', colors.cyan(message))} [:bar] :current/:total`,
+            { total: maxTicks, head: '>', width: 30 }
+        )
     }
-}
-
-module.exports = createLogger(logFilename())
+})

@@ -1,7 +1,7 @@
 const createEth = require('./eth')
 const _ = require('lodash')
 const { setTransactionStream, dumpTransactions } = require('./files')
-const { temporaryFilePath } = require('./config')
+const logger = require('./log')
 
 var eth
 
@@ -24,9 +24,8 @@ function convertTransaction(t) {
 process.on('message', function(message) {
     switch (message.command) {
         case 'config':
-            const fileTot = temporaryFilePath() + message.filename
             eth = createEth(message.api)
-            setTransactionStream(fileTot)
+            setTransactionStream(message.filename)
             askTask(undefined)
             break
         case 'task':
@@ -45,8 +44,11 @@ process.on('message', function(message) {
             process.disconnect()
             break
         default:
-            console.log(
-                '[child ' + process.pid + '] wrong command + ' + message.command
+            logger.error(
+                '[child ' +
+                    process.pid +
+                    '] received wrong command + ' +
+                    message.command
             )
     }
 })

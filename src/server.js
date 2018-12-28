@@ -2,9 +2,11 @@ const express = require('express')
 const fs = require('mz/fs')
 
 import type { $Response } from 'express'
-
-const logger = require('./log')
 const { ensureDirExists } = require('./utils')
+const logger = require('./log')
+
+const { logLayoutServer } = require('./config')
+logger.setPath(logLayoutServer() + 'server.log')
 
 const app = express()
 const port = 8888

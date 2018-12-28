@@ -3,7 +3,15 @@ const colors = require('colors')
 const master = require('./task-master')
 const logger = require('./log')
 const createEth = require('./eth')
-
+const constraints = require('./constraints')
+const {
+    logNoLayoutAll,
+    logNoLayoutTime,
+    logNoLayoutBlock,
+    graphNoLayoutAll,
+    graphNoLayoutTime,
+    graphNoLayoutBlock
+} = require('./config')
 const params = argv.opts
 
 var time = 0
@@ -38,7 +46,6 @@ function main() {
             ) {
                 block = 1
             }
-
             if (params.all) {
                 all = 1
             }
@@ -46,13 +53,14 @@ function main() {
                 console.log(
                     'Wrong params, choose one of these:\n' +
                         '-firstBlock:int -lastBlock:int\n' +
-                        '-firstDate:DD/MM/YYYY -lastDate:DD/MM/YYYY\n' +
-                        '-all'
+                        '-firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY\n' +
+                        '-all\n\n' +
+                        'Control params format and last greater than first'
                 )
             } else {
                 //based on previous check extract indexes
                 if (time == 1) {
-                    const firstBlockDate = '30/07/2015'
+                    const firstBlockDate = '30-07-2015'
 
                     blockToDate(lastBlock).then(lastDate => {
                         if (
@@ -70,6 +78,20 @@ function main() {
                                     PrecisionStandard.LAST
                                 )
                             ]).then(values => {
+                                constraints.setSaveFolder(graphNoLayoutTime())
+                                logger.setPath(
+                                    logNoLayoutTime() +
+                                        params.firstDate +
+                                        '-' +
+                                        params.lastDate +
+                                        '.log'
+                                )
+                                logger.log(
+                                    'Log of time type with firstDate: ' +
+                                        params.firstDate +
+                                        ' lastDate: ' +
+                                        params.lastDate
+                                )
                                 const workers = master(values[0], values[1])
                                 workers.startWorkers(params.api)
                             })
@@ -84,6 +106,20 @@ function main() {
                     })
                 }
                 if (block == 1) {
+                    constraints.setSaveFolder(graphNoLayoutBlock())
+                    logger.setPath(
+                        logNoLayoutBlock() +
+                            params.firstBlock +
+                            '-' +
+                            params.lastBlock +
+                            '.log'
+                    )
+                    logger.log(
+                        'Log of block type with firstBlock: ' +
+                            params.firstBlock +
+                            ' lastBlock: ' +
+                            params.lastBlock
+                    )
                     const workers = master(
                         parseInt(params.firstBlock),
                         parseInt(params.lastBlock)
@@ -91,6 +127,9 @@ function main() {
                     workers.startWorkers(params.api)
                 }
                 if (all == 1) {
+                    constraints.setSaveFolder(graphNoLayoutAll())
+                    logger.setPath(logNoLayoutAll() + 'all' + '.log')
+                    logger.log('Log of all type')
                     const workers = master(0, lastBlock)
                     workers.startWorkers(params.api)
                 }
@@ -107,22 +146,22 @@ function blockToDate(blockId) {
         const date = new Date(block.timestamp * 1000)
         return (
             date.getUTCDate() +
-            '/' +
+            '-' +
             (parseInt(date.getUTCMonth()) + 1) +
-            '/' +
+            '-' +
             date.getUTCFullYear()
         )
     })
 }
 
-//compare two date in dd/mm/yyyy format int as result
-// 0     -> equals
-// < 0   -> date1 later
-// > 0   -> date2 later
-//
+/*compare two date in DD-MM-YYYY format int as result
+ 0     -> equals
+ < 0   -> date1 later
+ > 0   -> date2 later
+*/
 function dateComparator(date1, date2) {
     function process(date) {
-        const parts = date.split('/')
+        const parts = date.split('-')
         return new Date(parts[2], parts[1] - 1, parts[0])
     }
     return process(date2) - process(date1)
@@ -158,16 +197,16 @@ function binaryIndexSearch(range, date, PrecisionStandard) {
     })
 }
 
-//Find first or last block index in one date
-//* index, to check
-//* date, date to exam
-//* precision, number of  blocks to skip
-//* PrecisionStandard, specify if searched last or fist block in day
-//*
-//* algorithm compare date with date of previous or next block(dependes on PrecisionStandard, always called nextBlock).
-//* if is the same pass nextBlock recursively, if date doesn't match try with skipping less blocks,
-//* if skipping one block change date, this is the last or first block of day, return it.
-//
+/*Find first or last block index in one date
+* index, to check
+* date, date to exam
+* precision, number of  blocks to skip
+* PrecisionStandard, specify if searched last or fist block in day
+*
+* algorithm compare date with date of previous or next block(dependes on PrecisionStandard, always called nextBlock).
+* if is the same pass nextBlock recursively, if date doesn't match try with skipping less blocks,
+* if skipping one block change date, this is the last or first block of day, return it.
+*/
 function precisionSearch(index, date, precision, PrecisionStandard) {
     var nextBlock = PrecisionStandard(index, precision)
     //check to avoid out of bound
@@ -180,8 +219,8 @@ function precisionSearch(index, date, precision, PrecisionStandard) {
         )
     }
     return blockToDate(nextBlock).then(blockDate => {
-        //block 0 timestamp = 0, so it return 01/01/1970, if this happens return 0
-        if (dateComparator(blockDate, '01/01/1970') == 0) {
+        //block 0 timestamp = 0, so it return 01-01-1970, if this happens return 0
+        if (dateComparator(blockDate, '01-01-1970') == 0) {
             return 0
         }
         if (dateComparator(blockDate, date) == 0) {
@@ -208,8 +247,7 @@ function precisionSearch(index, date, precision, PrecisionStandard) {
 
 function checkDateFormat(date) {
     if (typeof date === 'string') {
-        const parts = date.split('/').map(e => parseInt(e))
-        const now = new Date(Date.now())
+        const parts = date.split('-').map(e => parseInt(e))
         if (parts[2] >= 0) {
             switch (parts[1]) {
                 case 1:
