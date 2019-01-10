@@ -53,6 +53,7 @@ function dateComparator(date1, date2) {
 }
 
 module.exports = {
+    checkResourceExists,
     ensureDirExists,
     deleteFile,
     deleteFolder,

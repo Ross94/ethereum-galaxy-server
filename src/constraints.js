@@ -1,5 +1,7 @@
 var saveFolder = undefined
-var downloadType = undefined
+var folderName = undefined
+var memory = 1400
+var range = undefined
 
 const Constraints = (module.exports = {
     setSaveFolder: (path: string) => {
@@ -8,10 +10,22 @@ const Constraints = (module.exports = {
     getSaveFolder: () => {
         return saveFolder
     },
-    setDownloadType: DownloadType => {
-        downloadType = DownloadType
+    setFolderName: (name: string) => {
+        folderName = name
     },
-    getDownloadType: () => {
-        return downloadType
+    getFolderName: () => {
+        return folderName
+    },
+    setMemory: (memorySize: number) => {
+        memory = memorySize
+    },
+    getMemory: () => {
+        return memory
+    },
+    setRange: r => {
+        range = r
+    },
+    getRange: () => {
+        return range
     }
 })

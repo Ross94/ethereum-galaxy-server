@@ -1,27 +1,34 @@
 const _ = require('lodash')
 const RBTree = require('bintrees').RBTree
+const {
+    graphNoLayoutTemporary,
+    nodesName,
+    transactionsName
+} = require('./config')
+const logger = require('./log')
+const { compose } = require('./composer')
 
-const writer = require('./writer')
-const reader = require('./reader')
+const writer = require('./temp-writer')
+const reader = require('./temp-reader')
 
 const startTimer = require('./timer')
-const timer = startTimer()
+var timer = startTimer()
 
-const nodesWriter = writer('nodes.json')
-const transactionsWriter = writer('transactions.json')
+const path = graphNoLayoutTemporary()
+const nodesPath = graphNoLayoutTemporary() + nodesName()
+const transactionsPath = graphNoLayoutTemporary() + transactionsName()
 
-//const path = "appoggio"
-const path = 'temporary'
-const tempFiles = getFiles(path).map(file => path + '/' + file)
+var nodesWriter
+var transactionsWriter
+
+var tempFiles
 
 var nodesJson = undefined
 var tempJson = undefined
 
 var nextFile = 0
 var currentFile = -1
-var nodesToWrite = new RBTree((a, b) => {
-    return a.localeCompare(b)
-})
+var nodesToWrite
 var lastTempRead = false
 
 function getFiles(filePath) {
@@ -34,7 +41,7 @@ function nodeParser(line) {
 }
 
 function nodesInitializer() {
-    nodesJson = reader('nodes.json', nodeParser, (lines, options) => {
+    nodesJson = reader(nodesPath, nodeParser, (lines, options) => {
         _.flatten(lines).forEach(elem => nodesToWrite.remove(elem))
 
         if (options.endFile) {
@@ -42,11 +49,9 @@ function nodesInitializer() {
                 resetElemsToWrite()
                 nodesInitializer()
                 if (lastTempRead) {
-                    console.log(
-                        'duration of nodes extraction from ' +
-                            tempFiles[currentFile] +
-                            ': ' +
-                            timer.printableHMS(timer.getTimeFromLast())
+                    logger.log(
+                        'Terminated nodes extraction from ' +
+                            tempFiles[currentFile]
                     )
                     writeTransactions(() => {
                         nextTempFile()
@@ -93,11 +98,9 @@ function writeTransactions(cb) {
                 lastLine = true
             }
             if (lines.length == 0 && lastLine) {
-                console.log(
-                    'duration of transactions copy from ' +
-                        tempFiles[currentFile] +
-                        ': ' +
-                        timer.printableHMS(timer.getTimeFromLast())
+                logger.log(
+                    'Termanited transactions copy from ' +
+                        tempFiles[currentFile]
                 )
                 cb()
             } else {
@@ -105,11 +108,9 @@ function writeTransactions(cb) {
                     lines.map(line => line + '\n'),
                     () => {
                         if (lastLine) {
-                            console.log(
-                                'duration of transactions copy from ' +
-                                    tempFiles[currentFile] +
-                                    ': ' +
-                                    timer.printableHMS(timer.getTimeFromLast())
+                            logger.log(
+                                'Termanited transactions copy from ' +
+                                    tempFiles[currentFile]
                             )
                             cb()
                         } else {
@@ -120,7 +121,7 @@ function writeTransactions(cb) {
             }
         }
     )
-    console.log('start transactions copy from ' + tempFiles[currentFile])
+    logger.log('Start transactions copy from ' + tempFiles[currentFile])
     transactionReader.nextLines()
 }
 
@@ -173,15 +174,35 @@ function nextTempFile() {
         nextFile++
         resetElemsToWrite()
         lastTempRead = false
-        console.log('start node extraction of ' + tempFiles[currentFile])
+        logger.log('Start node extraction of ' + tempFiles[currentFile])
         tempJson.nextLines()
     } else {
-        console.log(
-            'all temp files scanned total duration: ' +
-                timer.printableHMS(timer.getTimeFromStart())
-        )
+        logger.log('All temp files scanned')
+        compose()
     }
 }
 
-console.log('start files compact')
-nextTempFile()
+function filterFile(file) {
+    const folders = file.split('/')
+    const part = folders[folders.length - 1].split('.')
+    if (!isNaN(parseInt(part[0])) && part[1].localeCompare('json') == 0) {
+        return true
+    }
+    return false
+}
+
+function aggregate() {
+    logger.log('Start nodes and transactions aggregation')
+
+    nodesWriter = writer(nodesPath)
+    transactionsWriter = writer(transactionsPath)
+
+    tempFiles = getFiles(path)
+        .map(file => path + file)
+        .filter(file => filterFile(file))
+    nextTempFile()
+}
+
+module.exports = {
+    aggregate
+}

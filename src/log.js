@@ -24,6 +24,7 @@ const levels = {
 }
 
 var stream
+var loggerPath
 
 function getLevel(level: string) {
     for (var lv in levels) {
@@ -55,7 +56,11 @@ function createLogStream(path: string) {
 
 const Logger = (module.exports = {
     setPath: (path: string) => {
+        loggerPath = path
         stream = createLogStream(path)
+    },
+    getPath: () => {
+        return loggerPath
     },
     log: (str: string) => {
         console.log(coloredLog('LOG', str))
@@ -72,6 +77,9 @@ const Logger = (module.exports = {
     args: (str: string) => {
         console.log(coloredLog('ARGS', str))
         stream.write(uncoloredLog('ARGS', str) + '\n')
+    },
+    onlyLogFile: (str: string) => {
+        stream.write(uncoloredLog('LOG', str) + '\n')
     },
     end: () => {
         stream.end()

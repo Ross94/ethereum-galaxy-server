@@ -1,8 +1,25 @@
+const fs = require('fs')
 const argv = require('named-argv')
 const createEth = require('./eth')
-const startManager = require('./manager')
-const downloadType = require('./enum').DOWNLOAD_TYPE
 const { dateComparator } = require('./utils')
+const constraints = require('./constraints')
+const master = require('./downloader-master')
+const logger = require('./log')
+const retrieverSetKey = require('./block-retriever')
+const { checkResourceExists } = require('./utils')
+const { saveInfo } = require('./files')
+const { split } = require('./splitter')
+const {
+    logNoLayoutAll,
+    logNoLayoutTime,
+    logNoLayoutBlock,
+    graphNoLayoutAll,
+    graphNoLayoutTime,
+    graphNoLayoutBlock,
+    graphNoLayoutTemporary,
+    infoName,
+    jsonGraphName
+} = require('./config')
 
 const params = argv.opts
 
@@ -11,16 +28,23 @@ var block = 0
 var all = 0
 
 var eth
+var api
 
 function main() {
     if (params.api != undefined) {
+        if (!isNaN(parseInt(params.memory))) {
+            constraints.setMemory(parseInt(params.memory))
+        }
+        api = params.api
+        const retriever = retrieverSetKey(api)
+
         eth = createEth(params.api)
         eth.lastBlock().then(lastBlock => {
             //in this part check params and select the method to extract indexes
             if (
                 checkDateFormat(params.firstDate) &&
                 checkDateFormat(params.lastDate) &&
-                dateComparator(params.firstDate, params.lastDate) > 0
+                dateComparator(params.firstDate, params.lastDate) >= 0
             ) {
                 time = 1
             }
@@ -44,25 +68,132 @@ function main() {
                 )
             } else {
                 if (time == 1) {
-                    startManager(params.api, downloadType.TIME, {
-                        firstDate: params.firstDate,
-                        lastDate: params.lastDate
-                    })
+                    constraints.setFolderName(
+                        params.firstDate + '-' + params.lastDate
+                    )
+                    constraints.setSaveFolder(
+                        graphNoLayoutTime() + constraints.getFolderName() + '/'
+                    )
+                    logger.setPath(
+                        logNoLayoutTime() + constraints.getFolderName() + '.log'
+                    )
+                    logger.log(
+                        'Log of time type with firstDate: ' +
+                            params.firstDate +
+                            ' lastDate: ' +
+                            params.lastDate
+                    )
+                    retriever
+                        .dateToBlocks({
+                            firstDate: params.firstDate,
+                            lastDate: params.lastDate
+                        })
+                        .then(res => {
+                            constraints.setRange(res)
+                            downloadPhase(res)
+                        })
                 }
                 if (block == 1) {
-                    startManager(params.api, downloadType.BLOCK, {
-                        firstBlock: params.firstBlock,
-                        lastBlock: params.lastBlock
-                    })
+                    constraints.setFolderName(
+                        params.firstBlock + '-' + params.lastBlock
+                    )
+                    constraints.setSaveFolder(
+                        graphNoLayoutBlock() + constraints.getFolderName() + '/'
+                    )
+                    logger.setPath(
+                        logNoLayoutBlock() +
+                            constraints.getFolderName() +
+                            '.log'
+                    )
+                    logger.log(
+                        'Log of block type with firstBlock: ' +
+                            params.firstBlock +
+                            ' lastBlock: ' +
+                            params.lastBlock
+                    )
+                    const range = {
+                        first: parseInt(params.firstBlock),
+                        last: parseInt(params.lastBlock)
+                    }
+                    constraints.setRange(range)
+                    downloadPhase(range)
                 }
                 if (all == 1) {
-                    startManager(params.api, downloadType.ALL, {})
+                    constraints.setFolderName('all')
+                    constraints.setSaveFolder(graphNoLayoutAll())
+                    logger.setPath(
+                        logNoLayoutAll() + constraints.getFolderName() + '.log'
+                    )
+                    logger.log('Log of all type')
+
+                    retriever.allToBlocks().then(res => {
+                        constraints.setRange(res)
+                        const setRes = allSetup(res.last)
+                        if (setRes.oldFound) {
+                            split(() => {
+                                downloadPhase(setRes.range)
+                            })
+                        } else {
+                            downloadPhase(setRes.range)
+                        }
+                    })
                 }
             }
         })
     } else {
         console.log('Wrong infuraApiKey, param -api=infuraApiKey')
     }
+}
+
+function allSetup(lastBlock) {
+    var lastBlockDownloaded
+    var found = false
+
+    if (
+        checkResourceExists(graphNoLayoutAll() + infoName()) &&
+        checkResourceExists(graphNoLayoutAll() + jsonGraphName())
+    ) {
+        logger.log('Copying old "all" files for splitting')
+
+        const info = JSON.parse(
+            fs.readFileSync(graphNoLayoutAll() + infoName())
+        )
+        lastBlockDownloaded = parseInt(info.range.end)
+        found = true
+
+        fs.copyFileSync(
+            graphNoLayoutAll() + jsonGraphName(),
+            graphNoLayoutTemporary() + jsonGraphName()
+        )
+        saveInfo(graphNoLayoutTemporary() + infoName(), {
+            saveFolder: constraints.getSaveFolder(),
+            range: constraints.getRange(),
+            missing: [
+                {
+                    start: lastBlockDownloaded + 1,
+                    end: lastBlock
+                }
+            ]
+        })
+        logger.log('Copied old "all" files')
+    } else {
+        lastBlockDownloaded = -1
+        logger.log('No previous download of "all", no file copied')
+    }
+
+    return {
+        oldFound: found,
+        range: {
+            first: lastBlockDownloaded + 1,
+            last: lastBlock
+        }
+    }
+}
+
+function downloadPhase(blocks) {
+    logger.log('Start download phase')
+    const workers = master(parseInt(blocks.first), parseInt(blocks.last))
+    workers.startWorkers(api)
 }
 
 function checkDateFormat(date) {

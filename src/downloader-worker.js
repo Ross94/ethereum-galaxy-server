@@ -6,14 +6,10 @@ const logger = require('./log')
 var eth
 
 function askTask(data) {
-    var lastblock = data
-    if (lastblock != undefined) {
-        lastblock = data[data.length - 1]
-    }
     process.send({
         pid: process.pid,
         command: 'new task',
-        lastBlock: lastblock
+        data: data
     })
 }
 

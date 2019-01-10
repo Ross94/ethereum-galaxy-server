@@ -15,7 +15,12 @@ module.exports = filepath => {
         )
     }
 
+    function write(elem) {
+        writer.write(elem)
+    }
+
     return {
-        writeArray
+        writeArray,
+        write
     }
 }

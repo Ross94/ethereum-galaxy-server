@@ -56,12 +56,8 @@ function dumpPajek(filepath: string, { nodes, links }: Graph) {
     })
 }
 
-function saveInfo(filepath: string, range: Range) {
+function saveInfo(filepath: string, data: string) {
     ensureDirExists(filepath)
-
-    const data = {
-        range: range
-    }
 
     jsonfile.writeFile(filepath, data, { spaces: 2 }, err => {
         if (err) logger.error(err)
@@ -85,17 +81,13 @@ function dumpTransactions(transactions: string[], cb) {
         })
     )
 }
-/*
-function dumpTransactions(transactions: string[]) {
-    transactions.forEach(t => transactionStream.write(t + '\n'))
-}*/
 
 module.exports = {
-    saveInfo,
-    setTransactionStream,
-    dumpTransactions,
     dumpJSON,
     dumpInfo,
     dumpPajek,
+    saveInfo,
+    setTransactionStream,
+    dumpTransactions,
     ensureDirExists
 }

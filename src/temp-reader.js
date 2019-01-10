@@ -1,10 +1,10 @@
 const LineByLineReader = require('line-by-line')
 const execSync = require('child_process').execSync
+const constraints = require('./constraints')
 
 module.exports = (filepath, parseLogic, callback) => {
     const path = filepath
-    //const chunkSize = 2
-    const chunkSize = 2000000
+    const chunkSize = Math.ceil(2500000 * constraints.getMemory() / 1000)
     const linesNumber = execSync('wc -l < ' + filepath)
     const blocks = Math.ceil(linesNumber / chunkSize)
 
