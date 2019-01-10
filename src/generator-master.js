@@ -42,8 +42,9 @@ function startWorker(modulePath, processNum) {
         loggerPath: logger.getPath(),
         saveFolder: constraints.getSaveFolder(),
         folderName: constraints.getFolderName(),
+        range: constraints.getRange(),
         processNum: processNum,
-        range: constraints.getRange()
+        memory: constraints.getMemory()
     })
 }
 

@@ -2,6 +2,7 @@ var saveFolder = undefined
 var folderName = undefined
 var range = undefined
 var processNum = 1
+var memory = undefined
 
 const Constraints = (module.exports = {
     setSaveFolder: (path: string) => {
@@ -27,5 +28,11 @@ const Constraints = (module.exports = {
     },
     getProcessNum: () => {
         return processNum
+    },
+    setMemory: (mem: number) => {
+        memory = mem
+    },
+    getMemory: () => {
+        return memory
     }
 })

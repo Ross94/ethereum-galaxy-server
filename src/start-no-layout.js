@@ -32,6 +32,14 @@ var api
 
 function main() {
     if (params.api != undefined) {
+        if (params.memory) {
+            const defaultNodeMemory = 1400
+            constraints.setMemory(defaultNodeMemory)
+        }
+        if (!isNaN(parseInt(params.memory))) {
+            constraints.setMemory(parseInt(params.memory))
+        }
+
         api = params.api
         const retriever = retrieverSetKey(api)
 

@@ -10,6 +10,7 @@ process.on('message', function(message) {
             constraints.setFolderName(message.folderName)
             constraints.setRange(message.range)
             constraints.setProcessNum(message.processNum)
+            constraints.setMemory(message.memory)
             aggregate()
             break
         case 'end':

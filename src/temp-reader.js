@@ -16,7 +16,9 @@ module.exports = (filepath, parseLogic, callback) => {
       the memory available between them.
     */
     const availableMemory =
-        Math.ceil(require('os').freemem() / 1000000) /
+        (constraints.getMemory() != undefined
+            ? constraints.getMemory()
+            : Math.ceil(require('os').freemem() / 1000000)) /
         constraints.getProcessNum()
     const chunkSize = Math.ceil(tunedLines * availableMemory / tunedMemory)
     const linesNumber = execSync('wc -l < ' + filepath)
