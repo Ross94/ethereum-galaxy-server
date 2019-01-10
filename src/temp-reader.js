@@ -4,7 +4,21 @@ const constraints = require('./constraints')
 
 module.exports = (filepath, parseLogic, callback) => {
     const path = filepath
-    const chunkSize = Math.ceil(2500000 * constraints.getMemory() / 1000)
+
+    /*there is a proportion of 5000000 of lines for each 1000 MB this params as been tuned.
+    This method has been called on temp file and nodes file, so you can read 2500000 lines form temp and 2500000 from nodes
+    */
+    const tunedMemory = 1000
+    const tunedLines = 2500000
+    /*memory is give in bytes division by 1000000 is need for convertion to MB.
+      constraints.getProcessNum() rappresents the number of process running at the same time.
+      For example if i want json and pajek files there will be 2 aggregator at the same time, one for json and another for pajek, i divide 
+      the memory available between them.
+    */
+    const availableMemory =
+        Math.ceil(require('os').freemem() / 1000000) /
+        constraints.getProcessNum()
+    const chunkSize = Math.ceil(tunedLines * availableMemory / tunedMemory)
     const linesNumber = execSync('wc -l < ' + filepath)
     const blocks = Math.ceil(linesNumber / chunkSize)
 

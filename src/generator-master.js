@@ -11,12 +11,10 @@ function response(pid, message) {
     workers.get(pid).send(message)
 }
 
-function startWorker(modulePath) {
+function startWorker(modulePath, processNum) {
     children += 1
 
-    const child = child_process.fork(modulePath, {
-        execArgv: ['--max-old-space-size=' + constraints.getMemory()]
-    })
+    const child = child_process.fork(modulePath)
 
     workers.set(child.pid, child)
 
@@ -44,7 +42,7 @@ function startWorker(modulePath) {
         loggerPath: logger.getPath(),
         saveFolder: constraints.getSaveFolder(),
         folderName: constraints.getFolderName(),
-        memory: constraints.getMemory(),
+        processNum: processNum,
         range: constraints.getRange()
     })
 }
@@ -54,7 +52,8 @@ function terminated() {
 }
 
 function generate() {
-    startWorker('./build/json-generator')
+    const format = ['./build/json-generator']
+    format.forEach(childPath => startWorker(childPath, format.length))
 }
 
 module.exports = {

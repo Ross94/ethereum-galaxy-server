@@ -1,7 +1,7 @@
 var saveFolder = undefined
 var folderName = undefined
-var memory = 1400
 var range = undefined
+var processNum = 1
 
 const Constraints = (module.exports = {
     setSaveFolder: (path: string) => {
@@ -16,16 +16,16 @@ const Constraints = (module.exports = {
     getFolderName: () => {
         return folderName
     },
-    setMemory: (memorySize: number) => {
-        memory = memorySize
-    },
-    getMemory: () => {
-        return memory
-    },
     setRange: r => {
         range = r
     },
     getRange: () => {
         return range
+    },
+    setProcessNum: (processes: number) => {
+        processNum = processes
+    },
+    getProcessNum: () => {
+        return processNum
     }
 })

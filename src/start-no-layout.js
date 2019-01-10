@@ -32,9 +32,6 @@ var api
 
 function main() {
     if (params.api != undefined) {
-        if (!isNaN(parseInt(params.memory))) {
-            constraints.setMemory(parseInt(params.memory))
-        }
         api = params.api
         const retriever = retrieverSetKey(api)
 

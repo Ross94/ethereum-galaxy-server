@@ -8,8 +8,8 @@ process.on('message', function(message) {
             logger.setPath(message.loggerPath)
             constraints.setSaveFolder(message.saveFolder)
             constraints.setFolderName(message.folderName)
-            constraints.setMemory(message.memory)
             constraints.setRange(message.range)
+            constraints.setProcessNum(message.processNum)
             aggregate()
             break
         case 'end':
