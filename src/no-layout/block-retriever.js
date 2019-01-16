@@ -1,6 +1,6 @@
-const createEth = require('./eth')
-const constraints = require('./constraints')
-const { dateComparator } = require('./utils')
+const createEth = require('./../ethereum/eth')
+const constraints = require('./../utilities/constraints')
+const { dateComparator } = require('./../utilities/utils')
 
 var eth
 var lastBlock

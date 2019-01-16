@@ -1,7 +1,10 @@
 const createEth = require('./eth')
 const _ = require('lodash')
-const { setTransactionStream, dumpTransactions } = require('./files')
-const logger = require('./log')
+const {
+    setTransactionStream,
+    dumpTransactions
+} = require('./../utilities/files')
+const logger = require('./../utilities/log')
 
 var eth
 

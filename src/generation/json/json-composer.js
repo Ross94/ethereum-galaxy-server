@@ -1,14 +1,16 @@
 const fs = require('fs')
-const reader = require('./temp-reader')
-const writer = require('./temp-writer')
+
+const logger = require('./../../utilities/log')
+const { checkResourceExists } = require('./../../utilities/utils')
 const {
     nodesName,
     transactionsName,
     graphNoLayoutTemporary,
     jsonGraphName
-} = require('./config')
-const { checkResourceExists } = require('./utils')
-const logger = require('./log')
+} = require('./../../utilities/config')
+
+const reader = require('./../temp-reader')
+const writer = require('./../temp-writer')
 
 const resPath = graphNoLayoutTemporary() + jsonGraphName()
 const tempPath = graphNoLayoutTemporary() + 'temp.json'

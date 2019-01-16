@@ -1,13 +1,13 @@
 const fs = require('fs')
-const logger = require('./log')
-const constraints = require('./constraints')
-const { ensureDirExists } = require('./utils')
+const logger = require('./../utilities/log')
+const constraints = require('./../utilities/constraints')
+const { ensureDirExists } = require('./../utilities/utils')
 const {
     graphNoLayoutTemporary,
     jsonGraphName,
     infoName,
     pajekGraphName
-} = require('./config')
+} = require('./../utilities/config')
 
 function move() {
     logger.log('Start moving files to correct directory')

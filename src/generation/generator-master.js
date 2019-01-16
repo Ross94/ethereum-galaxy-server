@@ -1,7 +1,7 @@
 const child_process = require('child_process')
-const constraints = require('./constraints')
-const logger = require('./log')
-const { move } = require('./placer')
+const constraints = require('./../utilities/constraints')
+const logger = require('./../utilities/log')
+const { move } = require('./../no-layout/placer')
 
 const workers = new Map()
 var children = 0
@@ -44,7 +44,8 @@ function startWorker(modulePath, processNum) {
         folderName: constraints.getFolderName(),
         range: constraints.getRange(),
         processNum: processNum,
-        memory: constraints.getMemory()
+        memory: constraints.getMemory(),
+        oldDownload: constraints.getOldDownload()
     })
 }
 
@@ -53,7 +54,8 @@ function terminated() {
 }
 
 function generate() {
-    const format = ['./build/json-generator']
+    const format = ['./build/generation/json/json-generator']
+
     format.forEach(childPath => startWorker(childPath, format.length))
 }
 

@@ -1,25 +1,22 @@
 const fs = require('fs')
 const argv = require('named-argv')
-const createEth = require('./eth')
-const { dateComparator } = require('./utils')
-const constraints = require('./constraints')
-const master = require('./downloader-master')
-const logger = require('./log')
-const retrieverSetKey = require('./block-retriever')
-const { checkResourceExists } = require('./utils')
-const { saveInfo } = require('./files')
-const { split } = require('./splitter')
+
+const constraints = require('./../utilities/constraints')
+const logger = require('./../utilities/log')
+
+const createEth = require('./../ethereum/eth')
+const master = require('./../ethereum/downloader-master')
+const retrieverSetKey = require('./../no-layout/block-retriever')
+const { dateComparator } = require('./../utilities/utils')
+const { checkAll } = require('./checker')
 const {
     logNoLayoutAll,
     logNoLayoutTime,
     logNoLayoutBlock,
     graphNoLayoutAll,
     graphNoLayoutTime,
-    graphNoLayoutBlock,
-    graphNoLayoutTemporary,
-    infoName,
-    jsonGraphName
-} = require('./config')
+    graphNoLayoutBlock
+} = require('./../utilities/config')
 
 const params = argv.opts
 
@@ -56,7 +53,7 @@ function main() {
             if (
                 params.firstBlock >= 0 &&
                 params.lastBlock <= lastBlock &&
-                params.lastBlock > params.firstBlock
+                params.lastBlock >= params.firstBlock
             ) {
                 block = 1
             }
@@ -133,65 +130,14 @@ function main() {
 
                     retriever.allToBlocks().then(res => {
                         constraints.setRange(res)
-                        const setRes = allSetup(res.last)
-                        if (setRes.oldFound) {
-                            split(() => {
-                                downloadPhase(setRes.range)
-                            })
-                        } else {
-                            downloadPhase(setRes.range)
-                        }
+                        const range = checkAll(res.last)
+                        downloadPhase(range)
                     })
                 }
             }
         })
     } else {
         console.log('Wrong infuraApiKey, param -api=infuraApiKey')
-    }
-}
-
-function allSetup(lastBlock) {
-    var lastBlockDownloaded
-    var found = false
-
-    if (
-        checkResourceExists(graphNoLayoutAll() + infoName()) &&
-        checkResourceExists(graphNoLayoutAll() + jsonGraphName())
-    ) {
-        logger.log('Copying old "all" files for splitting')
-
-        const info = JSON.parse(
-            fs.readFileSync(graphNoLayoutAll() + infoName())
-        )
-        lastBlockDownloaded = parseInt(info.range.end)
-        found = true
-
-        fs.copyFileSync(
-            graphNoLayoutAll() + jsonGraphName(),
-            graphNoLayoutTemporary() + jsonGraphName()
-        )
-        saveInfo(graphNoLayoutTemporary() + infoName(), {
-            saveFolder: constraints.getSaveFolder(),
-            range: constraints.getRange(),
-            missing: [
-                {
-                    start: lastBlockDownloaded + 1,
-                    end: lastBlock
-                }
-            ]
-        })
-        logger.log('Copied old "all" files')
-    } else {
-        lastBlockDownloaded = -1
-        logger.log('No previous download of "all", no file copied')
-    }
-
-    return {
-        oldFound: found,
-        range: {
-            first: lastBlockDownloaded + 1,
-            last: lastBlock
-        }
     }
 }
 

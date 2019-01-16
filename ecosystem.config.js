@@ -6,7 +6,7 @@ module.exports = {
     apps: [
         {
             name: 'Eth 1h',
-            script: './build/index.js',
+            script: './build/live/index.js',
             env: {
                 NODE_ENV: 'development',
                 ETH_HOURS: 1
@@ -18,7 +18,7 @@ module.exports = {
         },
         {
             name: 'Eth 4h',
-            script: './build/index.js',
+            script: './build/live/index.js',
             env: {
                 NODE_ENV: 'development',
                 ETH_HOURS: 4
@@ -30,7 +30,7 @@ module.exports = {
         },
         {
             name: 'Eth 6h',
-            script: './build/index.js',
+            script: './build/live/index.js',
             env: {
                 NODE_ENV: 'development',
                 ETH_HOURS: 6
@@ -42,7 +42,7 @@ module.exports = {
         },
         {
             name: 'Eth 12h',
-            script: './build/index.js',
+            script: './build/live/index.js',
             env: {
                 NODE_ENV: 'development',
                 ETH_HOURS: 12
@@ -54,7 +54,7 @@ module.exports = {
         },
         {
             name: 'Eth 24h',
-            script: './build/index.js',
+            script: './build/live/index.js',
             env: {
                 NODE_ENV: 'development',
                 ETH_HOURS: 24
@@ -66,7 +66,7 @@ module.exports = {
         },
         {
             name: 'Web server',
-            script: './build/server.js',
+            script: './build/live/server.js',
             env: {
                 NODE_ENV: 'development'
             },

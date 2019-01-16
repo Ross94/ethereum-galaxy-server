@@ -1,7 +1,7 @@
 const createGraph = require('ngraph.graph')
 const createLayout = require('ngraph.offline.layout')
 
-import type { Graph } from './eth'
+import type { Graph } from './../ethereum/eth'
 
 async function calculateLayout(graph: Graph, outDirPath: string) {
     const g = createGraph()

@@ -2,10 +2,12 @@ const express = require('express')
 const fs = require('mz/fs')
 
 import type { $Response } from 'express'
-const { ensureDirExists } = require('./utils')
-const logger = require('./log')
 
-const { logLayoutServer } = require('./config')
+const { ensureDirExists } = require('./../utilities/utils')
+const logger = require('./../utilities/log')
+
+const { logLayoutServer } = require('./../utilities/config')
+
 logger.setPath(logLayoutServer() + 'server.log')
 
 const app = express()
@@ -51,8 +53,15 @@ app.listen(port, () => {
     logger.log(`Web server listening on port ${port}`)
     logger.log('Available APIs:')
     logger.log('/graphs')
-    logger.log('/graphs/eth-x/y/{ graph.json , graph.net }')
+    logger.log('/graphs/layout/eth-x/y/{ graph.json , graph.net }')
     logger.log(
-        '/graphs/eth-x/y/ngraph/{ labels.json , links.bin , meta.json , positions.bin }'
+        '/graphs/layout/eth-x/y/ngraph/{ labels.json , links.bin , meta.json , positions.bin }'
     )
+    logger.log(
+        '/graphs/no-layout/block/firstBlock-lastBlock/{ graph.json , graph.net }'
+    )
+    logger.log(
+        '/graphs/no-layout/time/firstDate-lastDate/{ graph.json , graph.net }'
+    )
+    logger.log('/graphs/no-layout/all/{ graph.json , graph.net }')
 })

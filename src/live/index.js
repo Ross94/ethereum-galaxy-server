@@ -1,8 +1,9 @@
 const schedule = require('node-schedule')
 
-const createEth = require('./eth')
-const { logFilename } = require('./config')
-const logger = require('./log')
+const logger = require('./../utilities/log')
+const createEth = require('./../ethereum/eth')
+const { logFilename } = require('./../utilities/config')
+
 logger.setPath(logFilename())
 
 if (!process.env.INFURA_API_KEY) {

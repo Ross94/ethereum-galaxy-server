@@ -3,6 +3,7 @@ var folderName = undefined
 var range = undefined
 var processNum = 1
 var memory = undefined
+var oldDownload = false
 
 const Constraints = (module.exports = {
     setSaveFolder: (path: string) => {
@@ -34,5 +35,11 @@ const Constraints = (module.exports = {
     },
     getMemory: () => {
         return memory
+    },
+    setOldDownload: (oldDwn: boolean) => {
+        oldDownload = oldDwn
+    },
+    getOldDownload: () => {
+        return oldDownload
     }
 })

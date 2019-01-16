@@ -2,18 +2,24 @@ const Web3 = require('web3')
 const _ = require('lodash')
 const saveGraph = require('ngraph.tobinary')
 
-const { ensureDirExists, deleteFile } = require('./utils')
+const logger = require('./../utilities/log')
+
+const { ensureDirExists, deleteFile } = require('./../utilities/utils')
 const {
     baseFilename,
     jsonFilename,
     infoFilename,
     pajekFilename,
     ngraphBasePath
-} = require('./config')
-const logger = require('./log')
+} = require('./../utilities/config')
 
-const { dumpJSON, dumpPajek, dumpInfo, dumpTransactions } = require('./files')
-const calculateNgraphLayout = require('./ngraph-layout')
+const {
+    dumpJSON,
+    dumpPajek,
+    dumpInfo,
+    dumpTransactions
+} = require('./../utilities/files')
+const calculateNgraphLayout = require('./../live/ngraph-layout')
 
 export type Range = {
     start: number,

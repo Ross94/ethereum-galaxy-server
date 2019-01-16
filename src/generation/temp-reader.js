@@ -1,6 +1,6 @@
 const LineByLineReader = require('line-by-line')
 const execSync = require('child_process').execSync
-const constraints = require('./constraints')
+const constraints = require('./../utilities/constraints')
 
 module.exports = (filepath, parseLogic, callback) => {
     const path = filepath

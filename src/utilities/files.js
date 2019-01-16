@@ -1,10 +1,10 @@
 const jsonfile = require('jsonfile')
 const fs = require('fs')
 
-const logger = require('./log')
-const { ensureDirExists } = require('./utils')
+const logger = require('./../utilities/log')
+const { ensureDirExists } = require('./../utilities/utils')
 
-import type { Graph, Node, Link, Range } from './eth'
+import type { Graph, Node, Link, Range } from './../ethereum/eth'
 
 var transactionStream
 

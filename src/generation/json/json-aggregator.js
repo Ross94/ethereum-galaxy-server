@@ -1,18 +1,16 @@
 const _ = require('lodash')
 const RBTree = require('bintrees').RBTree
+
+const logger = require('./../../utilities/log')
 const {
     graphNoLayoutTemporary,
     nodesName,
     transactionsName
-} = require('./config')
-const logger = require('./log')
+} = require('./../../utilities/config')
 const { compose } = require('./composer')
 
-const writer = require('./temp-writer')
-const reader = require('./temp-reader')
-
-const startTimer = require('./timer')
-var timer = startTimer()
+const writer = require('./../temp-writer')
+const reader = require('./../temp-reader')
 
 const path = graphNoLayoutTemporary()
 const nodesPath = graphNoLayoutTemporary() + nodesName()

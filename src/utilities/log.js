@@ -2,7 +2,7 @@ const fs = require('fs')
 const colors = require('colors/safe')
 const ProgressBar = require('progress')
 
-const { ensureDirExists } = require('./utils')
+const { ensureDirExists } = require('./../utilities/utils')
 
 const levels = {
     LOG: {

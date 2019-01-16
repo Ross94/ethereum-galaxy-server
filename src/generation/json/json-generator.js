@@ -1,6 +1,7 @@
-const constraints = require('./constraints')
-const logger = require('./log')
-const { aggregate } = require('./aggregator')
+const constraints = require('./../../utilities/constraints')
+const logger = require('./../../utilities/log')
+const { aggregate } = require('./json-aggregator')
+const { split } = require('./json-splitter')
 
 process.on('message', function(message) {
     switch (message.command) {
@@ -11,7 +12,12 @@ process.on('message', function(message) {
             constraints.setRange(message.range)
             constraints.setProcessNum(message.processNum)
             constraints.setMemory(message.memory)
-            aggregate()
+
+            if (message.oldDownload) {
+                split()
+            } else {
+                aggregate()
+            }
             break
         case 'end':
             process.disconnect()

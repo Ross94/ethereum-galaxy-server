@@ -1,14 +1,15 @@
 const fs = require('fs')
-const reader = require('./temp-reader')
-const writer = require('./temp-writer')
-const logger = require('./log')
-const { checkResourceExists } = require('./utils')
+const reader = require('./../temp-reader')
+const writer = require('./../temp-writer')
+const logger = require('./../../utilities/log')
+const { checkResourceExists } = require('./../../utilities/utils')
+const { aggregate } = require('./json-aggregator')
 const {
     graphNoLayoutTemporary,
     jsonGraphName,
     nodesName,
     transactionsName
-} = require('./config')
+} = require('./../../utilities/config')
 
 const resPath = graphNoLayoutTemporary() + jsonGraphName()
 const nodePath = graphNoLayoutTemporary() + nodesName()
@@ -31,7 +32,7 @@ function addToFile(elem) {
     }
 }
 
-function split(cb) {
+function split() {
     logger.log('Start splitting')
     if (checkResourceExists(resPath)) {
         nodeWriter = writer(nodePath)
@@ -55,7 +56,7 @@ function split(cb) {
             })
             .on('close', function() {
                 logger.log('Splitting terminated')
-                cb()
+                aggregate()
             })
     }
 }
