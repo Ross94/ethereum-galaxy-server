@@ -16,13 +16,19 @@ function move() {
     )
     ensureDirExists(info.saveFolder)
     logger.log('Destination directory: ' + info.saveFolder)
+    //json
     fs.renameSync(
         graphNoLayoutTemporary() + jsonGraphName(),
         info.saveFolder + jsonGraphName()
     )
     logger.log('Moved ' + jsonGraphName())
-    //fs.renameSync(graphNoLayoutTemporary()+pajekGraphName(), info.saveFolder+pajekGraphName())
-    //logger.log("Moved " + pajekGraphName())
+    //pajek
+    fs.renameSync(
+        graphNoLayoutTemporary() + pajekGraphName(),
+        info.saveFolder + pajekGraphName()
+    )
+    logger.log('Moved ' + pajekGraphName())
+    //info
     fs.renameSync(
         graphNoLayoutTemporary() + infoName(),
         info.saveFolder + infoName()

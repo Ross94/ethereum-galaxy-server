@@ -21,8 +21,12 @@ const graphNoLayoutTime = () => './graphs/no-layout/time/'
 const graphNoLayoutBlock = () => './graphs/no-layout/block/'
 const graphNoLayoutTemporary = () => './graphs/no-layout/temporary/'
 
-const nodesName = () => 'nodes.json'
-const transactionsName = () => 'transactions.json'
+const nodesJsonName = () => 'nodes.json'
+const transactionsJsonName = () => 'transactions.json'
+
+const nodesPajekName = () => 'nodes.net'
+const transactionsPajekName = () => 'transactions.net'
+
 const jsonGraphName = () => 'graph.json'
 const infoName = () => 'info.json'
 const pajekGraphName = () => 'graph.net'
@@ -42,8 +46,10 @@ module.exports = {
     graphNoLayoutTime,
     graphNoLayoutBlock,
     graphNoLayoutTemporary,
-    nodesName,
-    transactionsName,
+    nodesJsonName,
+    transactionsJsonName,
+    nodesPajekName,
+    transactionsPajekName,
     jsonGraphName,
     infoName,
     pajekGraphName

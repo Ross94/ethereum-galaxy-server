@@ -54,8 +54,10 @@ function terminated() {
 }
 
 function generate() {
-    const format = ['./build/generation/json/json-generator']
-
+    const format = [
+        './build/generation/json/json-generator',
+        './build/generation/pajek/pajek-generator'
+    ]
     format.forEach(childPath => startWorker(childPath, format.length))
 }
 

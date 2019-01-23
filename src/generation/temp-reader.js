@@ -20,8 +20,9 @@ module.exports = (filepath, parseLogic, callback) => {
             ? constraints.getMemory()
             : Math.ceil(require('os').freemem() / 1000000)) /
         constraints.getProcessNum()
+
     const chunkSize = Math.ceil(tunedLines * availableMemory / tunedMemory)
-    const linesNumber = execSync('wc -l < ' + filepath)
+    const linesNumber = parseInt(execSync('wc -l < ' + filepath).toString())
     const blocks = Math.ceil(linesNumber / chunkSize)
 
     var reader

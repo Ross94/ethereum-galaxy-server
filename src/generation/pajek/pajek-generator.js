@@ -1,13 +1,13 @@
 const constraints = require('./../../utilities/constraints')
 const logger = require('./../../utilities/log')
 
-const { split } = require('./json-splitter')
-const { aggregate } = require('./json-aggregator')
+const { split } = require('./pajek-splitter')
+const { aggregate } = require('./pajek-aggregator')
 const {
     graphNoLayoutTemporary,
-    jsonGraphName,
-    nodesJsonName,
-    transactionsJsonName
+    pajekGraphName,
+    nodesPajekName,
+    transactionsPajekName
 } = require('./../../utilities/config')
 
 process.on('message', function(message) {

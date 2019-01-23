@@ -3,25 +3,25 @@ const reader = require('./../temp-reader')
 const writer = require('./../temp-writer')
 const logger = require('./../../utilities/log')
 const { checkResourceExists } = require('./../../utilities/utils')
-const { aggregate } = require('./json-aggregator')
+const { aggregate } = require('./pajek-aggregator')
 const {
     graphNoLayoutTemporary,
-    jsonGraphName,
-    nodesJsonName,
-    transactionsJsonName
+    pajekGraphName,
+    nodesPajekName,
+    transactionsPajekName
 } = require('./../../utilities/config')
 
 function split() {
-    const resPath = graphNoLayoutTemporary() + jsonGraphName()
-    const nodePath = graphNoLayoutTemporary() + nodesJsonName()
-    const transactionPath = graphNoLayoutTemporary() + transactionsJsonName()
+    const resPath = graphNoLayoutTemporary() + pajekGraphName()
+    const nodePath = graphNoLayoutTemporary() + nodesPajekName()
+    const transactionPath = graphNoLayoutTemporary() + transactionsPajekName()
 
     var nodeWriter
     var transactionWriter
 
     var lineReader
 
-    logger.log('Start Json splitting')
+    logger.log('Start Pajek splitting')
     if (checkResourceExists(resPath)) {
         nodeWriter = writer(nodePath)
         transactionWriter = writer(transactionPath)
@@ -35,7 +35,7 @@ function split() {
                 addToFile(line)
             })
             .on('close', function() {
-                logger.log('Json splitting terminated')
+                logger.log('Pajek splitting terminated')
                 aggregate()
             })
     }
@@ -53,27 +53,19 @@ function split() {
     }
 
     function parser(line) {
-        try {
-            var type = 'error'
-
-            const parsableElem =
-                line[line.length - 1] === ',' ? line.slice(0, -1) : line
-            const data = JSON.parse(parsableElem)
-            if (data.id != undefined) {
+        var type = 'error'
+        var data = undefined
+        if (!line.includes('*')) {
+            if (line.split(' ').length == 2) {
                 type = 'node'
-            } else if (data.source != undefined) {
+            } else if (line.split(' ').length == 3) {
                 type = 'transaction'
             }
-            return {
-                type: type,
-                data: JSON.stringify(data) + '\n'
-            }
-        } catch (err) {
-            //here will be some lines of json utilities (ex. {"nodes":[)
-            return {
-                type: 'error',
-                data: undefined
-            }
+            data = line + '\n'
+        }
+        return {
+            type: type,
+            data: data
         }
     }
 }

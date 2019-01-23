@@ -127,7 +127,6 @@ function main() {
                         logNoLayoutAll() + constraints.getFolderName() + '.log'
                     )
                     logger.log('Log of all type')
-
                     retriever.allToBlocks().then(res => {
                         constraints.setRange(res)
                         const range = checkAll(res.last)
