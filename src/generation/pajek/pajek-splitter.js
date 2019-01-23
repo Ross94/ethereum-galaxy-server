@@ -12,22 +12,25 @@ const {
 } = require('./../../utilities/config')
 
 function split() {
-    const resPath = graphNoLayoutTemporary() + pajekGraphName()
+    const graphPath = graphNoLayoutTemporary() + pajekGraphName()
     const nodePath = graphNoLayoutTemporary() + nodesPajekName()
     const transactionPath = graphNoLayoutTemporary() + transactionsPajekName()
+
+    const TYPE = Object.freeze({
+        node: 'node',
+        transaction: 'transaction'
+    })
 
     var nodeWriter
     var transactionWriter
 
-    var lineReader
-
     logger.log('Start Pajek splitting')
-    if (checkResourceExists(resPath)) {
+    if (checkResourceExists(graphPath)) {
         nodeWriter = writer(nodePath)
         transactionWriter = writer(transactionPath)
 
-        lineReader = require('readline').createInterface({
-            input: require('fs').createReadStream(resPath)
+        const lineReader = require('readline').createInterface({
+            input: require('fs').createReadStream(graphPath)
         })
 
         lineReader
@@ -41,25 +44,25 @@ function split() {
     }
 
     function addToFile(line) {
-        const elem = parser(line)
+        const elem = parserLine(line)
         switch (elem.type) {
-            case 'node':
+            case TYPE.node:
                 nodeWriter.write(elem.data)
                 break
-            case 'transaction':
+            case TYPE.transaction:
                 transactionWriter.write(elem.data)
                 break
         }
     }
 
-    function parser(line) {
+    function parserLine(line) {
         var type = 'error'
         var data = undefined
         if (!line.includes('*')) {
             if (line.split(' ').length == 2) {
-                type = 'node'
+                type = TYPE.node
             } else if (line.split(' ').length == 3) {
-                type = 'transaction'
+                type = TYPE.transaction
             }
             data = line + '\n'
         }

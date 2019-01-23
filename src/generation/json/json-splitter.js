@@ -12,22 +12,20 @@ const {
 } = require('./../../utilities/config')
 
 function split() {
-    const resPath = graphNoLayoutTemporary() + jsonGraphName()
+    const graphPath = graphNoLayoutTemporary() + jsonGraphName()
     const nodePath = graphNoLayoutTemporary() + nodesJsonName()
     const transactionPath = graphNoLayoutTemporary() + transactionsJsonName()
 
     var nodeWriter
     var transactionWriter
 
-    var lineReader
-
     logger.log('Start Json splitting')
-    if (checkResourceExists(resPath)) {
+    if (checkResourceExists(graphPath)) {
         nodeWriter = writer(nodePath)
         transactionWriter = writer(transactionPath)
 
-        lineReader = require('readline').createInterface({
-            input: require('fs').createReadStream(resPath)
+        const lineReader = require('readline').createInterface({
+            input: require('fs').createReadStream(graphPath)
         })
 
         lineReader
@@ -41,7 +39,7 @@ function split() {
     }
 
     function addToFile(line) {
-        const elem = parser(line)
+        const elem = parseLine(line)
         switch (elem.type) {
             case 'node':
                 nodeWriter.write(elem.data)
@@ -52,7 +50,7 @@ function split() {
         }
     }
 
-    function parser(line) {
+    function parseLine(line) {
         try {
             var type = 'error'
 

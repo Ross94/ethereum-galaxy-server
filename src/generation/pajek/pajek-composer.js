@@ -13,7 +13,7 @@ const {
 const reader = require('./../temp-reader')
 const writer = require('./../temp-writer')
 
-const resPath = graphNoLayoutTemporary() + pajekGraphName()
+const graphPath = graphNoLayoutTemporary() + pajekGraphName()
 const tempPath = graphNoLayoutTemporary() + 'temp.net'
 const nodePath = graphNoLayoutTemporary() + nodesPajekName()
 const transactionPath = graphNoLayoutTemporary() + transactionsPajekName()
@@ -69,10 +69,10 @@ function compose() {
             })
             .on('close', function() {
                 logger.log('End compact Pajek transactions')
-                if (checkResourceExists(resPath)) {
-                    fs.unlinkSync(resPath)
+                if (checkResourceExists(graphPath)) {
+                    fs.unlinkSync(graphPath)
                 }
-                fs.renameSync(tempPath, resPath)
+                fs.renameSync(tempPath, graphPath)
                 //communicate to master end generation
                 process.send({
                     pid: process.pid,

@@ -12,10 +12,10 @@ const {
 const reader = require('./../temp-reader')
 const writer = require('./../temp-writer')
 
-const resPath = graphNoLayoutTemporary() + jsonGraphName()
+const graphPath = graphNoLayoutTemporary() + jsonGraphName()
 const tempPath = graphNoLayoutTemporary() + 'temp.json'
-const nodePath = graphNoLayoutTemporary() + nodesJsonName()
-const transactionPath = graphNoLayoutTemporary() + transactionsJsonName()
+const nodesPath = graphNoLayoutTemporary() + nodesJsonName()
+const transactionsPath = graphNoLayoutTemporary() + transactionsJsonName()
 
 const jsonLines = {
     open: '{"nodes":[',
@@ -33,7 +33,7 @@ function compose() {
     }
 
     tempWriter = writer(tempPath)
-    lineReader = createReader(nodePath)
+    lineReader = createReader(nodesPath)
 
     tempWriter.write(jsonLines.open + '\n')
     nodePhase()
@@ -69,7 +69,7 @@ function compose() {
 
     function transactionPhase() {
         logger.log('Start compact Json transactions')
-        lineReader = createReader(transactionPath)
+        lineReader = createReader(transactionsPath)
         l = undefined
         lineReader
             .on('line', function(line) {
@@ -80,10 +80,10 @@ function compose() {
                 if (l != undefined) lastLine(l)
                 tempWriter.write(jsonLines.close + '\n')
                 logger.log('End compact Json transactions')
-                if (checkResourceExists(resPath)) {
-                    fs.unlinkSync(resPath)
+                if (checkResourceExists(graphPath)) {
+                    fs.unlinkSync(graphPath)
                 }
-                fs.renameSync(tempPath, resPath)
+                fs.renameSync(tempPath, graphPath)
                 //communicate to master end generation
                 process.send({
                     pid: process.pid,
