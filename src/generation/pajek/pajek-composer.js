@@ -1,8 +1,6 @@
-const fs = require('fs')
 const execSync = require('child_process').execSync
-
-const logger = require('./../../utilities/log')
-const { checkResourceExists } = require('./../../utilities/utils')
+const abstractComposer = require('./../abstract/abstract-composer')
+const writer = require('./../temp-writer')
 const {
     nodesPajekName,
     transactionsPajekName,
@@ -10,76 +8,73 @@ const {
     pajekGraphName
 } = require('./../../utilities/config')
 
-const reader = require('./../temp-reader')
-const writer = require('./../temp-writer')
-
-const graphPath = graphNoLayoutTemporary() + pajekGraphName()
-const tempPath = graphNoLayoutTemporary() + 'temp.net'
-const nodePath = graphNoLayoutTemporary() + nodesPajekName()
-const transactionPath = graphNoLayoutTemporary() + transactionsPajekName()
-
 function compose() {
+    const graphPath = graphNoLayoutTemporary() + pajekGraphName()
+    const tempPath = graphNoLayoutTemporary() + 'pajekTemp.net'
+    const nodesPath = graphNoLayoutTemporary() + nodesPajekName()
+    const transactionsPath = graphNoLayoutTemporary() + transactionsPajekName()
+
     const pajekLines = {
-        vertices: '*Vertices ' + execSync('wc -l < ' + nodePath),
+        vertices: '*Vertices ' + execSync('wc -l < ' + nodesPath),
         arcs: '*arcs'
     }
 
-    var tempWriter
-    var lineReader
+    abstractComposer.format = 'Pajek'
 
-    if (checkResourceExists(tempPath)) {
-        fs.unlinkSync(tempPath)
+    abstractComposer.path = {
+        graphPath: graphPath,
+        tempPath: tempPath,
+        nodesPath: nodesPath,
+        transactionsPath: transactionsPath
     }
 
-    tempWriter = writer(tempPath)
-    lineReader = createReader(nodePath)
-
-    tempWriter.write(pajekLines.vertices)
-    nodePhase()
-
-    function createReader(filepath) {
-        return require('readline').createInterface({
-            input: require('fs').createReadStream(filepath)
-        })
+    abstractComposer.nodesPhaseStart = function() {
+        return pajekLines.vertices
     }
 
-    function writeLine(line) {
-        tempWriter.write(line + '\n')
+    abstractComposer.nodesPhaseLine = function(lines, hasLast, cb) {
+        const wLines = []
+        //map lines in writable form
+        for (var i = 0; i < lines.length; i++) {
+            if (hasLast && i == lines.length - 1) {
+                wLines.push(writableLine(lines[i]))
+            } else {
+                wLines.push(writableLine(lines[i]))
+            }
+        }
+        return wLines
     }
 
-    function nodePhase() {
-        logger.log('Start compact Pajek nodes')
-        lineReader
-            .on('line', function(line) {
-                writeLine(line)
-            })
-            .on('close', function() {
-                logger.log('End compact Pajek nodes')
-                tempWriter.write(pajekLines.arcs + '\n')
-                transactionPhase()
-            })
+    abstractComposer.nodesPhaseEnd = function() {
+        return ''
     }
 
-    function transactionPhase() {
-        logger.log('Start compact Pajek transactions')
-        lineReader = createReader(transactionPath)
-        lineReader
-            .on('line', function(line) {
-                writeLine(line)
-            })
-            .on('close', function() {
-                logger.log('End compact Pajek transactions')
-                if (checkResourceExists(graphPath)) {
-                    fs.unlinkSync(graphPath)
-                }
-                fs.renameSync(tempPath, graphPath)
-                //communicate to master end generation
-                process.send({
-                    pid: process.pid,
-                    command: 'end'
-                })
-            })
+    abstractComposer.transactionsPhaseStart = function() {
+        return pajekLines.arcs + '\n'
     }
+
+    abstractComposer.transactionsPhaseLine = function(lines, hasLast, cb) {
+        const wLines = []
+        //map lines in writable form
+        for (var i = 0; i < lines.length; i++) {
+            if (hasLast && i == lines.length - 1) {
+                wLines.push(writableLine(lines[i]))
+            } else {
+                wLines.push(writableLine(lines[i]))
+            }
+        }
+        return wLines
+    }
+
+    abstractComposer.transactionsPhaseEnd = function() {
+        return ''
+    }
+
+    function writableLine(line) {
+        return line + '\n'
+    }
+
+    abstractComposer.compose()
 }
 
 module.exports = {

@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-module.exports = filepath => {
+module.exports = (filepath, cb) => {
     const writer = fs.createWriteStream(filepath, { flags: 'a' })
 
     function writeArray(array, cb) {
@@ -23,8 +23,15 @@ module.exports = filepath => {
         writer.write(elem)
     }
 
-    return {
+    writer.on('open', function() {
+        cb({
+            writeArray,
+            write
+        })
+    })
+
+    /*return {
         writeArray,
         write
-    }
+    }*/
 }

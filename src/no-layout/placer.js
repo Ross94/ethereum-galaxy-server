@@ -37,6 +37,7 @@ function move() {
     fs
         .readdirSync(graphNoLayoutTemporary())
         .forEach(file => fs.unlinkSync(graphNoLayoutTemporary() + file))
+    fs.rmdirSync(graphNoLayoutTemporary())
     logger.log('Delete temp files')
     logger.log('End moving files')
 }

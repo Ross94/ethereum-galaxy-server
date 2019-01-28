@@ -7,6 +7,7 @@ const logger = require('./../utilities/log')
 const createEth = require('./../ethereum/eth')
 const master = require('./../ethereum/downloader-master')
 const retrieverSetKey = require('./../no-layout/block-retriever')
+const { ensureDirExists } = require('./../utilities/utils')
 const { dateComparator } = require('./../utilities/utils')
 const { checkAll } = require('./checker')
 const {
@@ -70,6 +71,7 @@ function main() {
                 )
             } else {
                 if (time == 1) {
+                    ensureDirExists(graphNoLayoutTime())
                     constraints.setFolderName(
                         params.firstDate + '-' + params.lastDate
                     )
@@ -96,6 +98,7 @@ function main() {
                         })
                 }
                 if (block == 1) {
+                    ensureDirExists(logNoLayoutBlock())
                     constraints.setFolderName(
                         params.firstBlock + '-' + params.lastBlock
                     )
@@ -121,17 +124,27 @@ function main() {
                     downloadPhase(range)
                 }
                 if (all == 1) {
+                    ensureDirExists(graphNoLayoutAll())
                     constraints.setFolderName('all')
                     constraints.setSaveFolder(graphNoLayoutAll())
                     logger.setPath(
                         logNoLayoutAll() + constraints.getFolderName() + '.log'
                     )
                     logger.log('Log of all type')
-                    retriever.allToBlocks().then(res => {
+
+                    //start test block
+                    const res = { first: 1999998, last: 1999998 }
+                    constraints.setRange(res)
+                    const range = checkAll(res.last)
+                    range.first = 1999998 //comment when second execute has last 1999999
+                    downloadPhase(range)
+                    //end test block
+
+                    /*retriever.allToBlocks().then(res => {
                         constraints.setRange(res)
                         const range = checkAll(res.last)
                         downloadPhase(range)
-                    })
+                    })*/
                 }
             }
         })

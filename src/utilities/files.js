@@ -64,10 +64,14 @@ function saveInfo(filepath: string, data: string) {
     })
 }
 
-function setTransactionStream(filepath: string) {
+function setTransactionStream(filepath: string, cb) {
     ensureDirExists(filepath)
 
     transactionStream = fs.createWriteStream(filepath, { flags: 'a' })
+
+    transactionStream.on('open', function() {
+        cb()
+    })
 }
 
 function dumpTransactions(transactions: string[], cb) {

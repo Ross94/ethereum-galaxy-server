@@ -1,7 +1,5 @@
-const fs = require('fs')
-
-const logger = require('./../../utilities/log')
-const { checkResourceExists } = require('./../../utilities/utils')
+const abstractComposer = require('./../abstract/abstract-composer')
+const writer = require('./../temp-writer')
 const {
     nodesJsonName,
     transactionsJsonName,
@@ -9,88 +7,80 @@ const {
     jsonGraphName
 } = require('./../../utilities/config')
 
-const reader = require('./../temp-reader')
-const writer = require('./../temp-writer')
-
-const graphPath = graphNoLayoutTemporary() + jsonGraphName()
-const tempPath = graphNoLayoutTemporary() + 'temp.json'
-const nodesPath = graphNoLayoutTemporary() + nodesJsonName()
-const transactionsPath = graphNoLayoutTemporary() + transactionsJsonName()
-
-const jsonLines = {
-    open: '{"nodes":[',
-    mid: '],"links":[',
-    close: ']}'
-}
-
 function compose() {
-    var tempWriter
-    var lineReader
-    var l = undefined
+    const graphPath = graphNoLayoutTemporary() + jsonGraphName()
+    const tempPath = graphNoLayoutTemporary() + 'jsonTemp.json'
+    const nodesPath = graphNoLayoutTemporary() + nodesJsonName()
+    const transactionsPath = graphNoLayoutTemporary() + transactionsJsonName()
 
-    if (checkResourceExists(tempPath)) {
-        fs.unlinkSync(tempPath)
+    const jsonLines = {
+        open: '{"nodes":[',
+        mid: '],"links":[',
+        close: ']}'
     }
 
-    tempWriter = writer(tempPath)
-    lineReader = createReader(nodesPath)
+    var l = undefined
 
-    tempWriter.write(jsonLines.open + '\n')
-    nodePhase()
+    abstractComposer.format = 'Json'
 
-    function createReader(filepath) {
-        return require('readline').createInterface({
-            input: require('fs').createReadStream(filepath)
-        })
+    abstractComposer.path = {
+        graphPath: graphPath,
+        tempPath: tempPath,
+        nodesPath: nodesPath,
+        transactionsPath: transactionsPath
+    }
+
+    abstractComposer.nodesPhaseStart = function() {
+        return jsonLines.open + '\n'
+    }
+
+    abstractComposer.nodesPhaseLine = function(lines, hasLast, cb) {
+        const wLines = []
+        //map lines in writable form
+        for (var i = 0; i < lines.length; i++) {
+            if (hasLast && i == lines.length - 1) {
+                wLines.push(lastLine(lines[i]))
+            } else {
+                wLines.push(commonLine(lines[i]))
+            }
+        }
+        return wLines
+    }
+
+    abstractComposer.nodesPhaseEnd = function() {
+        return ''
+    }
+
+    abstractComposer.transactionsPhaseStart = function() {
+        return '\t' + jsonLines.mid + '\n'
+    }
+
+    abstractComposer.transactionsPhaseLine = function(lines, hasLast, cb) {
+        const wLines = []
+        //map lines in writable form
+        for (var i = 0; i < lines.length; i++) {
+            if (hasLast && i == lines.length - 1) {
+                wLines.push(lastLine(lines[i]))
+            } else {
+                wLines.push(commonLine(lines[i]))
+            }
+        }
+        return wLines
+    }
+
+    abstractComposer.transactionsPhaseEnd = function() {
+        return jsonLines.close + '\n'
     }
 
     function commonLine(line) {
-        tempWriter.write('\t\t' + line + ',\n')
+        return '\t\t' + line + ',\n'
     }
 
     function lastLine(line) {
-        tempWriter.write('\t\t' + line + '\n')
+        return '\t\t' + line + '\n'
     }
 
-    function nodePhase() {
-        logger.log('Start compact Json nodes')
-        lineReader
-            .on('line', function(line) {
-                if (l != undefined) commonLine(l)
-                l = line
-            })
-            .on('close', function() {
-                if (l != undefined) lastLine(l)
-                tempWriter.write('\t' + jsonLines.mid + '\n')
-                logger.log('End compact Json nodes')
-                transactionPhase()
-            })
-    }
-
-    function transactionPhase() {
-        logger.log('Start compact Json transactions')
-        lineReader = createReader(transactionsPath)
-        l = undefined
-        lineReader
-            .on('line', function(line) {
-                if (l != undefined) commonLine(l)
-                l = line
-            })
-            .on('close', function() {
-                if (l != undefined) lastLine(l)
-                tempWriter.write(jsonLines.close + '\n')
-                logger.log('End compact Json transactions')
-                if (checkResourceExists(graphPath)) {
-                    fs.unlinkSync(graphPath)
-                }
-                fs.renameSync(tempPath, graphPath)
-                //communicate to master end generation
-                process.send({
-                    pid: process.pid,
-                    command: 'end'
-                })
-            })
-    }
+    abstractComposer.compose()
 }
 
 module.exports = {

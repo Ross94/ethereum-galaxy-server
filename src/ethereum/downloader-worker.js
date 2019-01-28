@@ -24,8 +24,9 @@ process.on('message', function(message) {
     switch (message.command) {
         case 'config':
             eth = createEth(message.api)
-            setTransactionStream(message.filename)
-            askTask(undefined)
+            setTransactionStream(message.filename, () => {
+                askTask(undefined)
+            })
             break
         case 'task':
             eth.queryBlocks(message.task).then(block_array => {
