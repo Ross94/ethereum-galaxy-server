@@ -1,5 +1,4 @@
 const abstractComposer = require('./../abstract/abstract-composer')
-const writer = require('./../temp-writer')
 const {
     nodesJsonName,
     transactionsJsonName,
@@ -34,17 +33,8 @@ function compose() {
         return jsonLines.open + '\n'
     }
 
-    abstractComposer.nodesPhaseLine = function(lines, hasLast, cb) {
-        const wLines = []
-        //map lines in writable form
-        for (var i = 0; i < lines.length; i++) {
-            if (hasLast && i == lines.length - 1) {
-                wLines.push(lastLine(lines[i]))
-            } else {
-                wLines.push(commonLine(lines[i]))
-            }
-        }
-        return wLines
+    abstractComposer.nodesPhaseLine = function(lines, hasLast) {
+        return jsonConverter(lines, hasLast)
     }
 
     abstractComposer.nodesPhaseEnd = function() {
@@ -55,7 +45,15 @@ function compose() {
         return '\t' + jsonLines.mid + '\n'
     }
 
-    abstractComposer.transactionsPhaseLine = function(lines, hasLast, cb) {
+    abstractComposer.transactionsPhaseLine = function(lines, hasLast) {
+        return jsonConverter(lines, hasLast)
+    }
+
+    abstractComposer.transactionsPhaseEnd = function() {
+        return jsonLines.close + '\n'
+    }
+
+    function jsonConverter(lines, hasLast) {
         const wLines = []
         //map lines in writable form
         for (var i = 0; i < lines.length; i++) {
@@ -66,10 +64,6 @@ function compose() {
             }
         }
         return wLines
-    }
-
-    abstractComposer.transactionsPhaseEnd = function() {
-        return jsonLines.close + '\n'
     }
 
     function commonLine(line) {

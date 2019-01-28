@@ -1,41 +1,57 @@
 const fs = require('fs')
 
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const logger = require('./../../utilities/log')
-const reader = require('./../temp-reader')
-const writer = require('./../temp-writer')
+const reader = require('./../reader')
+const writer = require('./../writer')
 const { checkResourceExists } = require('./../../utilities/utils')
 
-format = 'override format field in another module'
+format = ERRORS_MESSAGES.fieldError('abstract-composer', 'format')
 
 path = {
-    graphPath: 'override graphPath field in another module',
-    tempPath: 'override tempPath field in another module',
-    nodesPath: 'override nodesPath field in another module',
-    transactionsPath: 'override transactionsPath field in another module'
+    graphPath: ERRORS_MESSAGES.fieldError(
+        'abstract-composer',
+        'path.graphPath'
+    ),
+    tempPath: ERRORS_MESSAGES.fieldError('abstract-composer', 'path.tempPath'),
+    nodesPath: ERRORS_MESSAGES.fieldError(
+        'abstract-composer',
+        'path.nodesPath'
+    ),
+    transactionsPath: ERRORS_MESSAGES.fieldError(
+        'abstract-composer',
+        'path.transactionsPath'
+    )
 }
 
 nodesPhaseStart = function() {
-    throw 'error, override nodesPhaseStart function in another module'
+    throw ERRORS_MESSAGES.functionError('abstract-composer', 'nodesPhaseStart')
 }
 
-nodesPhaseLine = function(lines, hasLast, cb) {
-    throw 'error, override nodesPhaseLine function in another module'
+nodesPhaseLine = function(lines, hasLast) {
+    throw ERRORS_MESSAGES.functionError('abstract-composer', 'nodesPhaseLine')
 }
 
 nodesPhaseEnd = function() {
-    throw 'error, override nodesPhaseEnd function in another module'
+    throw ERRORS_MESSAGES.functionError('abstract-composer', 'nodesPhaseEnd')
 }
 
 transactionsPhaseStart = function() {
-    throw 'error, override transactionsPhaseStart function in another module'
+    throw ERRORS_MESSAGES.functionError(
+        'abstract-composer',
+        'transactionsPhaseStart'
+    )
 }
 
-transactionsPhaseLine = function(lines, hasLast, cb) {
-    throw 'error, override transactionsPhaseLine function in another module'
+transactionsPhaseLine = function(lines, hasLast) {
+    throw ERRORS_MESSAGES.functionError(
+        'abstract-composer',
+        'transactionsPhaseLine'
+    )
 }
 
 transactionsPhaseEnd = function() {
-    throw 'error, override transactionsPhaseEnd function in another module'
+    ERRORS.functionError('abstract-composer', 'transactionsPhaseEnd')
 }
 
 function compose() {
@@ -50,8 +66,8 @@ function compose() {
     if (checkResourceExists(tempPath)) {
         fs.unlinkSync(tempPath)
     }
-    writer(tempPath, w => {
-        tempWriter = w
+    writer(tempPath, writer => {
+        tempWriter = writer
         nodePhase()
     })
 

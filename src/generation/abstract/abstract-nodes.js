@@ -2,21 +2,22 @@ const _ = require('lodash')
 const RBTree = require('bintrees').RBTree
 const fs = require('fs')
 
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const logger = require('./../../utilities/log')
-const reader = require('./../temp-reader')
-const writer = require('./../temp-writer')
+const reader = require('./../reader')
+const writer = require('./../writer')
 const { checkResourceExists } = require('./../../utilities/utils')
 
-format = 'override this field in another module'
+format = ERRORS_MESSAGES.fieldError('abstract-nodes', 'format')
 
-nodesPath = 'override this field in another module'
+nodesPath = ERRORS_MESSAGES.fieldError('abstract-nodes', 'nodesPath')
 
 nodeParser = function(line) {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError('abstract-nodes', 'nodeParser')
 }
 
 elemToNode = function(elem) {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError('abstract-nodes', 'elemToNode')
 }
 
 function nodesAggregation(filePath, callback) {
@@ -95,8 +96,8 @@ function nodesAggregation(filePath, callback) {
         }
 
         if (nodesToWrite.size != 0) {
-            writer(nodesPath, w => {
-                const nodesWriter = w
+            writer(nodesPath, writer => {
+                const nodesWriter = writer
                 writeNode = false
                 const app = []
                 const it = nodesToWrite.iterator()

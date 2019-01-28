@@ -6,8 +6,8 @@ module.exports = (filepath, cb) => {
     function writeArray(array, cb) {
         if (array.length != 0) {
             var writed = 0
-            array.forEach(e =>
-                writer.write(e, () => {
+            array.forEach(elem =>
+                writer.write(elem, () => {
                     writed++
                     if (writed == array.length) {
                         cb()
@@ -29,9 +29,4 @@ module.exports = (filepath, cb) => {
             write
         })
     })
-
-    /*return {
-        writeArray,
-        write
-    }*/
 }

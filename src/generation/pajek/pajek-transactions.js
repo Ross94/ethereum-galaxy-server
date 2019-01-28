@@ -1,12 +1,5 @@
 const abstractTransactions = require('./../abstract/abstract-transactions')
-
-const _ = require('lodash')
 const RBTree = require('bintrees').RBTree
-
-const logger = require('./../../utilities/log')
-const reader = require('./../temp-reader')
-const writer = require('./../temp-writer')
-
 const {
     graphNoLayoutTemporary,
     nodesPajekName,

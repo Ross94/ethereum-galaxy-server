@@ -1,6 +1,5 @@
 const execSync = require('child_process').execSync
 const abstractComposer = require('./../abstract/abstract-composer')
-const writer = require('./../temp-writer')
 const {
     nodesPajekName,
     transactionsPajekName,
@@ -32,17 +31,8 @@ function compose() {
         return pajekLines.vertices
     }
 
-    abstractComposer.nodesPhaseLine = function(lines, hasLast, cb) {
-        const wLines = []
-        //map lines in writable form
-        for (var i = 0; i < lines.length; i++) {
-            if (hasLast && i == lines.length - 1) {
-                wLines.push(writableLine(lines[i]))
-            } else {
-                wLines.push(writableLine(lines[i]))
-            }
-        }
-        return wLines
+    abstractComposer.nodesPhaseLine = function(lines, hasLast) {
+        return pajekConverter(lines)
     }
 
     abstractComposer.nodesPhaseEnd = function() {
@@ -53,21 +43,16 @@ function compose() {
         return pajekLines.arcs + '\n'
     }
 
-    abstractComposer.transactionsPhaseLine = function(lines, hasLast, cb) {
-        const wLines = []
-        //map lines in writable form
-        for (var i = 0; i < lines.length; i++) {
-            if (hasLast && i == lines.length - 1) {
-                wLines.push(writableLine(lines[i]))
-            } else {
-                wLines.push(writableLine(lines[i]))
-            }
-        }
-        return wLines
+    abstractComposer.transactionsPhaseLine = function(lines, hasLast) {
+        return pajekConverter(lines)
     }
 
     abstractComposer.transactionsPhaseEnd = function() {
         return ''
+    }
+
+    function pajekConverter(lines) {
+        return lines.map(elem => writableLine(elem))
     }
 
     function writableLine(line) {

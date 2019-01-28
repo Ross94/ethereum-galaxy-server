@@ -4,21 +4,15 @@ const saveGraph = require('ngraph.tobinary')
 
 const logger = require('./../utilities/log')
 
-const { ensureDirExists, deleteFile } = require('./../utilities/utils')
+const { ensureDirExists } = require('./../utilities/utils')
 const {
-    baseFilename,
     jsonFilename,
     infoFilename,
     pajekFilename,
     ngraphBasePath
 } = require('./../utilities/config')
 
-const {
-    dumpJSON,
-    dumpPajek,
-    dumpInfo,
-    dumpTransactions
-} = require('./../utilities/files')
+const { dumpJSON, dumpPajek, dumpInfo } = require('./../utilities/files')
 const calculateNgraphLayout = require('./../live/ngraph-layout')
 
 export type Range = {
@@ -166,12 +160,6 @@ module.exports = (infuraApiKey: string) => {
         dumpPajek(pajekFilename(), graph)
 
         logger.log('Finished, cya')
-    }
-
-    function initializeBlockSpace(start, end) {
-        return Array(end - start)
-            .fill(1)
-            .map((one, index) => start + one + (index - 1))
     }
 
     async function lastBlock() {

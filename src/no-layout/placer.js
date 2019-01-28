@@ -1,6 +1,5 @@
 const fs = require('fs')
 const logger = require('./../utilities/log')
-const constraints = require('./../utilities/constraints')
 const { ensureDirExists } = require('./../utilities/utils')
 const {
     graphNoLayoutTemporary,

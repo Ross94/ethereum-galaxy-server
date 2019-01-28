@@ -1,12 +1,13 @@
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const constraints = require('../../utilities/constraints')
 const logger = require('../../utilities/log')
 
 split = function() {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError('abstract-generator', 'split')
 }
 
 aggregate = function() {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError('abstract-generator', 'aggregate')
 }
 
 function startProcess() {

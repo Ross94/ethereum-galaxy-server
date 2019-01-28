@@ -1,27 +1,34 @@
-const writer = require('./../temp-writer')
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const writer = require('./../writer')
 const logger = require('./../../utilities/log')
 const { checkResourceExists } = require('./../../utilities/utils')
-
-path = {
-    graphPath: 'override this field in another module',
-    nodePath: 'override this field in another module',
-    transactionPath: 'override this field in another module'
-}
-
-format = 'override this field in another module'
-
-parser = function(line) {
-    throw 'error, override this function in another module'
-}
-
-aggregate = function() {
-    throw 'error, override this function in another module'
-}
 
 const TYPE = Object.freeze({
     node: 'node',
     transaction: 'transaction'
 })
+
+path = {
+    graphPath: ERRORS_MESSAGES.fieldError(
+        'abstract-splitter',
+        'path.graphPath'
+    ),
+    nodePath: ERRORS_MESSAGES.fieldError('abstract-splitter', 'path.nodePath'),
+    transactionPath: ERRORS_MESSAGES.fieldError(
+        'abstract-splitter',
+        'path.transactionPath'
+    )
+}
+
+format = ERRORS_MESSAGES.fieldError('abstract-splitter', 'format')
+
+parser = function(line) {
+    throw ERRORS_MESSAGES.functionError('abstract-splitter', 'parser')
+}
+
+aggregate = function() {
+    throw ERRORS_MESSAGES.functionError('abstract-splitter', 'aggregate')
+}
 
 function split() {
     const graphPath = module.exports.path.graphPath

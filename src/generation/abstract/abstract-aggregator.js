@@ -1,18 +1,25 @@
 const logger = require('./../../utilities/log')
 const { graphNoLayoutTemporary } = require('./../../utilities/config')
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 
-format = 'override this field in another module'
+format = ERRORS_MESSAGES.fieldError('abstract-aggregator', 'format')
 
 nodesAggregation = function(filepath, cb) {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError(
+        'abstract-aggregator',
+        'nodesAggregation'
+    )
 }
 
 transactionsAggregation = function(filepath, cb) {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError(
+        'abstract-aggregator',
+        'transactionsAggregation'
+    )
 }
 
 compose = function() {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError('abstract-aggregator', 'compose')
 }
 
 function aggregate() {

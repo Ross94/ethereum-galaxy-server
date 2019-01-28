@@ -1,29 +1,44 @@
 const _ = require('lodash')
 
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const logger = require('./../../utilities/log')
-const reader = require('./../temp-reader')
-const writer = require('./../temp-writer')
+const reader = require('./../reader')
+const writer = require('./../writer')
 
-format = 'override this field in another module'
+format = ERRORS_MESSAGES.fieldError('abstract-transactions', 'format')
 
 path = {
-    nodesPath: 'override this field in another module',
-    transactionsPath: 'override this field in another module'
+    nodesPath: ERRORS_MESSAGES.fieldError(
+        'abstract-transactions',
+        'path.nodesPath'
+    ),
+    transactionsPath: ERRORS_MESSAGES.fieldError(
+        'abstract-transactions',
+        'path.transactionsPath'
+    )
 }
 
 nodeFileParser = function(line) {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError(
+        'abstract-transactions',
+        'nodeFileParser'
+    )
 }
 
 tempFileParser = function(line) {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError(
+        'abstract-transactions',
+        'tempFileParser'
+    )
 }
 
 transactionConverter = function(lines, transactions) {
-    throw 'error, override this function in another module'
+    throw ERRORS_MESSAGES.functionError(
+        'abstract-transactions',
+        'transactionConverter'
+    )
 }
 
-//chiamata 2 volte
 function transactionsAggregation(filePath, cb) {
     const nodesPath = module.exports.path.nodesPath
     const transactionsPath = module.exports.path.transactionsPath
@@ -34,8 +49,8 @@ function transactionsAggregation(filePath, cb) {
     var lastLine = false
     var nodesReader
     var transactionsWriter
-    writer(transactionsPath, w => {
-        transactionsWriter = w
+    writer(transactionsPath, writer => {
+        transactionsWriter = writer
         logger.log(
             'Start ' +
                 module.exports.format +

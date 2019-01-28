@@ -2,7 +2,7 @@ const child_process = require('child_process')
 const constraints = require('./../utilities/constraints')
 const logger = require('./../utilities/log')
 const { graphNoLayoutTemporary, infoName } = require('./../utilities/config')
-const { deleteFolder, ensureDirExists } = require('./../utilities/utils')
+const { ensureDirExists } = require('./../utilities/utils')
 const { saveInfo } = require('./../utilities/files')
 
 const { generate } = require('./../generation/generator-master')
@@ -13,26 +13,21 @@ const chunkSize = 240
 
 const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
-var chunkNumber
-var firstBlock
-var lastBlock
-var nextBlock
-var task
-
 module.exports = (start, end) => {
     const workers = new Map()
-    firstBlock = start
-    lastBlock = end
-    nextBlock = start
+    const firstBlock = start
+    const lastBlock = end
 
-    task = [
+    var nextBlock = start
+
+    var task = [
         {
             start: firstBlock,
             end: lastBlock
         }
     ]
 
-    chunkNumber = Math.ceil((lastBlock - firstBlock + 1) / chunkSize)
+    const chunkNumber = Math.ceil((lastBlock - firstBlock + 1) / chunkSize)
     const progressBar = logger.progress(progressBarMsg, chunkNumber)
 
     ensureDirExists(graphNoLayoutTemporary())
@@ -128,61 +123,61 @@ module.exports = (start, end) => {
         }
     }
 
+    function addElem(elem) {
+        var find = false
+        var ind = 0
+        const block = parseInt(elem)
+        while (!find && ind < task.length) {
+            const currentRange = task[ind]
+            if (inside(block, currentRange)) {
+                if (single(block, currentRange)) {
+                    task.splice(task.indexOf(currentRange), 1)
+                } else if (bottom(block, currentRange)) {
+                    currentRange.start = block + 1
+                } else if (top(block, currentRange)) {
+                    currentRange.end = block - 1
+                } else {
+                    const start = currentRange.start
+                    const end = currentRange.end
+                    task.splice(task.indexOf(currentRange), 1)
+                    task.push({ start: start, end: block - 1 })
+                    task.push({ start: block + 1, end: end })
+                }
+                find = true
+            }
+            ind++
+        }
+    }
+
+    function inside(e, range) {
+        if (e >= range.start && e <= range.end) {
+            return true
+        }
+        return false
+    }
+
+    function single(e, range) {
+        if (e == range.start && e == range.end) {
+            return true
+        }
+        return false
+    }
+
+    function top(e, range) {
+        if (e == range.end) {
+            return true
+        }
+        return false
+    }
+
+    function bottom(e, range) {
+        if (e == range.start) {
+            return true
+        }
+        return false
+    }
+
     return {
         startWorkers
     }
-}
-
-function addElem(elem) {
-    var find = false
-    var ind = 0
-    const block = parseInt(elem)
-    while (!find && ind < task.length) {
-        const currentRange = task[ind]
-        if (inside(block, currentRange)) {
-            if (single(block, currentRange)) {
-                task.splice(task.indexOf(currentRange), 1)
-            } else if (bottom(block, currentRange)) {
-                currentRange.start = block + 1
-            } else if (top(block, currentRange)) {
-                currentRange.end = block - 1
-            } else {
-                const start = currentRange.start
-                const end = currentRange.end
-                task.splice(task.indexOf(currentRange), 1)
-                task.push({ start: start, end: block - 1 })
-                task.push({ start: block + 1, end: end })
-            }
-            find = true
-        }
-        ind++
-    }
-}
-
-function inside(e, range) {
-    if (e >= range.start && e <= range.end) {
-        return true
-    }
-    return false
-}
-
-function single(e, range) {
-    if (e == range.start && e == range.end) {
-        return true
-    }
-    return false
-}
-
-function top(e, range) {
-    if (e == range.end) {
-        return true
-    }
-    return false
-}
-
-function bottom(e, range) {
-    if (e == range.start) {
-        return true
-    }
-    return false
 }

@@ -1,4 +1,3 @@
-const fs = require('fs')
 const argv = require('named-argv')
 
 const constraints = require('./../utilities/constraints')
@@ -19,16 +18,16 @@ const {
     graphNoLayoutBlock
 } = require('./../utilities/config')
 
-const params = argv.opts
-
-var time = 0
-var block = 0
-var all = 0
-
-var eth
-var api
-
+main()
 function main() {
+    const params = argv.opts
+
+    var time = 0
+    var block = 0
+    var all = 0
+
+    var api
+
     if (params.api != undefined) {
         if (params.memory) {
             const defaultNodeMemory = 1400
@@ -41,7 +40,7 @@ function main() {
         api = params.api
         const retriever = retrieverSetKey(api)
 
-        eth = createEth(params.api)
+        const eth = createEth(params.api)
         eth.lastBlock().then(lastBlock => {
             //in this part check params and select the method to extract indexes
             if (
@@ -151,48 +150,46 @@ function main() {
     } else {
         console.log('Wrong infuraApiKey, param -api=infuraApiKey')
     }
-}
 
-function downloadPhase(blocks) {
-    logger.log('Start download phase')
-    const workers = master(parseInt(blocks.first), parseInt(blocks.last))
-    workers.startWorkers(api)
-}
+    function downloadPhase(blocks) {
+        logger.log('Start download phase')
+        const workers = master(parseInt(blocks.first), parseInt(blocks.last))
+        workers.startWorkers(api)
+    }
 
-function checkDateFormat(date) {
-    if (typeof date === 'string') {
-        const parts = date.split('-').map(e => parseInt(e))
-        if (parts[2] >= 0) {
-            switch (parts[1]) {
-                case 1:
-                case 3:
-                case 5:
-                case 7:
-                case 8:
-                case 10:
-                case 12:
-                    if (parts[0] <= 31) {
-                        return true
-                    }
-                    break
-                case 2:
-                    const bis = parts[2] % 4 == 0 ? 1 : 0
-                    if (parts[0] <= 28 + bis) {
-                        return true
-                    }
-                    break
-                case 4:
-                case 6:
-                case 9:
-                case 11:
-                    if (parts[0] <= 30) {
-                        return true
-                    }
-                    break
+    function checkDateFormat(date) {
+        if (typeof date === 'string') {
+            const parts = date.split('-').map(elem => parseInt(elem))
+            if (parts[2] >= 0) {
+                switch (parts[1]) {
+                    case 1:
+                    case 3:
+                    case 5:
+                    case 7:
+                    case 8:
+                    case 10:
+                    case 12:
+                        if (parts[0] <= 31) {
+                            return true
+                        }
+                        break
+                    case 2:
+                        const bis = parts[2] % 4 == 0 ? 1 : 0
+                        if (parts[0] <= 28 + bis) {
+                            return true
+                        }
+                        break
+                    case 4:
+                    case 6:
+                    case 9:
+                    case 11:
+                        if (parts[0] <= 30) {
+                            return true
+                        }
+                        break
+                }
             }
         }
+        return false
     }
-    return false
 }
-
-main()

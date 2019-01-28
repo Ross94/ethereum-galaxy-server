@@ -1,10 +1,8 @@
 const LineByLineReader = require('line-by-line')
 const execSync = require('child_process').execSync
-const constraints = require('./../utilities/constraints')
+const constraints = require('../utilities/constraints')
 
 module.exports = (filepath, parseLogic, callback) => {
-    const path = filepath
-
     /*there is a proportion of 5000000 of lines for each 1000 MB this params as been tuned.
     This method has been called on temp file and nodes file, so you can read 2500000 lines form temp and 2500000 from nodes
     */
