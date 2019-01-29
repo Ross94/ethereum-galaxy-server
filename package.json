@@ -14,14 +14,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/loopingdoge/ethereum-galaxy-server.git"
+        "url": "git+https://github.com/Ross94/ethereum-galaxy-server.git"
     },
     "author": "Looping Doge",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/loopingdoge/ethereum-galaxy-server/issues"
+        "url": "https://github.com/Ross94/ethereum-galaxy-server/issues"
     },
-    "homepage": "https://github.com/loopingdoge/ethereum-galaxy-server#readme",
+    "homepage": "https://github.com/Ross94/ethereum-galaxy-server#readme",
     "dependencies": {
         "bintrees": "^1.0.2",
         "colors": "^1.2.0",
