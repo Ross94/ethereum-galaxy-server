@@ -1,5 +1,6 @@
 const child_process = require('child_process')
-const constraints = require('./../utilities/constraints')
+const SpecSettings = require('./../utilities/constants/spec-settings')
+const RunSettings = require('./../utilities/constants/run-settings')
 const logger = require('./../utilities/log')
 const { move } = require('./../no-layout/placer')
 
@@ -47,12 +48,12 @@ function generate() {
         child.send({
             command: 'start',
             loggerPath: logger.getPath(),
-            saveFolder: constraints.getSaveFolder(),
-            folderName: constraints.getFolderName(),
-            range: constraints.getRange(),
+            saveFolder: RunSettings.getSaveFolderPath(),
+            folderName: RunSettings.getFolderName(),
+            range: RunSettings.getRange(),
             processNum: processNum,
-            memory: constraints.getMemory(),
-            oldDownload: constraints.getOldDownload()
+            memory: SpecSettings.getMemory(),
+            oldDownload: RunSettings.getOldDownload()
         })
     }
 

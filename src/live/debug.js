@@ -1,5 +1,3 @@
-const express = require('express')
-
 const createEth = require('./../ethereum/eth')
 
 if (!process.env.INFURA_API_KEY) {

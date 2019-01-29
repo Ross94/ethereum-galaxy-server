@@ -1,5 +1,6 @@
 const logger = require('./../../utilities/log')
-const { graphNoLayoutTemporary } = require('./../../utilities/config')
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 
 format = ERRORS_MESSAGES.fieldError('abstract-aggregator', 'format')
@@ -23,7 +24,7 @@ compose = function() {
 }
 
 function aggregate() {
-    const tempFilesFolderPath = graphNoLayoutTemporary()
+    const tempFilesFolderPath = NoLayoutConstants.graphNoLayoutTemporary
     const tempFiles = require('fs')
         .readdirSync(tempFilesFolderPath)
         .filter(file => filterFiles(file))

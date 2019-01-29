@@ -1,18 +1,21 @@
 const abstractSplitter = require('./../abstract/abstract-splitter')
 const { aggregate } = require('./pajek-aggregator')
-const {
-    graphNoLayoutAll,
-    graphNoLayoutTemporary,
-    pajekGraphName,
-    nodesPajekName,
-    transactionsPajekName
-} = require('./../../utilities/config')
+const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
+    .PajekNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 function split() {
     abstractSplitter.path = {
-        graphPath: graphNoLayoutAll() + pajekGraphName(),
-        nodePath: graphNoLayoutTemporary() + nodesPajekName(),
-        transactionPath: graphNoLayoutTemporary() + transactionsPajekName()
+        graphPath:
+            NoLayoutConstants.graphNoLayoutAll +
+            PajekNameConstants.pajekGraphName,
+        nodePath:
+            NoLayoutConstants.graphNoLayoutTemporary +
+            PajekNameConstants.nodesPajekName,
+        transactionPath:
+            NoLayoutConstants.graphNoLayoutTemporary +
+            PajekNameConstants.transactionsPajekName
     }
 
     abstractSplitter.format = 'Pajek'

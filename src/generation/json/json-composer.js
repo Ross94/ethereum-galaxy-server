@@ -1,16 +1,20 @@
 const abstractComposer = require('./../abstract/abstract-composer')
-const {
-    nodesJsonName,
-    transactionsJsonName,
-    graphNoLayoutTemporary,
-    jsonGraphName
-} = require('./../../utilities/config')
+const JsonNameConstants = require('./../../utilities/constants/files-name-constants')
+    .JsonNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 function compose() {
-    const graphPath = graphNoLayoutTemporary() + jsonGraphName()
-    const tempPath = graphNoLayoutTemporary() + 'jsonTemp.json'
-    const nodesPath = graphNoLayoutTemporary() + nodesJsonName()
-    const transactionsPath = graphNoLayoutTemporary() + transactionsJsonName()
+    const graphPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        JsonNameConstants.jsonGraphName
+    const tempPath = NoLayoutConstants.graphNoLayoutTemporary + 'jsonTemp.json'
+    const nodesPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        JsonNameConstants.nodesJsonName
+    const transactionsPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        JsonNameConstants.transactionsJsonName
 
     const jsonLines = {
         open: '{"nodes":[',

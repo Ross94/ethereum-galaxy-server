@@ -1,17 +1,21 @@
 const execSync = require('child_process').execSync
 const abstractComposer = require('./../abstract/abstract-composer')
-const {
-    nodesPajekName,
-    transactionsPajekName,
-    graphNoLayoutTemporary,
-    pajekGraphName
-} = require('./../../utilities/config')
+const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
+    .PajekNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 function compose() {
-    const graphPath = graphNoLayoutTemporary() + pajekGraphName()
-    const tempPath = graphNoLayoutTemporary() + 'pajekTemp.net'
-    const nodesPath = graphNoLayoutTemporary() + nodesPajekName()
-    const transactionsPath = graphNoLayoutTemporary() + transactionsPajekName()
+    const graphPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        PajekNameConstants.pajekGraphName
+    const tempPath = NoLayoutConstants.graphNoLayoutTemporary + 'pajekTemp.net'
+    const nodesPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        PajekNameConstants.nodesPajekName
+    const transactionsPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        PajekNameConstants.transactionsPajekName
 
     const pajekLines = {
         vertices: '*Vertices ' + execSync('wc -l < ' + nodesPath),

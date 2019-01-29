@@ -1,7 +1,10 @@
 const child_process = require('child_process')
-const constraints = require('./../utilities/constraints')
+const RunSettings = require('./../utilities/constants/run-settings')
 const logger = require('./../utilities/log')
-const { graphNoLayoutTemporary, infoName } = require('./../utilities/config')
+const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
+const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
+    .GlobalNameConstants
 const { ensureDirExists } = require('./../utilities/utils')
 const { saveInfo } = require('./../utilities/files')
 
@@ -30,7 +33,7 @@ module.exports = (start, end) => {
     const chunkNumber = Math.ceil((lastBlock - firstBlock + 1) / chunkSize)
     const progressBar = logger.progress(progressBarMsg, chunkNumber)
 
-    ensureDirExists(graphNoLayoutTemporary())
+    ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
 
     function availableTask() {
         function getTask() {
@@ -56,11 +59,15 @@ module.exports = (start, end) => {
     }
 
     function save(miss) {
-        saveInfo(graphNoLayoutTemporary() + infoName(), {
-            saveFolder: constraints.getSaveFolder(),
-            range: constraints.getRange(),
-            missing: miss
-        })
+        saveInfo(
+            NoLayoutConstants.graphNoLayoutTemporary +
+                GlobalNameConstants.infoName,
+            {
+                saveFolder: RunSettings.getSaveFolderPath(),
+                range: RunSettings.getRange(),
+                missing: miss
+            }
+        )
     }
 
     function startWorkers(infuraApiKey) {
@@ -77,7 +84,8 @@ module.exports = (start, end) => {
             workers.set(child.pid, child)
             child.send({
                 command: 'config',
-                filename: graphNoLayoutTemporary() + i + '.json',
+                filename:
+                    NoLayoutConstants.graphNoLayoutTemporary + i + '.json',
                 api: infuraApiKey
             })
             child.on('message', function(message) {

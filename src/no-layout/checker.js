@@ -1,47 +1,62 @@
 const fs = require('fs')
 
-const constraints = require('./../utilities/constraints')
+const RunSettings = require('./../utilities/constants/run-settings')
 const logger = require('./../utilities/log')
+const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
+const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
+    .GlobalNameConstants
+const JsonNameConstants = require('./../utilities/constants/files-name-constants')
+    .JsonNameConstants
+const PajekNameConstants = require('./../utilities/constants/files-name-constants')
+    .PajekNameConstants
 const { saveInfo } = require('./../utilities/files')
 const { checkResourceExists, ensureDirExists } = require('./../utilities/utils')
-const {
-    graphNoLayoutAll,
-    graphNoLayoutTemporary,
-    infoName,
-    jsonGraphName,
-    pajekGraphName
-} = require('./../utilities/config')
 
 function checkAll(lastBlock) {
     var lastBlockDownloaded
 
-    ensureDirExists(graphNoLayoutTemporary())
+    ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
     if (
-        checkResourceExists(graphNoLayoutAll() + infoName()) &&
-        checkResourceExists(graphNoLayoutAll() + jsonGraphName()) &&
-        checkResourceExists(graphNoLayoutAll() + pajekGraphName())
+        checkResourceExists(
+            NoLayoutConstants.graphNoLayoutAll + GlobalNameConstants.infoName
+        ) &&
+        checkResourceExists(
+            NoLayoutConstants.graphNoLayoutAll + JsonNameConstants.jsonGraphName
+        ) &&
+        checkResourceExists(
+            NoLayoutConstants.graphNoLayoutAll +
+                PajekNameConstants.pajekGraphName
+        )
     ) {
-        constraints.setOldDownload(true)
+        RunSettings.setOldDownload(true)
         logger.log(
             'Previous download of "all" find, download only missing data'
         )
 
         const info = JSON.parse(
-            fs.readFileSync(graphNoLayoutAll() + infoName())
+            fs.readFileSync(
+                NoLayoutConstants.graphNoLayoutAll +
+                    GlobalNameConstants.infoName
+            )
         )
 
         lastBlockDownloaded = parseInt(info.range.last)
         //info
-        saveInfo(graphNoLayoutTemporary() + infoName(), {
-            saveFolder: constraints.getSaveFolder(),
-            range: constraints.getRange(),
-            missing: [
-                {
-                    start: lastBlockDownloaded + 1,
-                    end: lastBlock
-                }
-            ]
-        })
+        saveInfo(
+            NoLayoutConstants.graphNoLayoutTemporary +
+                GlobalNameConstants.infoName,
+            {
+                saveFolder: RunSettings.getSaveFolderPath(),
+                range: RunSettings.getRange(),
+                missing: [
+                    {
+                        start: lastBlockDownloaded + 1,
+                        end: lastBlock
+                    }
+                ]
+            }
+        )
     } else {
         lastBlockDownloaded = -1
         logger.log('No previous download of "all", split phase skipped')

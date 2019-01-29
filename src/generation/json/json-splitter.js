@@ -1,18 +1,21 @@
 const abstractSplitter = require('./../abstract/abstract-splitter')
 const { aggregate } = require('./json-aggregator')
-const {
-    graphNoLayoutAll,
-    graphNoLayoutTemporary,
-    jsonGraphName,
-    nodesJsonName,
-    transactionsJsonName
-} = require('./../../utilities/config')
+const JsonNameConstants = require('./../../utilities/constants/files-name-constants')
+    .JsonNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 function split() {
     abstractSplitter.path = {
-        graphPath: graphNoLayoutAll() + jsonGraphName(),
-        nodePath: graphNoLayoutTemporary() + nodesJsonName(),
-        transactionPath: graphNoLayoutTemporary() + transactionsJsonName()
+        graphPath:
+            NoLayoutConstants.graphNoLayoutAll +
+            JsonNameConstants.jsonGraphName,
+        nodePath:
+            NoLayoutConstants.graphNoLayoutTemporary +
+            JsonNameConstants.nodesJsonName,
+        transactionPath:
+            NoLayoutConstants.graphNoLayoutTemporary +
+            JsonNameConstants.transactionsJsonName
     }
 
     abstractSplitter.format = 'Json'

@@ -1,5 +1,6 @@
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-const constraints = require('../../utilities/constraints')
+const RunSettings = require('../../utilities/constants/run-settings')
+const SpecSettings = require('../../utilities/constants/spec-settings')
 const logger = require('../../utilities/log')
 
 split = function() {
@@ -15,11 +16,11 @@ function startProcess() {
         switch (message.command) {
             case 'start':
                 logger.setPath(message.loggerPath)
-                constraints.setSaveFolder(message.saveFolder)
-                constraints.setFolderName(message.folderName)
-                constraints.setRange(message.range)
-                constraints.setProcessNum(message.processNum)
-                constraints.setMemory(message.memory)
+                RunSettings.setSaveFolderPath(message.saveFolder)
+                RunSettings.setFolderName(message.folderName)
+                RunSettings.setRange(message.range)
+                SpecSettings.setProcessNum(message.processNum)
+                SpecSettings.setMemory(message.memory)
 
                 if (message.oldDownload) {
                     module.exports.split()

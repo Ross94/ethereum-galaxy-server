@@ -1,13 +1,15 @@
 const abstractNodes = require('./../abstract/abstract-nodes')
-const {
-    graphNoLayoutTemporary,
-    nodesJsonName
-} = require('./../../utilities/config')
+const JsonNameConstants = require('./../../utilities/constants/files-name-constants')
+    .JsonNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 function jsonNodesAggregation(filePath, cb) {
     abstractNodes.format = 'Json'
 
-    abstractNodes.nodesPath = graphNoLayoutTemporary() + nodesJsonName()
+    abstractNodes.nodesPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        JsonNameConstants.nodesJsonName
 
     abstractNodes.nodeParser = function(line) {
         const e = JSON.parse(line)

@@ -1,14 +1,17 @@
 const abstractTransactions = require('./../abstract/abstract-transactions')
 const RBTree = require('bintrees').RBTree
-const {
-    graphNoLayoutTemporary,
-    nodesPajekName,
-    transactionsPajekName
-} = require('./../../utilities/config')
+const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
+    .PajekNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 function pajekTransactionsAggregation(filePath, cb) {
-    const nodesPath = graphNoLayoutTemporary() + nodesPajekName()
-    const transactionsPath = graphNoLayoutTemporary() + transactionsPajekName()
+    const nodesPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        PajekNameConstants.nodesPajekName
+    const transactionsPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        PajekNameConstants.transactionsPajekName
 
     abstractTransactions.format = 'Pajek'
 

@@ -1,6 +1,7 @@
 const argv = require('named-argv')
 
-const constraints = require('./../utilities/constraints')
+const SpecSettings = require('./../utilities/constants/spec-settings')
+const RunSettings = require('./../utilities/constants/run-settings')
 const logger = require('./../utilities/log')
 
 const createEth = require('./../ethereum/eth')
@@ -9,14 +10,10 @@ const retrieverSetKey = require('./../no-layout/block-retriever')
 const { ensureDirExists } = require('./../utilities/utils')
 const { dateComparator } = require('./../utilities/utils')
 const { checkAll } = require('./checker')
-const {
-    logNoLayoutAll,
-    logNoLayoutTime,
-    logNoLayoutBlock,
-    graphNoLayoutAll,
-    graphNoLayoutTime,
-    graphNoLayoutBlock
-} = require('./../utilities/config')
+const LogConstants = require('./../utilities/constants/log-constants')
+    .LogConstants
+const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 main()
 function main() {
@@ -31,10 +28,10 @@ function main() {
     if (params.api != undefined) {
         if (params.memory) {
             const defaultNodeMemory = 1400
-            constraints.setMemory(defaultNodeMemory)
+            SpecSettings.setMemory(defaultNodeMemory)
         }
         if (!isNaN(parseInt(params.memory))) {
-            constraints.setMemory(parseInt(params.memory))
+            SpecSettings.setMemory(parseInt(params.memory))
         }
 
         api = params.api
@@ -70,15 +67,19 @@ function main() {
                 )
             } else {
                 if (time == 1) {
-                    ensureDirExists(graphNoLayoutTime())
-                    constraints.setFolderName(
+                    ensureDirExists(NoLayoutConstants.graphNoLayoutTime)
+                    RunSettings.setFolderName(
                         params.firstDate + '-' + params.lastDate
                     )
-                    constraints.setSaveFolder(
-                        graphNoLayoutTime() + constraints.getFolderName() + '/'
+                    RunSettings.setSaveFolderPath(
+                        NoLayoutConstants.graphNoLayoutTime +
+                            RunSettings.getFolderName() +
+                            '/'
                     )
                     logger.setPath(
-                        logNoLayoutTime() + constraints.getFolderName() + '.log'
+                        LogConstants.logNoLayoutTime +
+                            RunSettings.getFolderName() +
+                            '.log'
                     )
                     logger.log(
                         'Log of time type with firstDate: ' +
@@ -92,21 +93,23 @@ function main() {
                             lastDate: params.lastDate
                         })
                         .then(res => {
-                            constraints.setRange(res)
+                            RunSettings.setRange(res)
                             downloadPhase(res)
                         })
                 }
                 if (block == 1) {
-                    ensureDirExists(logNoLayoutBlock())
-                    constraints.setFolderName(
+                    ensureDirExists(NoLayoutConstants.graphNoLayoutBlock)
+                    RunSettings.setFolderName(
                         params.firstBlock + '-' + params.lastBlock
                     )
-                    constraints.setSaveFolder(
-                        graphNoLayoutBlock() + constraints.getFolderName() + '/'
+                    RunSettings.setSaveFolderPath(
+                        NoLayoutConstants.graphNoLayoutBlock +
+                            RunSettings.getFolderName() +
+                            '/'
                     )
                     logger.setPath(
-                        logNoLayoutBlock() +
-                            constraints.getFolderName() +
+                        LogConstants.logNoLayoutBlock +
+                            RunSettings.getFolderName() +
                             '.log'
                     )
                     logger.log(
@@ -119,28 +122,32 @@ function main() {
                         first: parseInt(params.firstBlock),
                         last: parseInt(params.lastBlock)
                     }
-                    constraints.setRange(range)
+                    RunSettings.setRange(range)
                     downloadPhase(range)
                 }
                 if (all == 1) {
-                    ensureDirExists(graphNoLayoutAll())
-                    constraints.setFolderName('all')
-                    constraints.setSaveFolder(graphNoLayoutAll())
+                    ensureDirExists(NoLayoutConstants.graphNoLayoutAll)
+                    RunSettings.setFolderName('all')
+                    RunSettings.setSaveFolderPath(
+                        NoLayoutConstants.graphNoLayoutAll
+                    )
                     logger.setPath(
-                        logNoLayoutAll() + constraints.getFolderName() + '.log'
+                        LogConstants.logNoLayoutAll +
+                            RunSettings.getFolderName() +
+                            '.log'
                     )
                     logger.log('Log of all type')
 
                     //start test block
                     const res = { first: 1999998, last: 1999998 }
-                    constraints.setRange(res)
+                    RunSettings.setRange(res)
                     const range = checkAll(res.last)
                     range.first = 1999998 //comment when second execute has last 1999999
                     downloadPhase(range)
                     //end test block
 
                     /*retriever.allToBlocks().then(res => {
-                        constraints.setRange(res)
+                        RunSettings.setRange(res)
                         const range = checkAll(res.last)
                         downloadPhase(range)
                     })*/

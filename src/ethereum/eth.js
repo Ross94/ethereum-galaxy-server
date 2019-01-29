@@ -4,14 +4,9 @@ const saveGraph = require('ngraph.tobinary')
 
 const logger = require('./../utilities/log')
 
+const LiveConstants = require('./../utilities/constants/live-constants')
+    .LiveConstants
 const { ensureDirExists } = require('./../utilities/utils')
-const {
-    jsonFilename,
-    infoFilename,
-    pajekFilename,
-    ngraphBasePath
-} = require('./../utilities/config')
-
 const { dumpJSON, dumpPajek, dumpInfo } = require('./../utilities/files')
 const calculateNgraphLayout = require('./../live/ngraph-layout')
 
@@ -135,7 +130,7 @@ module.exports = (infuraApiKey: string) => {
         const graph = { nodes, links: transactions }
 
         if (doLayout) {
-            const ngraphOutDirPath = ngraphBasePath()
+            const ngraphOutDirPath = LiveConstants.ngraphBasePath
             ensureDirExists(ngraphOutDirPath)
             const ngraph = await calculateNgraphLayout(graph, ngraphOutDirPath)
 
@@ -149,15 +144,15 @@ module.exports = (infuraApiKey: string) => {
 
         logger.log('Exporting the graph to JSON...')
 
-        dumpJSON(jsonFilename(), graph)
+        dumpJSON(LiveConstants.jsonFilename, graph)
 
         logger.log('Export the graph infos...')
 
-        dumpInfo(infoFilename(), graph, range)
+        dumpInfo(LiveConstants.infoFilename, graph, range)
 
         logger.log('Exporting the graph to Pajek...')
 
-        dumpPajek(pajekFilename(), graph)
+        dumpPajek(LiveConstants.pajekFilename, graph)
 
         logger.log('Finished, cya')
     }

@@ -1,17 +1,19 @@
 const abstractTransactions = require('./../abstract/abstract-transactions')
-
-const {
-    graphNoLayoutTemporary,
-    nodesJsonName,
-    transactionsJsonName
-} = require('./../../utilities/config')
+const JsonNameConstants = require('./../../utilities/constants/files-name-constants')
+    .JsonNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 
 function jsonTransactionsAggregation(filePath, cb) {
     abstractTransactions.format = 'Json'
 
     abstractTransactions.path = {
-        nodesPath: graphNoLayoutTemporary() + nodesJsonName(),
-        transactionsPath: graphNoLayoutTemporary() + transactionsJsonName()
+        nodesPath:
+            NoLayoutConstants.graphNoLayoutTemporary +
+            JsonNameConstants.nodesJsonName,
+        transactionsPath:
+            NoLayoutConstants.graphNoLayoutTemporary +
+            JsonNameConstants.transactionsJsonName
     }
 
     abstractTransactions.nodeFileParser = function(line) {

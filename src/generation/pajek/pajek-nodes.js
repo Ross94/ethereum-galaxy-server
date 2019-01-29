@@ -1,13 +1,15 @@
 const abstractNodes = require('./../abstract/abstract-nodes')
 const execSync = require('child_process').execSync
-const {
-    graphNoLayoutTemporary,
-    nodesPajekName
-} = require('./../../utilities/config')
+const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
+    .PajekNameConstants
+const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
+    .NoLayoutConstants
 const { checkResourceExists } = require('./../../utilities/utils')
 
 function pajekNodesAggregation(filePath, cb) {
-    const nodesPath = graphNoLayoutTemporary() + nodesPajekName()
+    const nodesPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        PajekNameConstants.nodesPajekName
     var nextNodeID
 
     abstractNodes.format = 'Pajek'
