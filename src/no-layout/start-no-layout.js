@@ -138,19 +138,11 @@ function main() {
                     )
                     logger.log('Log of all type')
 
-                    //start test block
-                    const res = { first: 1999998, last: 1999998 }
-                    RunSettings.setRange(res)
-                    const range = checkAll(res.last)
-                    range.first = 1999998 //comment when second execute has last 1999999
-                    downloadPhase(range)
-                    //end test block
-
-                    /*retriever.allToBlocks().then(res => {
+                    retriever.allToBlocks().then(res => {
                         RunSettings.setRange(res)
                         const range = checkAll(res.last)
                         downloadPhase(range)
-                    })*/
+                    })
                 }
             }
         })
