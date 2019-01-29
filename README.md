@@ -94,7 +94,7 @@ By default the web server will serve on port `8888`.
 
 By default the server will calculate a 3D layout of the graph, but this is a very CPU intensive operation. If you don't need this data you can use the `src/start-no-layout.js` script.
 
-### Block range:
+### Block range
 
 ```
 $ node ./build/no-layout/start-no-layout.js -api=<INFURA_API_KEY> -firstBlock=1999998 -lastBlock=2000000
@@ -104,7 +104,7 @@ will generate the graph of the blocks in the range of 1999998-2000000.
 
 ---
 
-### Date range:
+### Date range
 
 ```
 $ node ./build/no-layout/start-no-layout.js -api=<INFURA_API_KEY> -firstDate=01-12-2016 -lastDate=31-12-2016
@@ -114,7 +114,7 @@ will generate the graph of the blocks in the range of 01-12-2016-31-12-2016.
 
 ---
 
-### All transactions:
+### All transactions
 
 ```
 $ node ./build/no-layout/start-no-layout.js -api=<INFURA_API_KEY> -all
