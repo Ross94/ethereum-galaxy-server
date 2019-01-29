@@ -94,34 +94,50 @@ By default the web server will serve on port `8888`.
 
 By default the server will calculate a 3D layout of the graph, but this is a very CPU intensive operation. If you don't need this data you can use the `src/start-no-layout.js` script.
 
-Running:
+### Block range:
 
 ```
-$ node ./build/start-no-layout.js --api <INFURA_API_KEY> --start 6000000 --end 6000100
+$ node ./build/no-layout/start-no-layout.js -api=<INFURA_API_KEY> -firstBlock=1999998 -lastBlock=2000000
 ```
 
-will generate the graph of the blocks in the range of 500-600.
-
-## Test
-
-Add `src/test` package for test.
-
-### block.js
-
-Download a block from its number. Command:
-
-```
-$ node ./build/start-no-layout.js --api <INFURA_API_KEY> --block 6000000
-```
+will generate the graph of the blocks in the range of 1999998-2000000.
 
 ---
 
-### transaction.js
-
-Show all transactions from its number.
-The format is: transaction hash, source and target.
-Command:
+### Date range:
 
 ```
-$ node ./build/start-no-layout.js --api <INFURA_API_KEY> --block 6000000
+$ node ./build/no-layout/start-no-layout.js -api=<INFURA_API_KEY> -firstDate=01-12-2016 -lastDate=31-12-2016
 ```
+
+will generate the graph of the blocks in the range of 01-12-2016-31-12-2016.
+
+---
+
+### All transactions:
+
+```
+$ node ./build/no-layout/start-no-layout.js -api=<INFURA_API_KEY> -all
+```
+
+will generate the graph of all blocks, be careful this could be very slow.
+
+---
+
+### Optional flags
+
+In order to increase performance this project use all free space in memory (if needed).
+
+To limit memory usage:
+
+```
+-memory
+```
+
+Use 1400 MB (default node memory).
+
+```
+-memory=2000
+```
+
+Specify the size of memory to use in MB.
