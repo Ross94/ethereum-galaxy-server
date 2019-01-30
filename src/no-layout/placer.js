@@ -1,4 +1,6 @@
 const fs = require('fs')
+const execSync = require('child_process').execSync
+
 const logger = require('./../utilities/log')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants
@@ -9,6 +11,7 @@ const JsonNameConstants = require('./../utilities/constants/files-name-constants
 const PajekNameConstants = require('./../utilities/constants/files-name-constants')
     .PajekNameConstants
 const { ensureDirExists } = require('./../utilities/utils')
+const { saveInfo } = require('./../utilities/files')
 
 function move() {
     logger.log('Start moving files to correct directory')
@@ -20,26 +23,33 @@ function move() {
     )
     ensureDirExists(info.saveFolder)
     logger.log('Destination directory: ' + info.saveFolder)
-    //json
+
+    //move json
     fs.renameSync(
         NoLayoutConstants.graphNoLayoutTemporary +
             JsonNameConstants.jsonGraphName,
         info.saveFolder + JsonNameConstants.jsonGraphName
     )
     logger.log('Moved ' + JsonNameConstants.jsonGraphName)
-    //pajek
+
+    //move pajek
     fs.renameSync(
         NoLayoutConstants.graphNoLayoutTemporary +
             PajekNameConstants.pajekGraphName,
         info.saveFolder + PajekNameConstants.pajekGraphName
     )
     logger.log('Moved ' + PajekNameConstants.pajekGraphName)
-    //info
-    fs.renameSync(
-        NoLayoutConstants.graphNoLayoutTemporary + GlobalNameConstants.infoName,
-        info.saveFolder + GlobalNameConstants.infoName
-    )
+
+    //generate info
+    const elemsData = countElems()
+    saveInfo(info.saveFolder + GlobalNameConstants.infoName, {
+        range: info.range,
+        nodes_number: elemsData.nodesNumber,
+        links_number: elemsData.linksNumber
+    })
     logger.log('Moved ' + GlobalNameConstants.infoName)
+
+    //delete temp files
     fs
         .readdirSync(NoLayoutConstants.graphNoLayoutTemporary)
         .forEach(file =>
@@ -48,6 +58,24 @@ function move() {
     fs.rmdirSync(NoLayoutConstants.graphNoLayoutTemporary)
     logger.log('Delete temp files')
     logger.log('End moving files')
+
+    function countElems() {
+        const filePath = info.saveFolder + PajekNameConstants.pajekGraphName
+        const linesNumber = parseInt(execSync('wc -l < ' + filePath).toString())
+        const pajekLines = 2
+
+        const nodesNumber = parseInt(
+            execSync('head -1 ' + filePath)
+                .toString()
+                .split(' ')[1]
+        )
+        const linksNumber = linesNumber - nodesNumber - pajekLines
+
+        return {
+            nodesNumber: nodesNumber,
+            linksNumber: linksNumber
+        }
+    }
 }
 
 module.exports = {

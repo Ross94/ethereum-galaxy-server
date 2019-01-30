@@ -12,7 +12,7 @@ function pajekNodesAggregation(filePath, cb) {
         PajekNameConstants.nodesPajekName
     var nextNodeID
 
-    abstractNodes.format = 'Pajek'
+    abstractNodes.format = PajekNameConstants.pajekFormat
 
     abstractNodes.nodesPath = nodesPath
 

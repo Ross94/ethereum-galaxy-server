@@ -41,7 +41,7 @@ function checkAll(lastBlock) {
             )
         )
 
-        lastBlockDownloaded = parseInt(info.range.last)
+        lastBlockDownloaded = parseInt(info.range.end)
         //info
         saveInfo(
             NoLayoutConstants.graphNoLayoutTemporary +
@@ -63,8 +63,8 @@ function checkAll(lastBlock) {
     }
 
     return {
-        first: lastBlockDownloaded + 1,
-        last: lastBlock
+        start: lastBlockDownloaded + 1,
+        end: lastBlock
     }
 }
 

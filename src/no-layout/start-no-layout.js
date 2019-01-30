@@ -66,6 +66,7 @@ function main() {
                         'Control params format and last greater than first'
                 )
             } else {
+                ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
                 if (time == 1) {
                     ensureDirExists(NoLayoutConstants.graphNoLayoutTime)
                     RunSettings.setFolderName(
@@ -119,8 +120,8 @@ function main() {
                             params.lastBlock
                     )
                     const range = {
-                        first: parseInt(params.firstBlock),
-                        last: parseInt(params.lastBlock)
+                        start: parseInt(params.firstBlock),
+                        end: parseInt(params.lastBlock)
                     }
                     RunSettings.setRange(range)
                     downloadPhase(range)
@@ -138,11 +139,20 @@ function main() {
                     )
                     logger.log('Log of all type')
 
+                    //start test block
+                    const res = { start: 1999998, end: 1999999 }
+                    RunSettings.setRange(res)
+                    const range = checkAll(res.end)
+                    //range.start = 1999998 //comment when second execute has last 1999999
+                    downloadPhase(range)
+                    //end test block
+
+                    /*
                     retriever.allToBlocks().then(res => {
                         RunSettings.setRange(res)
                         const range = checkAll(res.last)
                         downloadPhase(range)
-                    })
+                    })*/
                 }
             }
         })
@@ -152,7 +162,7 @@ function main() {
 
     function downloadPhase(blocks) {
         logger.log('Start download phase')
-        const workers = master(parseInt(blocks.first), parseInt(blocks.last))
+        const workers = master(parseInt(blocks.start), parseInt(blocks.end))
         workers.startWorkers(api)
     }
 

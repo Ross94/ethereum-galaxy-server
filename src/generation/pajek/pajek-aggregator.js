@@ -1,11 +1,13 @@
 const abstractAggregator = require('./../abstract/abstract-aggregator')
 
+const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
+    .PajekNameConstants
 const { pajekNodesAggregation } = require('./pajek-nodes')
 const { pajekTransactionsAggregation } = require('./pajek-transactions')
 const { compose } = require('./pajek-composer')
 
 function aggregate() {
-    abstractAggregator.format = 'Pajek'
+    abstractAggregator.format = PajekNameConstants.pajekFormat
 
     abstractAggregator.nodesAggregation = function(filepath, cb) {
         pajekNodesAggregation(filepath, cb)

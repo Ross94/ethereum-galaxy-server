@@ -9,7 +9,9 @@ function compose() {
     const graphPath =
         NoLayoutConstants.graphNoLayoutTemporary +
         PajekNameConstants.pajekGraphName
-    const tempPath = NoLayoutConstants.graphNoLayoutTemporary + 'pajekTemp.net'
+    const tempPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        PajekNameConstants.tempPajekName
     const nodesPath =
         NoLayoutConstants.graphNoLayoutTemporary +
         PajekNameConstants.nodesPajekName
@@ -22,7 +24,7 @@ function compose() {
         arcs: '*arcs'
     }
 
-    abstractComposer.format = 'Pajek'
+    abstractComposer.format = PajekNameConstants.pajekFormat
 
     abstractComposer.path = {
         graphPath: graphPath,

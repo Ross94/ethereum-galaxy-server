@@ -18,7 +18,7 @@ function split() {
             PajekNameConstants.transactionsPajekName
     }
 
-    abstractSplitter.format = 'Pajek'
+    abstractSplitter.format = PajekNameConstants.pajekFormat
 
     abstractSplitter.parser = function(line) {
         var type = 'error'

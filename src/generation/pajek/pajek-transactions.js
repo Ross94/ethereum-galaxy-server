@@ -13,7 +13,7 @@ function pajekTransactionsAggregation(filePath, cb) {
         NoLayoutConstants.graphNoLayoutTemporary +
         PajekNameConstants.transactionsPajekName
 
-    abstractTransactions.format = 'Pajek'
+    abstractTransactions.format = PajekNameConstants.pajekFormat
 
     abstractTransactions.path = {
         nodesPath: nodesPath,

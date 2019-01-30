@@ -5,7 +5,7 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
     .NoLayoutConstants
 
 function jsonTransactionsAggregation(filePath, cb) {
-    abstractTransactions.format = 'Json'
+    abstractTransactions.format = JsonNameConstants.jsonFormat
 
     abstractTransactions.path = {
         nodesPath:

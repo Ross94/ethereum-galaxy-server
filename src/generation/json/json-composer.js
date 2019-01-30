@@ -8,7 +8,9 @@ function compose() {
     const graphPath =
         NoLayoutConstants.graphNoLayoutTemporary +
         JsonNameConstants.jsonGraphName
-    const tempPath = NoLayoutConstants.graphNoLayoutTemporary + 'jsonTemp.json'
+    const tempPath =
+        NoLayoutConstants.graphNoLayoutTemporary +
+        JsonNameConstants.tempJsonName
     const nodesPath =
         NoLayoutConstants.graphNoLayoutTemporary +
         JsonNameConstants.nodesJsonName
@@ -24,7 +26,7 @@ function compose() {
 
     var l = undefined
 
-    abstractComposer.format = 'Json'
+    abstractComposer.format = JsonNameConstants.jsonFormat
 
     abstractComposer.path = {
         graphPath: graphPath,

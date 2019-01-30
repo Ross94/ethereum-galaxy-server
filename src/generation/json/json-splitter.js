@@ -18,7 +18,7 @@ function split() {
             JsonNameConstants.transactionsJsonName
     }
 
-    abstractSplitter.format = 'Json'
+    abstractSplitter.format = JsonNameConstants.jsonFormat
 
     abstractSplitter.parser = function(line) {
         try {

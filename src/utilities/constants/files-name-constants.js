@@ -3,12 +3,16 @@ const GlobalNameConstants = Object.freeze({
 })
 
 const PajekNameConstants = Object.freeze({
+    pajekFormat: 'Pajek',
+    tempPajekName: 'pajekTemp.net',
     nodesPajekName: 'nodes.net',
     transactionsPajekName: 'transactions.net',
     pajekGraphName: 'graph.net'
 })
 
 const JsonNameConstants = Object.freeze({
+    jsonFormat: 'Json',
+    tempJsonName: 'jsonTemp.json',
     nodesJsonName: 'nodes.json',
     transactionsJsonName: 'transactions.json',
     jsonGraphName: 'graph.json'

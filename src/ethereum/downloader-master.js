@@ -5,7 +5,6 @@ const NoLayoutConstants = require('./../utilities/constants/no-layout-constants'
     .NoLayoutConstants
 const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
     .GlobalNameConstants
-const { ensureDirExists } = require('./../utilities/utils')
 const { saveInfo } = require('./../utilities/files')
 
 const { generate } = require('./../generation/generator-master')
@@ -32,8 +31,6 @@ module.exports = (start, end) => {
 
     const chunkNumber = Math.ceil((lastBlock - firstBlock + 1) / chunkSize)
     const progressBar = logger.progress(progressBarMsg, chunkNumber)
-
-    ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
 
     function availableTask() {
         function getTask() {

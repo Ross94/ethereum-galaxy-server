@@ -5,7 +5,7 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
     .NoLayoutConstants
 
 function jsonNodesAggregation(filePath, cb) {
-    abstractNodes.format = 'Json'
+    abstractNodes.format = JsonNameConstants.jsonFormat
 
     abstractNodes.nodesPath =
         NoLayoutConstants.graphNoLayoutTemporary +

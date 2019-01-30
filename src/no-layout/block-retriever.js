@@ -22,7 +22,7 @@ module.exports = (infuraApiKey: string) => {
                         dateToBlock(params.firstDate, PrecisionStandard.FIRST),
                         dateToBlock(params.lastDate, PrecisionStandard.LAST)
                     ]).then(values => {
-                        return { first: values[0], last: values[1] }
+                        return { start: values[0], end: values[1] }
                     })
                 } else {
                     console.log(
@@ -37,7 +37,7 @@ module.exports = (infuraApiKey: string) => {
 
     function allToBlocks() {
         return eth.lastBlock().then(lastBlock => {
-            return { first: 0, last: lastBlock }
+            return { start: 0, end: lastBlock }
         })
     }
 
