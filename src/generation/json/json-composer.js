@@ -7,16 +7,19 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
 function compose() {
     const graphPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        JsonNameConstants.jsonGraphName
+        JsonNameConstants.jsonGraphFilename
+
     const tempPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        JsonNameConstants.tempJsonName
+        JsonNameConstants.jsonTempFilename
+
     const nodesPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        JsonNameConstants.nodesJsonName
+        JsonNameConstants.jsonNodesFilename
+
     const transactionsPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        JsonNameConstants.transactionsJsonName
+        JsonNameConstants.jsonTransactionsFilename
 
     const jsonLines = {
         open: '{"nodes":[',

@@ -6,6 +6,7 @@ const NoLayoutConstants = require('./../utilities/constants/no-layout-constants'
     .NoLayoutConstants
 const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
     .GlobalNameConstants
+const Phases = require('./../shutdown/phases').Phases
 const { saveInfo } = require('./../utilities/files')
 
 const { generate } = require('./../generation/generator-master')
@@ -17,6 +18,7 @@ const chunkSize = 240
 const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
 module.exports = (start, end) => {
+    RunSettings.setCurrentPhase(Phases.DownloadPhase)
     const workers = new Map()
     const firstBlock = start
     const lastBlock = end
@@ -59,14 +61,20 @@ module.exports = (start, end) => {
     function save(miss) {
         saveInfo(
             NoLayoutConstants.graphNoLayoutTemporary +
-                GlobalNameConstants.infoName,
+                GlobalNameConstants.infoFilename,
             {
                 saveFolder: RunSettings.getSaveFolderPath(),
                 range: RunSettings.getRange(),
                 missing: miss,
                 specs: {
-                    memory: SpecSettings.getGlobalMemory()
-                }
+                    global_memory: SpecSettings.getGlobalMemory()
+                },
+                phases: [
+                    {
+                        format: GlobalNameConstants.globalFormat,
+                        phase: RunSettings.getCurrentPhase()
+                    }
+                ]
             }
         )
     }

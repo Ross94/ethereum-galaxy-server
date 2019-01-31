@@ -10,10 +10,10 @@ function jsonTransactionsAggregation(filePath, cb) {
     abstractTransactions.path = {
         nodesPath:
             NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.nodesJsonName,
+            JsonNameConstants.jsonNodesFilename,
         transactionsPath:
             NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.transactionsJsonName
+            JsonNameConstants.jsonTransactionsFilename
     }
 
     abstractTransactions.nodeFileParser = function(line) {

@@ -18,7 +18,7 @@ function move() {
     const info = JSON.parse(
         fs.readFileSync(
             NoLayoutConstants.graphNoLayoutTemporary +
-                GlobalNameConstants.infoName
+                GlobalNameConstants.infoFilename
         )
     )
     ensureDirExists(info.saveFolder)
@@ -27,27 +27,27 @@ function move() {
     //move json
     fs.renameSync(
         NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.jsonGraphName,
-        info.saveFolder + JsonNameConstants.jsonGraphName
+            JsonNameConstants.jsonGraphFilename,
+        info.saveFolder + JsonNameConstants.jsonGraphFilename
     )
-    logger.log('Moved ' + JsonNameConstants.jsonGraphName)
+    logger.log('Moved ' + JsonNameConstants.jsonGraphFilename)
 
     //move pajek
     fs.renameSync(
         NoLayoutConstants.graphNoLayoutTemporary +
-            PajekNameConstants.pajekGraphName,
-        info.saveFolder + PajekNameConstants.pajekGraphName
+            PajekNameConstants.pajekGraphFilename,
+        info.saveFolder + PajekNameConstants.pajekGraphFilename
     )
-    logger.log('Moved ' + PajekNameConstants.pajekGraphName)
+    logger.log('Moved ' + PajekNameConstants.pajekGraphFilename)
 
     //generate info
     const elemsData = countElems()
-    saveInfo(info.saveFolder + GlobalNameConstants.infoName, {
+    saveInfo(info.saveFolder + GlobalNameConstants.infoFilename, {
         range: info.range,
         nodes_number: elemsData.nodesNumber,
         links_number: elemsData.linksNumber
     })
-    logger.log('Moved ' + GlobalNameConstants.infoName)
+    logger.log('Moved ' + GlobalNameConstants.infoFilename)
 
     //delete temp files
     fs
@@ -60,7 +60,7 @@ function move() {
     logger.log('End moving files')
 
     function countElems() {
-        const filePath = info.saveFolder + PajekNameConstants.pajekGraphName
+        const filePath = info.saveFolder + PajekNameConstants.pajekGraphFilename
         const linesNumber = parseInt(execSync('wc -l < ' + filePath).toString())
         const pajekLines = 2
 

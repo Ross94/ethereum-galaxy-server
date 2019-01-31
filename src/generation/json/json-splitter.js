@@ -9,13 +9,13 @@ function split() {
     abstractSplitter.path = {
         graphPath:
             NoLayoutConstants.graphNoLayoutAll +
-            JsonNameConstants.jsonGraphName,
+            JsonNameConstants.jsonGraphFilename,
         nodePath:
             NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.nodesJsonName,
+            JsonNameConstants.jsonNodesFilename,
         transactionPath:
             NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.transactionsJsonName
+            JsonNameConstants.jsonTransactionsFilename
     }
 
     abstractSplitter.format = JsonNameConstants.jsonFormat

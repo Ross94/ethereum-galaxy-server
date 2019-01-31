@@ -8,16 +8,19 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
 function compose() {
     const graphPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekGraphName
+        PajekNameConstants.pajekGraphFilename
+
     const tempPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.tempPajekName
+        PajekNameConstants.pajekTempFilename
+
     const nodesPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.nodesPajekName
+        PajekNameConstants.pajekNodesFilename
+
     const transactionsPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.transactionsPajekName
+        PajekNameConstants.pajekTransactionsFilename
 
     const pajekLines = {
         vertices: '*Vertices ' + execSync('wc -l < ' + nodesPath),

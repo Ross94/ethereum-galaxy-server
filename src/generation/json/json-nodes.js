@@ -9,7 +9,7 @@ function jsonNodesAggregation(filePath, cb) {
 
     abstractNodes.nodesPath =
         NoLayoutConstants.graphNoLayoutTemporary +
-        JsonNameConstants.nodesJsonName
+        JsonNameConstants.jsonNodesFilename
 
     abstractNodes.nodeParser = function(line) {
         const e = JSON.parse(line)

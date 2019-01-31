@@ -9,13 +9,15 @@ function split() {
     abstractSplitter.path = {
         graphPath:
             NoLayoutConstants.graphNoLayoutAll +
-            PajekNameConstants.pajekGraphName,
+            PajekNameConstants.pajekGraphFilename,
+
         nodePath:
             NoLayoutConstants.graphNoLayoutTemporary +
-            PajekNameConstants.nodesPajekName,
+            PajekNameConstants.pajekNodesFilename,
+
         transactionPath:
             NoLayoutConstants.graphNoLayoutTemporary +
-            PajekNameConstants.transactionsPajekName
+            PajekNameConstants.pajekTransactionsFilename
     }
 
     abstractSplitter.format = PajekNameConstants.pajekFormat

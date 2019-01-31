@@ -19,14 +19,16 @@ function checkAll(lastBlock) {
     ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
     if (
         checkResourceExists(
-            NoLayoutConstants.graphNoLayoutAll + GlobalNameConstants.infoName
-        ) &&
-        checkResourceExists(
-            NoLayoutConstants.graphNoLayoutAll + JsonNameConstants.jsonGraphName
+            NoLayoutConstants.graphNoLayoutAll +
+                GlobalNameConstants.infoFilename
         ) &&
         checkResourceExists(
             NoLayoutConstants.graphNoLayoutAll +
-                PajekNameConstants.pajekGraphName
+                JsonNameConstants.jsonGraphFilename
+        ) &&
+        checkResourceExists(
+            NoLayoutConstants.graphNoLayoutAll +
+                PajekNameConstants.pajekGraphFilename
         )
     ) {
         RunSettings.setOldDownload(true)
@@ -37,7 +39,7 @@ function checkAll(lastBlock) {
         const info = JSON.parse(
             fs.readFileSync(
                 NoLayoutConstants.graphNoLayoutAll +
-                    GlobalNameConstants.infoName
+                    GlobalNameConstants.infoFilename
             )
         )
 
@@ -45,7 +47,7 @@ function checkAll(lastBlock) {
         //info
         saveInfo(
             NoLayoutConstants.graphNoLayoutTemporary +
-                GlobalNameConstants.infoName,
+                GlobalNameConstants.infoFilename,
             {
                 saveFolder: RunSettings.getSaveFolderPath(),
                 range: RunSettings.getRange(),
