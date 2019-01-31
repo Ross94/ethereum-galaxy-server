@@ -8,17 +8,19 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
 function split() {
     abstractSplitter.path = {
         graphPath:
-            NoLayoutConstants.graphNoLayoutAll +
-            JsonNameConstants.jsonGraphFilename,
+            NoLayoutConstants.noLayoutAllPath() +
+            JsonNameConstants.jsonGraphFilename(),
+
         nodePath:
-            NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.jsonNodesFilename,
+            NoLayoutConstants.noLayoutTemporaryPath() +
+            JsonNameConstants.jsonNodesFilename(),
+
         transactionPath:
-            NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.jsonTransactionsFilename
+            NoLayoutConstants.noLayoutTemporaryPath() +
+            JsonNameConstants.jsonTransactionsFilename()
     }
 
-    abstractSplitter.format = JsonNameConstants.jsonFormat
+    abstractSplitter.format = JsonNameConstants.jsonFormat()
 
     abstractSplitter.parser = function(line) {
         try {

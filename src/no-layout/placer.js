@@ -17,8 +17,8 @@ function move() {
     logger.log('Start moving files to correct directory')
     const info = JSON.parse(
         fs.readFileSync(
-            NoLayoutConstants.graphNoLayoutTemporary +
-                GlobalNameConstants.infoFilename
+            NoLayoutConstants.noLayoutTemporaryPath() +
+                GlobalNameConstants.infoFilename()
         )
     )
     ensureDirExists(info.saveFolder)
@@ -26,41 +26,42 @@ function move() {
 
     //move json
     fs.renameSync(
-        NoLayoutConstants.graphNoLayoutTemporary +
-            JsonNameConstants.jsonGraphFilename,
-        info.saveFolder + JsonNameConstants.jsonGraphFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+            JsonNameConstants.jsonGraphFilename(),
+        info.saveFolder + JsonNameConstants.jsonGraphFilename()
     )
-    logger.log('Moved ' + JsonNameConstants.jsonGraphFilename)
+    logger.log('Moved ' + JsonNameConstants.jsonGraphFilename())
 
     //move pajek
     fs.renameSync(
-        NoLayoutConstants.graphNoLayoutTemporary +
-            PajekNameConstants.pajekGraphFilename,
-        info.saveFolder + PajekNameConstants.pajekGraphFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+            PajekNameConstants.pajekGraphFilename(),
+        info.saveFolder + PajekNameConstants.pajekGraphFilename()
     )
-    logger.log('Moved ' + PajekNameConstants.pajekGraphFilename)
+    logger.log('Moved ' + PajekNameConstants.pajekGraphFilename())
 
     //generate info
     const elemsData = countElems()
-    saveInfo(info.saveFolder + GlobalNameConstants.infoFilename, {
+    saveInfo(info.saveFolder + GlobalNameConstants.infoFilename(), {
         range: info.range,
         nodes_number: elemsData.nodesNumber,
         links_number: elemsData.linksNumber
     })
-    logger.log('Moved ' + GlobalNameConstants.infoFilename)
+    logger.log('Moved ' + GlobalNameConstants.infoFilename())
 
     //delete temp files
     fs
-        .readdirSync(NoLayoutConstants.graphNoLayoutTemporary)
+        .readdirSync(NoLayoutConstants.noLayoutTemporaryPath())
         .forEach(file =>
-            fs.unlinkSync(NoLayoutConstants.graphNoLayoutTemporary + file)
+            fs.unlinkSync(NoLayoutConstants.noLayoutTemporaryPath() + file)
         )
-    fs.rmdirSync(NoLayoutConstants.graphNoLayoutTemporary)
+    fs.rmdirSync(NoLayoutConstants.noLayoutTemporaryPath())
     logger.log('Delete temp files')
     logger.log('End moving files')
 
     function countElems() {
-        const filePath = info.saveFolder + PajekNameConstants.pajekGraphFilename
+        const filePath =
+            info.saveFolder + PajekNameConstants.pajekGraphFilename()
         const linesNumber = parseInt(execSync('wc -l < ' + filePath).toString())
         const pajekLines = 2
 

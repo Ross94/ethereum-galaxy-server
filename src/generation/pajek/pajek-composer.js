@@ -7,27 +7,27 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
 
 function compose() {
     const graphPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekGraphFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        PajekNameConstants.pajekGraphFilename()
 
     const tempPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekTempFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        PajekNameConstants.pajekTempFilename()
 
     const nodesPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekNodesFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        PajekNameConstants.pajekNodesFilename()
 
     const transactionsPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekTransactionsFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        PajekNameConstants.pajekTransactionsFilename()
 
     const pajekLines = {
         vertices: '*Vertices ' + execSync('wc -l < ' + nodesPath),
         arcs: '*arcs'
     }
 
-    abstractComposer.format = PajekNameConstants.pajekFormat
+    abstractComposer.format = PajekNameConstants.pajekFormat()
 
     abstractComposer.path = {
         graphPath: graphPath,

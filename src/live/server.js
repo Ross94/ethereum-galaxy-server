@@ -9,7 +9,7 @@ const logger = require('./../utilities/log')
 const LiveConstants = require('./../utilities/constants/live-constants')
     .LiveConstants
 
-logger.setPath(LiveConstants.logLayoutServer + 'server.log')
+logger.setPath(LiveConstants.logLayoutServer() + 'server.log')
 
 const app = express()
 const port = 8888

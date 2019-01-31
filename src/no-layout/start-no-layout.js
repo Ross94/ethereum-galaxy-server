@@ -58,19 +58,19 @@ function main() {
             if (time + block + all != 1) {
                 console.log(optionsOutput())
             } else {
-                ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
+                ensureDirExists(NoLayoutConstants.noLayoutTemporaryPath())
                 if (time == 1) {
-                    ensureDirExists(NoLayoutConstants.graphNoLayoutTime)
+                    ensureDirExists(NoLayoutConstants.noLayoutTimePath())
                     RunSettings.setFolderName(
                         params.firstDate + '-' + params.lastDate
                     )
                     RunSettings.setSaveFolderPath(
-                        NoLayoutConstants.graphNoLayoutTime +
+                        NoLayoutConstants.noLayoutTimePath() +
                             RunSettings.getFolderName() +
                             '/'
                     )
                     logger.setPath(
-                        LogConstants.logNoLayoutTime +
+                        LogConstants.noLayoutTimeLog() +
                             RunSettings.getFolderName() +
                             '.log'
                     )
@@ -91,17 +91,17 @@ function main() {
                         })
                 }
                 if (block == 1) {
-                    ensureDirExists(NoLayoutConstants.graphNoLayoutBlock)
+                    ensureDirExists(NoLayoutConstants.noLayoutBlockPath())
                     RunSettings.setFolderName(
                         params.firstBlock + '-' + params.lastBlock
                     )
                     RunSettings.setSaveFolderPath(
-                        NoLayoutConstants.graphNoLayoutBlock +
+                        NoLayoutConstants.noLayoutBlockPath() +
                             RunSettings.getFolderName() +
                             '/'
                     )
                     logger.setPath(
-                        LogConstants.logNoLayoutBlock +
+                        LogConstants.noLayoutBlockLog() +
                             RunSettings.getFolderName() +
                             '.log'
                     )
@@ -119,23 +119,23 @@ function main() {
                     downloadPhase(range)
                 }
                 if (all == 1) {
-                    ensureDirExists(NoLayoutConstants.graphNoLayoutAll)
+                    ensureDirExists(NoLayoutConstants.noLayoutAllPath())
                     RunSettings.setFolderName('all')
                     RunSettings.setSaveFolderPath(
-                        NoLayoutConstants.graphNoLayoutAll
+                        NoLayoutConstants.noLayoutAllPath()
                     )
                     logger.setPath(
-                        LogConstants.logNoLayoutAll +
+                        LogConstants.noLayoutAllLog() +
                             RunSettings.getFolderName() +
                             '.log'
                     )
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 1999998, end: 1999999 }
+                    const res = { start: 1999998, end: 1999998 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
-                    //range.start = 1999998 //comment when second execute has last 1999999
+                    range.start = 1999998 //comment when second execute has last 1999999
                     downloadPhase(range)
                     //end test block
 

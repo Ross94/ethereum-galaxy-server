@@ -5,11 +5,11 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
     .NoLayoutConstants
 
 function jsonNodesAggregation(filePath, cb) {
-    abstractNodes.format = JsonNameConstants.jsonFormat
+    abstractNodes.format = JsonNameConstants.jsonFormat()
 
     abstractNodes.nodesPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        JsonNameConstants.jsonNodesFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        JsonNameConstants.jsonNodesFilename()
 
     abstractNodes.nodeParser = function(line) {
         const e = JSON.parse(line)

@@ -60,8 +60,8 @@ module.exports = (start, end) => {
 
     function save(miss) {
         saveInfo(
-            NoLayoutConstants.graphNoLayoutTemporary +
-                GlobalNameConstants.infoFilename,
+            NoLayoutConstants.noLayoutTemporaryPath() +
+                GlobalNameConstants.infoFilename(),
             {
                 saveFolder: RunSettings.getSaveFolderPath(),
                 range: RunSettings.getRange(),
@@ -71,7 +71,7 @@ module.exports = (start, end) => {
                 },
                 phases: [
                     {
-                        format: GlobalNameConstants.globalFormat,
+                        format: GlobalNameConstants.globalFormat(),
                         phase: RunSettings.getCurrentPhase()
                     }
                 ]
@@ -94,7 +94,7 @@ module.exports = (start, end) => {
             child.send({
                 command: 'config',
                 filename:
-                    NoLayoutConstants.graphNoLayoutTemporary + i + '.json',
+                    NoLayoutConstants.noLayoutTemporaryPath() + i + '.json',
                 api: infuraApiKey
             })
             child.on('message', function(message) {

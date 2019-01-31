@@ -8,12 +8,12 @@ const { checkResourceExists } = require('./../../utilities/utils')
 
 function pajekNodesAggregation(filePath, cb) {
     const nodesPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekNodesFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        PajekNameConstants.pajekNodesFilename()
 
     var nextNodeID
 
-    abstractNodes.format = PajekNameConstants.pajekFormat
+    abstractNodes.format = PajekNameConstants.pajekFormat()
 
     abstractNodes.nodesPath = nodesPath
 

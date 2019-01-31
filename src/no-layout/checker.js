@@ -16,19 +16,19 @@ const { checkResourceExists, ensureDirExists } = require('./../utilities/utils')
 function checkAll(lastBlock) {
     var lastBlockDownloaded
 
-    ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
+    ensureDirExists(NoLayoutConstants.noLayoutTemporaryPath())
     if (
         checkResourceExists(
-            NoLayoutConstants.graphNoLayoutAll +
-                GlobalNameConstants.infoFilename
+            NoLayoutConstants.noLayoutAllPath() +
+                GlobalNameConstants.infoFilename()
         ) &&
         checkResourceExists(
-            NoLayoutConstants.graphNoLayoutAll +
-                JsonNameConstants.jsonGraphFilename
+            NoLayoutConstants.noLayoutAllPath() +
+                JsonNameConstants.jsonGraphFilename()
         ) &&
         checkResourceExists(
-            NoLayoutConstants.graphNoLayoutAll +
-                PajekNameConstants.pajekGraphFilename
+            NoLayoutConstants.noLayoutAllPath() +
+                PajekNameConstants.pajekGraphFilename()
         )
     ) {
         RunSettings.setOldDownload(true)
@@ -38,16 +38,16 @@ function checkAll(lastBlock) {
 
         const info = JSON.parse(
             fs.readFileSync(
-                NoLayoutConstants.graphNoLayoutAll +
-                    GlobalNameConstants.infoFilename
+                NoLayoutConstants.noLayoutAllPath() +
+                    GlobalNameConstants.infoFilename()
             )
         )
 
         lastBlockDownloaded = parseInt(info.range.end)
         //info
         saveInfo(
-            NoLayoutConstants.graphNoLayoutTemporary +
-                GlobalNameConstants.infoFilename,
+            NoLayoutConstants.noLayoutTemporaryPath() +
+                GlobalNameConstants.infoFilename(),
             {
                 saveFolder: RunSettings.getSaveFolderPath(),
                 range: RunSettings.getRange(),

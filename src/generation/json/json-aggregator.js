@@ -7,7 +7,7 @@ const { jsonTransactionsAggregation } = require('./json-transactions')
 const { compose } = require('./json-composer')
 
 function aggregate() {
-    abstractAggregator.format = JsonNameConstants.jsonFormat
+    abstractAggregator.format = JsonNameConstants.jsonFormat()
 
     abstractAggregator.nodesAggregation = function(filepath, cb) {
         jsonNodesAggregation(filepath, cb)

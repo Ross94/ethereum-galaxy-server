@@ -7,14 +7,14 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
 
 function pajekTransactionsAggregation(filePath, cb) {
     const nodesPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekNodesFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        PajekNameConstants.pajekNodesFilename()
 
     const transactionsPath =
-        NoLayoutConstants.graphNoLayoutTemporary +
-        PajekNameConstants.pajekTransactionsFilename
+        NoLayoutConstants.noLayoutTemporaryPath() +
+        PajekNameConstants.pajekTransactionsFilename()
 
-    abstractTransactions.format = PajekNameConstants.pajekFormat
+    abstractTransactions.format = PajekNameConstants.pajekFormat()
 
     abstractTransactions.path = {
         nodesPath: nodesPath,

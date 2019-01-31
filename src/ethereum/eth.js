@@ -130,7 +130,7 @@ module.exports = (infuraApiKey: string) => {
         const graph = { nodes, links: transactions }
 
         if (doLayout) {
-            const ngraphOutDirPath = LiveConstants.ngraphBasePath
+            const ngraphOutDirPath = LiveConstants.ngraphBasePath()
             ensureDirExists(ngraphOutDirPath)
             const ngraph = await calculateNgraphLayout(graph, ngraphOutDirPath)
 
@@ -144,15 +144,15 @@ module.exports = (infuraApiKey: string) => {
 
         logger.log('Exporting the graph to JSON...')
 
-        dumpJSON(LiveConstants.jsonFilename, graph)
+        dumpJSON(LiveConstants.jsonFilename(), graph)
 
         logger.log('Export the graph infos...')
 
-        dumpInfo(LiveConstants.infoFilename, graph, range)
+        dumpInfo(LiveConstants.infoFilename(), graph, range)
 
         logger.log('Exporting the graph to Pajek...')
 
-        dumpPajek(LiveConstants.pajekFilename, graph)
+        dumpPajek(LiveConstants.pajekFilename(), graph)
 
         logger.log('Finished, cya')
     }

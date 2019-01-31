@@ -51,7 +51,7 @@ function coloredLog(level: string, str: string) {
 
 function createLogStream(path: string) {
     ensureDirExists(path)
-    return fs.createWriteStream(path)
+    return fs.createWriteStream(path, { flags: 'a' })
 }
 
 const Logger = (module.exports = {

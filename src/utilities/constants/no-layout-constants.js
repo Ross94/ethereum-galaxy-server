@@ -1,8 +1,8 @@
 const NoLayoutConstants = Object.freeze({
-    graphNoLayoutAll: './graphs/no-layout/all/',
-    graphNoLayoutTime: './graphs/no-layout/time/',
-    graphNoLayoutBlock: './graphs/no-layout/block/',
-    graphNoLayoutTemporary: './graphs/no-layout/temporary/'
+    noLayoutAllPath: () => './graphs/no-layout/all/',
+    noLayoutTimePath: () => './graphs/no-layout/time/',
+    noLayoutBlockPath: () => './graphs/no-layout/block/',
+    noLayoutTemporaryPath: () => './graphs/no-layout/temporary/'
 })
 
 module.exports = {

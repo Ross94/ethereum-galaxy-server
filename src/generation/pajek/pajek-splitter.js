@@ -8,19 +8,19 @@ const NoLayoutConstants = require('./../../utilities/constants/no-layout-constan
 function split() {
     abstractSplitter.path = {
         graphPath:
-            NoLayoutConstants.graphNoLayoutAll +
-            PajekNameConstants.pajekGraphFilename,
+            NoLayoutConstants.noLayoutAllPath() +
+            PajekNameConstants.pajekGraphFilename(),
 
         nodePath:
-            NoLayoutConstants.graphNoLayoutTemporary +
-            PajekNameConstants.pajekNodesFilename,
+            NoLayoutConstants.noLayoutTemporaryPath() +
+            PajekNameConstants.pajekNodesFilename(),
 
         transactionPath:
-            NoLayoutConstants.graphNoLayoutTemporary +
-            PajekNameConstants.pajekTransactionsFilename
+            NoLayoutConstants.noLayoutTemporaryPath() +
+            PajekNameConstants.pajekTransactionsFilename()
     }
 
-    abstractSplitter.format = PajekNameConstants.pajekFormat
+    abstractSplitter.format = PajekNameConstants.pajekFormat()
 
     abstractSplitter.parser = function(line) {
         var type = 'error'

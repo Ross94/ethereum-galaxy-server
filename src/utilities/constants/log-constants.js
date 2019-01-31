@@ -1,7 +1,7 @@
 const LogConstants = Object.freeze({
-    logNoLayoutAll: './logs/no-layout/all/',
-    logNoLayoutTime: './logs/no-layout/time/',
-    logNoLayoutBlock: './logs/no-layout/block/'
+    noLayoutAllLog: () => './logs/no-layout/all/',
+    noLayoutTimeLog: () => './logs/no-layout/time/',
+    noLayoutBlockLog: () => './logs/no-layout/block/'
 })
 
 module.exports = {

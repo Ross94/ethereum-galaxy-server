@@ -24,7 +24,7 @@ compose = function() {
 }
 
 function aggregate() {
-    const tempFilesFolderPath = NoLayoutConstants.graphNoLayoutTemporary
+    const tempFilesFolderPath = NoLayoutConstants.noLayoutTemporaryPath()
     const tempFiles = require('fs')
         .readdirSync(tempFilesFolderPath)
         .filter(file => filterFiles(file))
