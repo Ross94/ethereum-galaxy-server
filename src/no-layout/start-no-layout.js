@@ -26,13 +26,7 @@ function main() {
     var api
 
     if (params.api != undefined) {
-        if (params.memory) {
-            const defaultNodeMemory = 1400
-            SpecSettings.setMemory(defaultNodeMemory)
-        }
-        if (!isNaN(parseInt(params.memory))) {
-            SpecSettings.setMemory(parseInt(params.memory))
-        }
+        memoryConfig()
 
         api = params.api
         const retriever = retrieverSetKey(api)
@@ -140,10 +134,10 @@ function main() {
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 1999998, end: 1999999 }
+                    const res = { start: 1999998, end: 1999998 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
-                    //range.start = 1999998 //comment when second execute has last 1999999
+                    range.start = 1999998 //comment when second execute has last 1999999
                     downloadPhase(range)
                     //end test block
 
@@ -158,6 +152,19 @@ function main() {
         })
     } else {
         console.log('Wrong infuraApiKey, param -api=infuraApiKey')
+    }
+
+    function memoryConfig() {
+        SpecSettings.setGlobalMemory(
+            Math.ceil(require('os').freemem() / 1000000)
+        )
+        if (params.memory) {
+            const defaultNodeMemory = 1400
+            SpecSettings.setGlobalMemory(defaultNodeMemory)
+        }
+        if (!isNaN(parseInt(params.memory))) {
+            SpecSettings.setGlobalMemory(parseInt(params.memory))
+        }
     }
 
     function downloadPhase(blocks) {

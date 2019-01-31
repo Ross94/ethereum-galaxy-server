@@ -19,8 +19,7 @@ function startProcess() {
                 RunSettings.setSaveFolderPath(message.saveFolder)
                 RunSettings.setFolderName(message.folderName)
                 RunSettings.setRange(message.range)
-                SpecSettings.setProcessNum(message.processNum)
-                SpecSettings.setMemory(message.memory)
+                SpecSettings.setProcessMemory(message.memory)
 
                 if (message.oldDownload) {
                     module.exports.split()

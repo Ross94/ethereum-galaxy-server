@@ -1,5 +1,6 @@
 const child_process = require('child_process')
 const RunSettings = require('./../utilities/constants/run-settings')
+const SpecSettings = require('./../utilities/constants/spec-settings')
 const logger = require('./../utilities/log')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants
@@ -62,7 +63,10 @@ module.exports = (start, end) => {
             {
                 saveFolder: RunSettings.getSaveFolderPath(),
                 range: RunSettings.getRange(),
-                missing: miss
+                missing: miss,
+                specs: {
+                    memory: SpecSettings.getGlobalMemory()
+                }
             }
         )
     }

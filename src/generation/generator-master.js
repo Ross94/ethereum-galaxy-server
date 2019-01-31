@@ -13,13 +13,16 @@ function generate() {
         './build/generation/json/json-generator',
         './build/generation/pajek/pajek-generator'
     ]
-    format.forEach(childPath => startWorker(childPath, format.length))
+    SpecSettings.setProcessMemory(
+        Math.ceil(SpecSettings.getGlobalMemory() / format.length)
+    )
+    format.forEach(childPath => startWorker(childPath))
 
     function response(pid, message) {
         workers.get(pid).send(message)
     }
 
-    function startWorker(modulePath, processNum) {
+    function startWorker(modulePath) {
         children += 1
 
         const child = child_process.fork(modulePath)
@@ -51,8 +54,7 @@ function generate() {
             saveFolder: RunSettings.getSaveFolderPath(),
             folderName: RunSettings.getFolderName(),
             range: RunSettings.getRange(),
-            processNum: processNum,
-            memory: SpecSettings.getMemory(),
+            memory: SpecSettings.getProcessMemory(),
             oldDownload: RunSettings.getOldDownload()
         })
     }

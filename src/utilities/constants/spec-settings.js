@@ -1,17 +1,17 @@
-var processNum = 1
-var memory = undefined
+var globalMemory = undefined
+var processMemory = undefined
 
 const SpecSettings = (module.exports = {
-    setProcessNum: (processes: number) => {
-        processNum = processes
+    setGlobalMemory: (memory: number) => {
+        globalMemory = memory
     },
-    getProcessNum: () => {
-        return processNum
+    getGlobalMemory: () => {
+        return globalMemory
     },
-    setMemory: (mem: number) => {
-        memory = mem
+    setProcessMemory: (memory: number) => {
+        processMemory = memory
     },
-    getMemory: () => {
-        return memory
+    getProcessMemory: () => {
+        return processMemory
     }
 })

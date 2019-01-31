@@ -8,18 +8,12 @@ module.exports = (filepath, parseLogic, callback) => {
     */
     const tunedMemory = 1000
     const tunedLines = 2500000
-    /*memory is give in bytes division by 1000000 is need for convertion to MB.
-      SpecSettings.getProcessNum() rappresents the number of process running at the same time.
-      For example if i want json and pajek files there will be 2 aggregator at the same time, one for json and another for pajek, i divide 
-      the memory available between them.
+    /*
+    chunkSize is the number of lines for each block, it is a proportion, 2500000 for 1000 mb for available memory 
     */
-    const availableMemory =
-        (SpecSettings.getMemory() != undefined
-            ? SpecSettings.getMemory()
-            : Math.ceil(require('os').freemem() / 1000000)) /
-        SpecSettings.getProcessNum()
-
-    const chunkSize = Math.ceil(tunedLines * availableMemory / tunedMemory)
+    const chunkSize = Math.ceil(
+        tunedLines * SpecSettings.getProcessMemory() / tunedMemory
+    )
     const linesNumber = parseInt(execSync('wc -l < ' + filepath).toString())
     const blocks = Math.ceil(linesNumber / chunkSize)
 
