@@ -25,7 +25,11 @@ function main() {
 
     var api
 
-    if (params.api != undefined) {
+    if (params.help) {
+        console.log(optionsOutput())
+    } else if (params.resume) {
+        console.log('TO-DO implement resume')
+    } else if (params.api != undefined) {
         memoryConfig()
 
         api = params.api
@@ -52,13 +56,7 @@ function main() {
                 all = 1
             }
             if (time + block + all != 1) {
-                console.log(
-                    'Wrong params, choose one of these:\n' +
-                        '-firstBlock:int -lastBlock:int\n' +
-                        '-firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY\n' +
-                        '-all\n\n' +
-                        'Control params format and last greater than first'
-                )
+                console.log(optionsOutput())
             } else {
                 ensureDirExists(NoLayoutConstants.graphNoLayoutTemporary)
                 if (time == 1) {
@@ -134,10 +132,10 @@ function main() {
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 1999998, end: 1999999 }
+                    const res = { start: 1999998, end: 1999998 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
-                    //range.start = 1999998 //comment when second execute has last 1999999
+                    range.start = 1999998 //comment when second execute has last 1999999
                     downloadPhase(range)
                     //end test block
 
@@ -151,7 +149,21 @@ function main() {
             }
         })
     } else {
-        console.log('Wrong infuraApiKey, param -api=infuraApiKey')
+        console.log(optionsOutput())
+    }
+
+    function optionsOutput() {
+        return (
+            'Choose one of these run options:\n' +
+            '-help => show help list \n' +
+            '-api:hex -firstBlock:int -lastBlock:int => download transactions in range of block number\n' +
+            '-api:hex -firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY => download transactions in range of date\n' +
+            '-api:hex -all => download all transactions in blockchain\n' +
+            '-resume => resume not completed previous download\n\n' +
+            'Optional flags: \n' +
+            '-memory:int => set memory used by program, number of MB or empty to default node value (1400)\n\n' +
+            'Note: Control params format and last greater than first\n'
+        )
     }
 
     function memoryConfig() {
