@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const RunSettings = require('./../utilities/constants/run-settings')
+const RunSettings = require('../utilities/settings/run-settings')
 const logger = require('./../utilities/log')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants

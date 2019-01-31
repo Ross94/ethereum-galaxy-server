@@ -1,6 +1,6 @@
 const child_process = require('child_process')
-const RunSettings = require('./../utilities/constants/run-settings')
-const SpecSettings = require('./../utilities/constants/spec-settings')
+const RunSettings = require('../utilities/settings/run-settings')
+const SpecSettings = require('../utilities/settings/spec-settings')
 const logger = require('./../utilities/log')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants

@@ -1,6 +1,6 @@
 const child_process = require('child_process')
-const SpecSettings = require('./../utilities/constants/spec-settings')
-const RunSettings = require('./../utilities/constants/run-settings')
+const SpecSettings = require('../utilities/settings/spec-settings')
+const RunSettings = require('../utilities/settings/run-settings')
 const logger = require('./../utilities/log')
 const { move } = require('./../no-layout/placer')
 

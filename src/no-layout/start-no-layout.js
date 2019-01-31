@@ -1,7 +1,7 @@
 const argv = require('named-argv')
 
-const SpecSettings = require('./../utilities/constants/spec-settings')
-const RunSettings = require('./../utilities/constants/run-settings')
+const SpecSettings = require('../utilities/settings/spec-settings')
+const RunSettings = require('../utilities/settings/run-settings')
 const logger = require('./../utilities/log')
 
 const createEth = require('./../ethereum/eth')
@@ -134,10 +134,10 @@ function main() {
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 1999998, end: 1999998 }
+                    const res = { start: 1999998, end: 1999999 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
-                    range.start = 1999998 //comment when second execute has last 1999999
+                    //range.start = 1999998 //comment when second execute has last 1999999
                     downloadPhase(range)
                     //end test block
 
