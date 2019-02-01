@@ -1,13 +1,15 @@
+const fs = require('fs')
 const argv = require('named-argv')
 
 const SpecSettings = require('../utilities/settings/spec-settings')
 const RunSettings = require('../utilities/settings/run-settings')
 const logger = require('./../utilities/log')
 
+const ShutdownManager = require('../shutdown/shutdown-manager')
 const createEth = require('./../ethereum/eth')
 const master = require('./../ethereum/downloader-master')
 const retrieverSetKey = require('./../no-layout/block-retriever')
-const { ensureDirExists } = require('./../utilities/utils')
+const { checkResourceExists, ensureDirExists } = require('./../utilities/utils')
 const { dateComparator } = require('./../utilities/utils')
 const { checkAll } = require('./checker')
 const LogConstants = require('./../utilities/constants/log-constants')
@@ -15,7 +17,9 @@ const LogConstants = require('./../utilities/constants/log-constants')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants
 
+ShutdownManager.setShutdownBehaviour()
 main()
+
 function main() {
     const params = argv.opts
 
@@ -58,6 +62,20 @@ function main() {
             if (time + block + all != 1) {
                 console.log(optionsOutput())
             } else {
+                //clean old download, if i don't want it if i want to resume, pass -resume param
+                if (
+                    checkResourceExists(
+                        NoLayoutConstants.noLayoutTemporaryPath()
+                    )
+                ) {
+                    fs
+                        .readdirSync(NoLayoutConstants.noLayoutTemporaryPath())
+                        .forEach(file =>
+                            fs.unlinkSync(
+                                NoLayoutConstants.noLayoutTemporaryPath() + file
+                            )
+                        )
+                }
                 ensureDirExists(NoLayoutConstants.noLayoutTemporaryPath())
                 if (time == 1) {
                     ensureDirExists(NoLayoutConstants.noLayoutTimePath())
@@ -159,7 +177,7 @@ function main() {
             '-api:hex -firstBlock:int -lastBlock:int => download transactions in range of block number\n' +
             '-api:hex -firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY => download transactions in range of date\n' +
             '-api:hex -all => download all transactions in blockchain\n' +
-            '-resume => resume not completed previous download\n\n' +
+            '-api:hex -resume => resume not completed previous download\n\n' +
             'Optional flags: \n' +
             '-memory:int => set memory used by program, number of MB or empty to default node value (1400)\n\n' +
             'Note: Control params format and last greater than first\n'
@@ -180,7 +198,6 @@ function main() {
     }
 
     function downloadPhase(blocks) {
-        logger.log('Start download phase')
         const workers = master(parseInt(blocks.start), parseInt(blocks.end))
         workers.startWorkers(api)
     }

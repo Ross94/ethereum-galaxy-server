@@ -11,9 +11,7 @@ var transactionStream
 function dumpJSON(filepath: string, graph: Graph) {
     ensureDirExists(filepath)
 
-    jsonfile.writeFile(filepath, graph, err => {
-        if (err) logger.error(err)
-    })
+    jsonfile.writeFileSync(filepath, graph)
 }
 
 function dumpInfo(filepath: string, { nodes, links }: Graph, range: Range) {
@@ -25,9 +23,7 @@ function dumpInfo(filepath: string, { nodes, links }: Graph, range: Range) {
         links_number: links.length
     }
 
-    jsonfile.writeFile(filepath, info, { spaces: 2 }, err => {
-        if (err) logger.error(err)
-    })
+    jsonfile.writeFileSync(filepath, info, { spaces: 2 })
 }
 
 function dumpPajek(filepath: string, { nodes, links }: Graph) {
@@ -51,17 +47,13 @@ function dumpPajek(filepath: string, { nodes, links }: Graph) {
         return acc + `${source} ${target} ${curr.amount}\n`
     }, '')
 
-    fs.writeFile(filepath, str, err => {
-        if (err) logger.error(err)
-    })
+    fs.writeFileSync(filepath, str)
 }
 
 function saveInfo(filepath: string, data: string) {
     ensureDirExists(filepath)
 
-    jsonfile.writeFile(filepath, data, { spaces: 2 }, err => {
-        if (err) logger.error(err)
-    })
+    jsonfile.writeFileSync(filepath, data, { spaces: 2 })
 }
 
 function setTransactionStream(filepath: string, cb) {
@@ -76,14 +68,14 @@ function setTransactionStream(filepath: string, cb) {
 
 function dumpTransactions(transactions: string[], cb) {
     var writed = 0
-    transactions.map(e => e + '\n').forEach(e =>
+    transactions.map(e => e + '\n').forEach(e => {
         transactionStream.write(e, () => {
             writed++
             if (writed == transactions.length) {
-                cb
+                cb()
             }
         })
-    )
+    })
 }
 
 module.exports = {

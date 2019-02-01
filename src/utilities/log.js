@@ -62,9 +62,10 @@ const Logger = (module.exports = {
     getPath: () => {
         return loggerPath
     },
-    log: (str: string) => {
+    //empty cb so if not defined in function call all works, and needed for last call befor shutdown
+    log: (str: string, cb = () => {}) => {
         console.log(coloredLog('LOG', str))
-        stream.write(uncoloredLog('LOG', str) + '\n')
+        stream.write(uncoloredLog('LOG', str) + '\n', cb)
     },
     error: (str: string) => {
         console.log(coloredLog('ERROR', str))

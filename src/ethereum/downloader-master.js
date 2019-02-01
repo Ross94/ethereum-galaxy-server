@@ -7,23 +7,26 @@ const NoLayoutConstants = require('./../utilities/constants/no-layout-constants'
 const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
     .GlobalNameConstants
 const Phases = require('./../shutdown/phases').Phases
-const { saveInfo } = require('./../utilities/files')
+const ShutdownManager = require('./../shutdown/shutdown-manager')
 
+const { saveInfo } = require('./../utilities/files')
 const { generate } = require('./../generation/generator-master')
 
 const CPUs = require('os').cpus().length
-
 const chunkSize = 240
-
 const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
 module.exports = (start, end) => {
-    RunSettings.setCurrentPhase(Phases.DownloadPhase)
+    logger.log('Start download phase')
+
     const workers = new Map()
     const firstBlock = start
     const lastBlock = end
 
     var nextBlock = start
+    var shutdownCalled = false
+    //only for graphic reason, can use progressBar.curr, but log would be wrong
+    var lastChunk = 0
 
     var task = [
         {
@@ -47,8 +50,7 @@ module.exports = (start, end) => {
             nextBlock += chunkSize
             return ret
         }
-
-        if (nextBlock <= lastBlock) {
+        if (nextBlock <= lastBlock && ShutdownManager.isRunning()) {
             return getTask()
         }
         return false
@@ -72,7 +74,7 @@ module.exports = (start, end) => {
                 phases: [
                     {
                         format: GlobalNameConstants.globalFormat(),
-                        phase: RunSettings.getCurrentPhase()
+                        phase: ShutdownManager.getCurrentPhase()
                     }
                 ]
             }
@@ -80,6 +82,7 @@ module.exports = (start, end) => {
     }
 
     function startWorkers(infuraApiKey) {
+        ShutdownManager.changePhase(Phases.DownloadPhase())
         var endedChild = 0
         save([
             {
@@ -104,28 +107,47 @@ module.exports = (start, end) => {
                             message.data.forEach(elem => {
                                 addElem(elem)
                             })
+                            lastChunk += 1
                             save(task)
-                            progressBar.tick()
-                            logger.onlyLogFile(
+                            const progressBarTextualForm =
                                 progressBarMsg +
-                                    ' ' +
-                                    progressBar.curr +
-                                    '/' +
-                                    chunkNumber
-                            )
+                                ' ' +
+                                lastChunk +
+                                '/' +
+                                chunkNumber
+                            if (ShutdownManager.isRunning()) {
+                                progressBar.tick()
+                                logger.onlyLogFile(progressBarTextualForm)
+                            } else {
+                                logger.log(progressBarTextualForm)
+                            }
                         }
                         const res = availableTask()
                         if (!res) {
                             response(message.pid, { command: 'end' })
                             endedChild++
                             if (endedChild == CPUs) {
-                                generate()
+                                if (
+                                    shutdownCalled ||
+                                    !ShutdownManager.isRunning()
+                                ) {
+                                    ShutdownManager.terminate()
+                                } else {
+                                    generate()
+                                }
                             }
                         } else {
                             response(message.pid, {
                                 command: 'task',
                                 task: res
                             })
+                        }
+                        break
+                    case 'stopped':
+                        shutdownCalled = true
+                        endedChild++
+                        if (endedChild == CPUs) {
+                            ShutdownManager.terminate()
                         }
                         break
                     default:

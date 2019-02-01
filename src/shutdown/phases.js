@@ -1,5 +1,6 @@
 const Phases = Object.freeze({
-    DownloadPhase: 'Download'
+    ParsePhase: () => 'Parse',
+    DownloadPhase: () => 'Download'
 })
 
 module.exports = {

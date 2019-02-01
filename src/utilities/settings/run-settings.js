@@ -2,7 +2,6 @@ var saveFolderPath = undefined
 var folderName = undefined
 var range = undefined
 var oldDownload = false
-var currentPhase = undefined
 
 const RunSettings = (module.exports = {
     setSaveFolderPath: (path: string) => {
@@ -28,11 +27,5 @@ const RunSettings = (module.exports = {
     },
     getOldDownload: () => {
         return oldDownload
-    },
-    setCurrentPhase: current => {
-        currentPhase = current
-    },
-    getCurrentPhase: () => {
-        return currentPhase
     }
 })

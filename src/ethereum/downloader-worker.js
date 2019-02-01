@@ -1,12 +1,18 @@
 const createEth = require('./eth')
 const _ = require('lodash')
+
+const logger = require('./../utilities/log')
 const {
     setTransactionStream,
     dumpTransactions
 } = require('./../utilities/files')
-const logger = require('./../utilities/log')
 
 var eth
+var running = true
+
+process.on('SIGINT', () => {
+    running = false
+})
 
 function askTask(data) {
     process.send({
@@ -29,19 +35,29 @@ process.on('message', function(message) {
             })
             break
         case 'task':
-            eth.queryBlocks(message.task).then(block_array => {
-                dumpTransactions(
-                    _.flatten(
-                        block_array
-                            .filter(block => block.transactions.length > 0)
-                            .map(block => block.transactions)
-                    ).map(t => convertTransaction(t)),
-                    askTask(message.task)
-                )
-            })
+            if (running) {
+                eth.queryBlocks(message.task).then(block_array => {
+                    dumpTransactions(
+                        _.flatten(
+                            block_array
+                                .filter(block => block.transactions.length > 0)
+                                .map(block => block.transactions)
+                        ).map(t => convertTransaction(t)),
+                        () => askTask(message.task)
+                    )
+                })
+            } else {
+                process.send({
+                    pid: process.pid,
+                    command: 'stopped'
+                })
+                process.disconnect()
+                process.exit(0)
+            }
             break
         case 'end':
             process.disconnect()
+            process.exit(0)
             break
         default:
             logger.error(
