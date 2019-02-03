@@ -1,6 +1,6 @@
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-const RunSettings = require('../../utilities/constants/run-settings')
-const SpecSettings = require('../../utilities/constants/spec-settings')
+const RunSettings = require('../../utilities/settings/run-settings')
+const SpecSettings = require('../../utilities/settings/spec-settings')
 const logger = require('../../utilities/log')
 
 split = function() {

@@ -1,7 +1,6 @@
 const jsonfile = require('jsonfile')
 const fs = require('fs')
 
-const logger = require('./../utilities/log')
 const { ensureDirExists } = require('./../utilities/utils')
 
 import type { Graph, Node, Link, Range } from './../ethereum/eth'
@@ -68,14 +67,18 @@ function setTransactionStream(filepath: string, cb) {
 
 function dumpTransactions(transactions: string[], cb) {
     var writed = 0
-    transactions.map(e => e + '\n').forEach(e => {
-        transactionStream.write(e, () => {
-            writed++
-            if (writed == transactions.length) {
-                cb()
-            }
+    if (transactions.length > 0) {
+        transactions.map(e => e + '\n').forEach(e => {
+            transactionStream.write(e, () => {
+                writed++
+                if (writed == transactions.length) {
+                    cb()
+                }
+            })
         })
-    })
+    } else {
+        cb()
+    }
 }
 
 module.exports = {

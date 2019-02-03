@@ -1,6 +1,6 @@
 const LineByLineReader = require('line-by-line')
 const execSync = require('child_process').execSync
-const SpecSettings = require('../utilities/constants/spec-settings')
+const SpecSettings = require('../utilities/settings/spec-settings')
 
 module.exports = (filepath, parseLogic, callback) => {
     /*there is a proportion of 5000000 of lines for each 1000 MB this params as been tuned.
