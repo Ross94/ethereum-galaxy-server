@@ -1,11 +1,10 @@
 const _ = require('lodash')
 
+const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
-
-format = ERRORS_MESSAGES.fieldError('abstract-transactions', 'format')
 
 path = {
     nodesPath: ERRORS_MESSAGES.fieldError(
@@ -53,7 +52,7 @@ function transactionsAggregation(filePath, cb) {
         transactionsWriter = writer
         logger.log(
             'Start ' +
-                module.exports.format +
+                FormatSettings.getFormat() +
                 ' transactions copy from ' +
                 filePath
         )
@@ -92,7 +91,7 @@ function transactionsAggregation(filePath, cb) {
                             if (lastLine) {
                                 logger.log(
                                     'Termanited ' +
-                                        module.exports.format +
+                                        FormatSettings.getFormat() +
                                         ' transactions copy from ' +
                                         filePath
                                 )
@@ -111,7 +110,6 @@ function transactionsAggregation(filePath, cb) {
 }
 
 module.exports = {
-    format,
     path,
     nodeFileParser,
     tempFileParser,

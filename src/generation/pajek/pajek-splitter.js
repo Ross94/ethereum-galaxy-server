@@ -20,8 +20,6 @@ function split() {
             PajekNameConstants.pajekTransactionsFilename()
     }
 
-    abstractSplitter.format = PajekNameConstants.pajekFormat()
-
     abstractSplitter.parser = function(line) {
         var type = 'error'
         var data = undefined

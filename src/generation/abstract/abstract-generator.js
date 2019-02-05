@@ -1,3 +1,6 @@
+const GenerationShutdown = require('../../shutdown/generation-shutdown')
+const GlobalProcessCommand = require('./../../utilities/process')
+    .GlobalProcessCommand
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const RunSettings = require('../../utilities/settings/run-settings')
 const SpecSettings = require('../../utilities/settings/spec-settings')
@@ -14,7 +17,9 @@ aggregate = function() {
 function startProcess() {
     process.on('message', function(message) {
         switch (message.command) {
-            case 'start':
+            case GlobalProcessCommand.startCommand():
+                GenerationShutdown.setShutdownBehaviour()
+
                 logger.setPath(message.loggerPath)
                 RunSettings.setSaveFolderPath(message.saveFolder)
                 RunSettings.setFolderName(message.folderName)
@@ -27,8 +32,9 @@ function startProcess() {
                     module.exports.aggregate()
                 }
                 break
-            case 'end':
+            case GlobalProcessCommand.endCommand():
                 process.disconnect()
+                process.exit(0)
                 break
             default:
                 logger.error(

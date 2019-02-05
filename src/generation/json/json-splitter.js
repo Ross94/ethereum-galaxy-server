@@ -20,8 +20,6 @@ function split() {
             JsonNameConstants.jsonTransactionsFilename()
     }
 
-    abstractSplitter.format = JsonNameConstants.jsonFormat()
-
     abstractSplitter.parser = function(line) {
         try {
             var type = 'error'

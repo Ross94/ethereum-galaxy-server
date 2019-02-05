@@ -7,8 +7,6 @@ const { pajekTransactionsAggregation } = require('./pajek-transactions')
 const { compose } = require('./pajek-composer')
 
 function aggregate() {
-    abstractAggregator.format = PajekNameConstants.pajekFormat()
-
     abstractAggregator.nodesAggregation = function(filepath, cb) {
         pajekNodesAggregation(filepath, cb)
     }

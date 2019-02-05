@@ -13,8 +13,6 @@ function pajekNodesAggregation(filePath, cb) {
 
     var nextNodeID
 
-    abstractNodes.format = PajekNameConstants.pajekFormat()
-
     abstractNodes.nodesPath = nodesPath
 
     abstractNodes.nodeParser = function(line) {

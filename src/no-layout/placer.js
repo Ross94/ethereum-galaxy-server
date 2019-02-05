@@ -47,7 +47,7 @@ function move() {
         nodes_number: elemsData.nodesNumber,
         links_number: elemsData.linksNumber
     })
-    logger.log('Moved ' + GlobalNameConstants.infoFilename())
+    logger.log('Generated ' + GlobalNameConstants.infoFilename())
 
     //delete temp files
     fs

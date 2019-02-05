@@ -1,7 +1,7 @@
 var globalMemory = undefined
 var processMemory = undefined
 
-const SpecSettings = (module.exports = {
+module.exports = {
     setGlobalMemory: (memory: number) => {
         globalMemory = memory
     },
@@ -14,4 +14,4 @@ const SpecSettings = (module.exports = {
     getProcessMemory: () => {
         return processMemory
     }
-})
+}

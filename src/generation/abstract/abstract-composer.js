@@ -1,12 +1,11 @@
 const fs = require('fs')
 
+const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
 const { checkResourceExists } = require('./../../utilities/utils')
-
-format = ERRORS_MESSAGES.fieldError('abstract-composer', 'format')
 
 path = {
     graphPath: ERRORS_MESSAGES.fieldError(
@@ -97,7 +96,7 @@ function compose() {
             }
         )
 
-        logger.log('Start compact ' + module.exports.format + ' nodes')
+        logger.log('Start compact ' + FormatSettings.getFormat() + ' nodes')
         tempWriter.write(module.exports.nodesPhaseStart())
         lineReader.nextLines()
     }
@@ -119,7 +118,7 @@ function compose() {
 
                         logger.log(
                             'End compact ' +
-                                module.exports.format +
+                                FormatSettings.getFormat() +
                                 ' transactions'
                         )
                         if (checkResourceExists(graphPath)) {
@@ -138,14 +137,15 @@ function compose() {
             }
         )
 
-        logger.log('Start compact ' + module.exports.format + ' transactions')
+        logger.log(
+            'Start compact ' + FormatSettings.getFormat() + ' transactions'
+        )
         tempWriter.write(module.exports.transactionsPhaseStart())
         lineReader.nextLines()
     }
 }
 
 module.exports = {
-    format,
     path,
     nodesPhaseStart,
     nodesPhaseLine,

@@ -29,8 +29,6 @@ function compose() {
 
     var l = undefined
 
-    abstractComposer.format = JsonNameConstants.jsonFormat()
-
     abstractComposer.path = {
         graphPath: graphPath,
         tempPath: tempPath,

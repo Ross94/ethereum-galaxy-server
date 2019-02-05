@@ -1,7 +1,16 @@
+const fs = require('fs')
+
+const FormatSettings = require('./../../utilities/settings/format-settings')
+const GlobalProcessCommand = require('./../../utilities/process')
+    .GlobalProcessCommand
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GenerationProcessPhases = require('./../../shutdown/phases')
+    .GenerationProcessPhases
 const writer = require('./../writer')
 const logger = require('./../../utilities/log')
+const GenerationShutdown = require('../../shutdown/generation-shutdown')
 const { checkResourceExists } = require('./../../utilities/utils')
+const { sendMessage } = require('./../../utilities/process')
 
 const TYPE = Object.freeze({
     node: 'node',
@@ -20,8 +29,6 @@ path = {
     )
 }
 
-format = ERRORS_MESSAGES.fieldError('abstract-splitter', 'format')
-
 parser = function(line) {
     throw ERRORS_MESSAGES.functionError('abstract-splitter', 'parser')
 }
@@ -31,6 +38,9 @@ aggregate = function() {
 }
 
 function split() {
+    logger.log('Start ' + FormatSettings.getFormat() + ' splitting')
+    GenerationShutdown.changePhase(GenerationProcessPhases.SplitPhase())
+
     const graphPath = module.exports.path.graphPath
     const nodePath = module.exports.path.nodePath
     const transactionPath = module.exports.path.transactionPath
@@ -38,25 +48,41 @@ function split() {
     var nodeWriter
     var transactionWriter
 
-    logger.log('Start ' + module.exports.format + ' splitting')
     if (checkResourceExists(graphPath)) {
         writer(nodePath, nodeW => {
             nodeWriter = nodeW
             writer(transactionPath, transactionW => {
                 transactionWriter = transactionW
                 const lineReader = require('readline').createInterface({
-                    input: require('fs').createReadStream(graphPath)
+                    input: fs.createReadStream(graphPath)
                 })
 
                 lineReader
                     .on('line', function(line) {
-                        addToFile(line)
+                        if (GenerationShutdown.isRunning()) {
+                            addToFile(line)
+                        } else {
+                            lineReader.close()
+                        }
                     })
                     .on('close', function() {
-                        logger.log(
-                            module.exports.format + ' splitting terminated'
-                        )
-                        module.exports.aggregate()
+                        if (GenerationShutdown.isRunning()) {
+                            logger.log(
+                                FormatSettings.getFormat() +
+                                    ' splitting terminated'
+                            )
+                            module.exports.aggregate()
+                        } else {
+                            fs.unlinkSync(nodePath)
+                            fs.unlinkSync(transactionPath)
+                            sendMessage(GlobalProcessCommand.stoppedCommand(), {
+                                format: {
+                                    format_name: FormatSettings.getFormat(),
+                                    phase: GenerationShutdown.getCurrentPhase()
+                                }
+                            })
+                            GenerationShutdown.terminate()
+                        }
                     })
             })
         })
@@ -77,7 +103,6 @@ function split() {
 
 module.exports = {
     path,
-    format,
     parser,
     aggregate,
     TYPE,

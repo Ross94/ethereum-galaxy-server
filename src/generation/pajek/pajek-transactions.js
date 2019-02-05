@@ -14,8 +14,6 @@ function pajekTransactionsAggregation(filePath, cb) {
         NoLayoutConstants.noLayoutTemporaryPath() +
         PajekNameConstants.pajekTransactionsFilename()
 
-    abstractTransactions.format = PajekNameConstants.pajekFormat()
-
     abstractTransactions.path = {
         nodesPath: nodesPath,
         transactionsPath: transactionsPath

@@ -1,26 +1,19 @@
 const createEth = require('./eth')
 const _ = require('lodash')
 
+const DownloadWorkerShutdown = require('./../shutdown/download-worker-shutdown')
 const logger = require('./../utilities/log')
+const GlobalProcessCommand = require('./../utilities/process')
+    .GlobalProcessCommand
+const DownloadProcessCommand = require('./../utilities/process')
+    .DownloadProcessCommand
 const {
     setTransactionStream,
     dumpTransactions
 } = require('./../utilities/files')
+const { sendMessage } = require('./../utilities/process')
 
 var eth
-var running = true
-
-process.on('SIGINT', () => {
-    running = false
-})
-
-function askTask(data) {
-    process.send({
-        pid: process.pid,
-        command: 'new task',
-        data: data
-    })
-}
 
 function convertTransaction(t) {
     return JSON.stringify(t)
@@ -28,36 +21,36 @@ function convertTransaction(t) {
 
 process.on('message', function(message) {
     switch (message.command) {
-        case 'config':
-            eth = createEth(message.api)
-            setTransactionStream(message.filename, () => {
-                askTask(undefined)
+        case DownloadProcessCommand.configCommand():
+            DownloadWorkerShutdown.setShutdownBehaviour()
+            eth = createEth(message.data.api)
+            setTransactionStream(message.data.filename, () => {
+                sendMessage(DownloadProcessCommand.newTaskCommand())
             })
             break
-        case 'task':
-            if (running) {
-                eth.queryBlocks(message.task).then(block_array => {
+        case DownloadProcessCommand.newTaskCommand():
+            if (DownloadWorkerShutdown.isRunning()) {
+                eth.queryBlocks(message.data.task).then(block_array => {
                     dumpTransactions(
                         _.flatten(
                             block_array
                                 .filter(block => block.transactions.length > 0)
                                 .map(block => block.transactions)
                         ).map(t => convertTransaction(t)),
-                        () => askTask(message.task)
+                        () =>
+                            sendMessage(
+                                DownloadProcessCommand.newTaskCommand(),
+                                message.data.task
+                            )
                     )
                 })
             } else {
-                process.send({
-                    pid: process.pid,
-                    command: 'stopped'
-                })
-                process.disconnect()
-                process.exit(0)
+                sendMessage(GlobalProcessCommand.stoppedCommand())
+                DownloadWorkerShutdown.terminate()
             }
             break
-        case 'end':
-            process.disconnect()
-            process.exit(0)
+        case GlobalProcessCommand.endCommand():
+            DownloadWorkerShutdown.terminate()
             break
         default:
             logger.error(

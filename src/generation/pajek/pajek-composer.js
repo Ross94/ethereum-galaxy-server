@@ -27,8 +27,6 @@ function compose() {
         arcs: '*arcs'
     }
 
-    abstractComposer.format = PajekNameConstants.pajekFormat()
-
     abstractComposer.path = {
         graphPath: graphPath,
         tempPath: tempPath,

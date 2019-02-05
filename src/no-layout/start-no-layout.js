@@ -5,7 +5,7 @@ const SpecSettings = require('../utilities/settings/spec-settings')
 const RunSettings = require('../utilities/settings/run-settings')
 const logger = require('./../utilities/log')
 
-const ShutdownManager = require('../shutdown/shutdown-manager')
+const MainShutdown = require('../shutdown/main-shutdown')
 const createEth = require('./../ethereum/eth')
 const master = require('./../ethereum/downloader-master')
 const retrieverSetKey = require('./../no-layout/block-retriever')
@@ -17,7 +17,7 @@ const LogConstants = require('./../utilities/constants/log-constants')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants
 
-ShutdownManager.setShutdownBehaviour()
+MainShutdown.setShutdownBehaviour()
 main()
 
 function main() {
@@ -150,7 +150,7 @@ function main() {
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 1999998, end: 1999999 }
+                    const res = { start: 2724709, end: 2730770 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
                     //range.start = 1999998 //comment when second execute has last 1999999

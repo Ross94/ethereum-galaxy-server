@@ -3,7 +3,7 @@ var folderName = undefined
 var range = undefined
 var oldDownload = false
 
-const RunSettings = (module.exports = {
+module.exports = {
     setSaveFolderPath: (path: string) => {
         saveFolderPath = path
     },
@@ -28,4 +28,4 @@ const RunSettings = (module.exports = {
     getOldDownload: () => {
         return oldDownload
     }
-})
+}

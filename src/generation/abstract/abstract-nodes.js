@@ -2,13 +2,12 @@ const _ = require('lodash')
 const RBTree = require('bintrees').RBTree
 const fs = require('fs')
 
+const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
 const { checkResourceExists } = require('./../../utilities/utils')
-
-format = ERRORS_MESSAGES.fieldError('abstract-nodes', 'format')
 
 nodesPath = ERRORS_MESSAGES.fieldError('abstract-nodes', 'nodesPath')
 
@@ -38,7 +37,10 @@ function nodesAggregation(filePath, callback) {
     }
     nodesFile = nodesInitializer()
     logger.log(
-        'Start ' + module.exports.format + ' node extraction of ' + filePath
+        'Start ' +
+            FormatSettings.getFormat() +
+            ' node extraction of ' +
+            filePath
     )
     currentFile.nextLines()
 
@@ -54,7 +56,7 @@ function nodesAggregation(filePath, callback) {
                         if (lastTempRead) {
                             logger.log(
                                 'Terminated ' +
-                                    module.exports.format +
+                                    FormatSettings.getFormat() +
                                     ' nodes extraction from ' +
                                     filePath
                             )
@@ -120,7 +122,6 @@ function nodesAggregation(filePath, callback) {
 }
 
 module.exports = {
-    format,
     nodesPath,
     nodeParser,
     elemToNode,

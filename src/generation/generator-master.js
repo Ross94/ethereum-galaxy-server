@@ -2,9 +2,16 @@ const child_process = require('child_process')
 const SpecSettings = require('../utilities/settings/spec-settings')
 const RunSettings = require('../utilities/settings/run-settings')
 const logger = require('./../utilities/log')
+const MainShutdown = require('./../shutdown/main-shutdown')
+
+const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
+const GlobalProcessCommand = require('./../utilities/process')
+    .GlobalProcessCommand
 const { move } = require('./../no-layout/placer')
 
 function generate() {
+    MainShutdown.changePhase(MainProcessPhases.GenerationPhase())
+
     const workers = new Map()
     var children = 0
     var childrenTerminated = 0
@@ -13,6 +20,9 @@ function generate() {
         './build/generation/json/json-generator',
         './build/generation/pajek/pajek-generator'
     ]
+    /*const format = [
+        './build/generation/json/json-generator'
+    ]*/
     SpecSettings.setProcessMemory(
         Math.ceil(SpecSettings.getGlobalMemory() / format.length)
     )
@@ -31,12 +41,17 @@ function generate() {
 
         child.on('message', function(message) {
             switch (message.command) {
-                case 'end':
-                    response(message.pid, { command: 'end' })
+                case GlobalProcessCommand.endCommand():
+                    response(message.pid, {
+                        command: GlobalProcessCommand.endCommand()
+                    })
                     childrenTerminated += 1
                     if (childrenTerminated == children) {
                         terminated()
                     }
+                    break
+                case GlobalProcessCommand.stoppedCommand():
+                    MainShutdown.save(message.data)
                     break
                 default:
                     logger.error(
@@ -49,7 +64,7 @@ function generate() {
         })
 
         child.send({
-            command: 'start',
+            command: GlobalProcessCommand.startCommand(),
             loggerPath: logger.getPath(),
             saveFolder: RunSettings.getSaveFolderPath(),
             folderName: RunSettings.getFolderName(),

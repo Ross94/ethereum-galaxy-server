@@ -1,8 +1,14 @@
-const Phases = Object.freeze({
+const MainProcessPhases = Object.freeze({
     ParsePhase: () => 'Parse',
-    DownloadPhase: () => 'Download'
+    DownloadPhase: () => 'Download',
+    GenerationPhase: () => 'Generation'
+})
+
+const GenerationProcessPhases = Object.freeze({
+    SplitPhase: () => 'Split'
 })
 
 module.exports = {
-    Phases
+    MainProcessPhases,
+    GenerationProcessPhases
 }

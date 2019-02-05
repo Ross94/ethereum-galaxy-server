@@ -1,9 +1,9 @@
 const logger = require('./../../utilities/log')
+
 const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
     .NoLayoutConstants
+const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-
-format = ERRORS_MESSAGES.fieldError('abstract-aggregator', 'format')
 
 nodesAggregation = function(filepath, cb) {
     throw ERRORS_MESSAGES.functionError(
@@ -34,7 +34,9 @@ function aggregate() {
     var currentFile = -1
 
     logger.log(
-        'Start ' + module.exports.format + ' nodes and transactions aggregation'
+        'Start ' +
+            FormatSettings.getFormat() +
+            ' nodes and transactions aggregation'
     )
     nextTempFile()
 
@@ -62,7 +64,7 @@ function aggregate() {
         } else {
             logger.log(
                 'All temp files scanned for ' +
-                    module.exports.format +
+                    FormatSettings.getFormat() +
                     ' format'
             )
             module.exports.compose()
@@ -71,7 +73,6 @@ function aggregate() {
 }
 
 module.exports = {
-    format,
     nodesAggregation,
     transactionsAggregation,
     compose,

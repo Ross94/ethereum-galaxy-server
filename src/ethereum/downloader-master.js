@@ -1,23 +1,24 @@
 const child_process = require('child_process')
-const RunSettings = require('../utilities/settings/run-settings')
-const SpecSettings = require('../utilities/settings/spec-settings')
+
 const logger = require('./../utilities/log')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants
-const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
-    .GlobalNameConstants
-const Phases = require('./../shutdown/phases').Phases
-const ShutdownManager = require('./../shutdown/shutdown-manager')
-
-const { saveInfo } = require('./../utilities/files')
+const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
+const GlobalProcessCommand = require('./../utilities/process')
+    .GlobalProcessCommand
+const DownloadProcessCommand = require('./../utilities/process')
+    .DownloadProcessCommand
+const MainShutdown = require('./../shutdown/main-shutdown')
 const { generate } = require('./../generation/generator-master')
+const { sendMessage } = require('./../utilities/process')
 
-const CPUs = require('os').cpus().length
-const chunkSize = 240
+const CPUs = 1 //require('os').cpus().length
+const chunkSize = 1 //240
 const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
 module.exports = (start, end) => {
     logger.log('Start download phase')
+    MainShutdown.changePhase(MainProcessPhases.DownloadPhase())
 
     const workers = new Map()
     const firstBlock = start
@@ -50,72 +51,44 @@ module.exports = (start, end) => {
             nextBlock += chunkSize
             return ret
         }
-        if (nextBlock <= lastBlock && ShutdownManager.isRunning()) {
+        if (nextBlock <= lastBlock && MainShutdown.isRunning()) {
             return getTask()
         }
         return false
     }
 
-    function response(pid, message) {
-        workers.get(pid).send(message)
-    }
-
-    function save(miss) {
-        saveInfo(
-            NoLayoutConstants.noLayoutTemporaryPath() +
-                GlobalNameConstants.infoFilename(),
-            {
-                saveFolder: RunSettings.getSaveFolderPath(),
-                range: RunSettings.getRange(),
-                missing: miss,
-                specs: {
-                    global_memory: SpecSettings.getGlobalMemory()
-                },
-                phases: [
-                    {
-                        format: GlobalNameConstants.globalFormat(),
-                        phase: ShutdownManager.getCurrentPhase()
-                    }
-                ]
-            }
-        )
-    }
-
     function startWorkers(infuraApiKey) {
-        ShutdownManager.changePhase(Phases.DownloadPhase())
         var endedChild = 0
-        save([
-            {
-                start: firstBlock,
-                end: lastBlock
-            }
-        ])
 
         for (var i = 0; i < CPUs; i++) {
-            var child = child_process.fork('./build/ethereum/downloader-worker')
+            const child = child_process.fork(
+                './build/ethereum/downloader-worker'
+            )
             workers.set(child.pid, child)
-            child.send({
-                command: 'config',
-                filename:
-                    NoLayoutConstants.noLayoutTemporaryPath() + i + '.json',
-                api: infuraApiKey
-            })
+            sendMessage(
+                DownloadProcessCommand.configCommand(),
+                {
+                    filename:
+                        NoLayoutConstants.noLayoutTemporaryPath() + i + '.json',
+                    api: infuraApiKey
+                },
+                child
+            )
             child.on('message', function(message) {
                 switch (message.command) {
-                    case 'new task':
+                    case DownloadProcessCommand.newTaskCommand():
                         if (message.data != undefined) {
                             message.data.forEach(elem => {
                                 addElem(elem)
                             })
                             lastChunk += 1
-                            save(task)
                             const progressBarTextualForm =
                                 progressBarMsg +
                                 ' ' +
                                 lastChunk +
                                 '/' +
                                 chunkNumber
-                            if (ShutdownManager.isRunning()) {
+                            if (MainShutdown.isRunning()) {
                                 progressBar.tick()
                                 logger.onlyLogFile(progressBarTextualForm)
                             } else {
@@ -124,30 +97,37 @@ module.exports = (start, end) => {
                         }
                         const res = availableTask()
                         if (!res) {
-                            response(message.pid, { command: 'end' })
+                            sendMessage(
+                                GlobalProcessCommand.endCommand(),
+                                undefined,
+                                workers.get(message.pid)
+                            )
                             endedChild++
                             if (endedChild == CPUs) {
                                 if (
                                     shutdownCalled ||
-                                    !ShutdownManager.isRunning()
+                                    !MainShutdown.isRunning()
                                 ) {
-                                    ShutdownManager.terminate()
+                                    MainShutdown.save({ missing: task })
+                                    MainShutdown.terminate()
                                 } else {
+                                    MainShutdown.save({ missing: task })
                                     generate()
                                 }
                             }
                         } else {
-                            response(message.pid, {
-                                command: 'task',
-                                task: res
-                            })
+                            sendMessage(
+                                DownloadProcessCommand.newTaskCommand(),
+                                { task: res },
+                                workers.get(message.pid)
+                            )
                         }
                         break
-                    case 'stopped':
+                    case GlobalProcessCommand.stoppedCommand():
                         shutdownCalled = true
                         endedChild++
                         if (endedChild == CPUs) {
-                            ShutdownManager.terminate()
+                            MainShutdown.terminate()
                         }
                         break
                     default:
@@ -162,6 +142,14 @@ module.exports = (start, end) => {
         }
     }
 
+    /*
+    Transaxtions to download are rappresented as range of block indexes for better memory usage.
+    Due to more process is possible are missing blocks between other dowloaded
+    (ex. 1-2-4-5 downloaded, 3 is missing).
+    So are saved an array of range, when a block has been downloaded go in the array and remove a range,
+    if is only for the block, increase lower bound or decrease upper bound if is presente on bound
+    or split one range in two in other case.
+    */
     function addElem(elem) {
         var find = false
         var ind = 0
