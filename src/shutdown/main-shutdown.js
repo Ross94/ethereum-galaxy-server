@@ -11,15 +11,17 @@ const { saveInfo } = require('./../utilities/files')
 var running = true
 var currentPhase = MainProcessPhases.ParsePhase()
 
-const infoData = {
-    saveFolder: RunSettings.getSaveFolderPath(),
-    range: RunSettings.getRange(),
-    missing: [],
-    specs: {
-        global_memory: SpecSettings.getGlobalMemory()
-    },
-    phase: currentPhase,
-    format: []
+function infoData() {
+    return {
+        saveFolder: RunSettings.getSaveFolderPath(),
+        range: RunSettings.getRange(),
+        missing: [],
+        specs: {
+            global_memory: SpecSettings.getGlobalMemory()
+        },
+        phase: currentPhase,
+        format: []
+    }
 }
 
 module.exports = {
@@ -44,26 +46,27 @@ module.exports = {
         return currentPhase
     },
     save: changes => {
+        const info = infoData()
         Object.keys(changes).forEach(key => {
             var find = false
             if (key === 'format') {
-                infoData.format.forEach(f => {
+                info.format.forEach(f => {
                     if (f.format_name === changes.format.format_name) {
                         find = true
                         format.current_phase = changes.format.current_phase
                     }
                 })
                 if (!find) {
-                    infoData.format.push(changes.format)
+                    info.format.push(changes.format)
                 }
             } else {
-                infoData[key] = changes[key]
+                info[key] = changes[key]
             }
         })
         saveInfo(
             NoLayoutConstants.noLayoutTemporaryPath() +
                 GlobalNameConstants.infoFilename(),
-            infoData
+            info
         )
     },
     terminate: () => {

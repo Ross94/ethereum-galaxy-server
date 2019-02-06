@@ -1,5 +1,6 @@
 const fs = require('fs')
 
+const MainShutdown = require('./../shutdown/main-shutdown')
 const RunSettings = require('../utilities/settings/run-settings')
 const logger = require('./../utilities/log')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
@@ -10,7 +11,6 @@ const JsonNameConstants = require('./../utilities/constants/files-name-constants
     .JsonNameConstants
 const PajekNameConstants = require('./../utilities/constants/files-name-constants')
     .PajekNameConstants
-const { saveInfo } = require('./../utilities/files')
 const { checkResourceExists, ensureDirExists } = require('./../utilities/utils')
 
 function checkAll(lastBlock) {
@@ -44,21 +44,16 @@ function checkAll(lastBlock) {
         )
 
         lastBlockDownloaded = parseInt(info.range.end)
+
         //info
-        saveInfo(
-            NoLayoutConstants.noLayoutTemporaryPath() +
-                GlobalNameConstants.infoFilename(),
-            {
-                saveFolder: RunSettings.getSaveFolderPath(),
-                range: RunSettings.getRange(),
-                missing: [
-                    {
-                        start: lastBlockDownloaded + 1,
-                        end: lastBlock
-                    }
-                ]
-            }
-        )
+        MainShutdown.save({
+            missing: [
+                {
+                    start: lastBlockDownloaded + 1,
+                    end: lastBlock
+                }
+            ]
+        })
     } else {
         lastBlockDownloaded = -1
         logger.log('No previous download of "all", split phase skipped')

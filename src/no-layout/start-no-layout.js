@@ -150,7 +150,7 @@ function main() {
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 2724709, end: 2730770 }
+                    const res = { start: 1999998, end: 2000004 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
                     //range.start = 1999998 //comment when second execute has last 1999999

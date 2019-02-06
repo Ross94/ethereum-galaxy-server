@@ -12,8 +12,8 @@ const MainShutdown = require('./../shutdown/main-shutdown')
 const { generate } = require('./../generation/generator-master')
 const { sendMessage } = require('./../utilities/process')
 
-const CPUs = 1 //require('os').cpus().length
-const chunkSize = 1 //240
+const CPUs = require('os').cpus().length
+const chunkSize = 240
 const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
 module.exports = (start, end) => {
@@ -111,7 +111,6 @@ module.exports = (start, end) => {
                                     MainShutdown.save({ missing: task })
                                     MainShutdown.terminate()
                                 } else {
-                                    MainShutdown.save({ missing: task })
                                     generate()
                                 }
                             }

@@ -10,25 +10,21 @@ const JsonNameConstants = require('./../utilities/constants/files-name-constants
     .JsonNameConstants
 const PajekNameConstants = require('./../utilities/constants/files-name-constants')
     .PajekNameConstants
+const RunSettings = require('./../utilities/settings/run-settings')
 const { ensureDirExists } = require('./../utilities/utils')
 const { saveInfo } = require('./../utilities/files')
 
 function move() {
     logger.log('Start moving files to correct directory')
-    const info = JSON.parse(
-        fs.readFileSync(
-            NoLayoutConstants.noLayoutTemporaryPath() +
-                GlobalNameConstants.infoFilename()
-        )
-    )
-    ensureDirExists(info.saveFolder)
-    logger.log('Destination directory: ' + info.saveFolder)
+
+    ensureDirExists(RunSettings.getSaveFolderPath())
+    logger.log('Destination directory: ' + RunSettings.getSaveFolderPath())
 
     //move json
     fs.renameSync(
         NoLayoutConstants.noLayoutTemporaryPath() +
             JsonNameConstants.jsonGraphFilename(),
-        info.saveFolder + JsonNameConstants.jsonGraphFilename()
+        RunSettings.getSaveFolderPath() + JsonNameConstants.jsonGraphFilename()
     )
     logger.log('Moved ' + JsonNameConstants.jsonGraphFilename())
 
@@ -36,17 +32,21 @@ function move() {
     fs.renameSync(
         NoLayoutConstants.noLayoutTemporaryPath() +
             PajekNameConstants.pajekGraphFilename(),
-        info.saveFolder + PajekNameConstants.pajekGraphFilename()
+        RunSettings.getSaveFolderPath() +
+            PajekNameConstants.pajekGraphFilename()
     )
     logger.log('Moved ' + PajekNameConstants.pajekGraphFilename())
 
     //generate info
     const elemsData = countElems()
-    saveInfo(info.saveFolder + GlobalNameConstants.infoFilename(), {
-        range: info.range,
-        nodes_number: elemsData.nodesNumber,
-        links_number: elemsData.linksNumber
-    })
+    saveInfo(
+        RunSettings.getSaveFolderPath() + GlobalNameConstants.infoFilename(),
+        {
+            range: RunSettings.getRange(),
+            nodes_number: elemsData.nodesNumber,
+            links_number: elemsData.linksNumber
+        }
+    )
     logger.log('Generated ' + GlobalNameConstants.infoFilename())
 
     //delete temp files
@@ -61,7 +61,8 @@ function move() {
 
     function countElems() {
         const filePath =
-            info.saveFolder + PajekNameConstants.pajekGraphFilename()
+            RunSettings.getSaveFolderPath() +
+            PajekNameConstants.pajekGraphFilename()
         const linesNumber = parseInt(execSync('wc -l < ' + filePath).toString())
         const pajekLines = 2
 
