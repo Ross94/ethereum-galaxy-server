@@ -13,12 +13,12 @@ var currentPhase = MainProcessPhases.ParsePhase()
 
 function infoData() {
     return {
-        saveFolder: RunSettings.getSaveFolderPath(),
+        logger_path: logger.getPath(),
+        requested_data: RunSettings.getRequestedData(),
+        folder_path: RunSettings.getSaveFolderPath(),
+        folder_name: RunSettings.getFolderName(),
         range: RunSettings.getRange(),
-        missing: [],
-        specs: {
-            global_memory: SpecSettings.getGlobalMemory()
-        },
+        missing: {},
         phase: currentPhase,
         format: []
     }

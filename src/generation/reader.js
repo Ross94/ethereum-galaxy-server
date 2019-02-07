@@ -16,7 +16,6 @@ module.exports = (filepath, parseLogic, callback) => {
     )
     const linesNumber = parseInt(execSync('wc -l < ' + filepath).toString())
     const blocks = Math.ceil(linesNumber / chunkSize)
-
     var reader
     var blocksReaded = 0
     var readedLine = 0

@@ -7,6 +7,7 @@ const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const GenerationProcessPhases = require('./../../shutdown/phases')
     .GenerationProcessPhases
 const writer = require('./../writer')
+const reader = require('./../reader')
 const logger = require('./../../utilities/log')
 const GenerationShutdown = require('../../shutdown/generation-shutdown')
 const { checkResourceExists } = require('./../../utilities/utils')
@@ -53,6 +54,31 @@ function split() {
             nodeWriter = nodeW
             writer(transactionPath, transactionW => {
                 transactionWriter = transactionW
+
+                const lineReader = reader(
+                    graphPath,
+                    line => {
+                        return line
+                    },
+                    (lines, options) => {
+                        lines.forEach(line => {
+                            console.log(line)
+                            if (GenerationShutdown.isRunning()) {
+                                addToFile(line)
+                            } else {
+                                //TO-DO save split
+                            }
+                        })
+                        if (options.endFile) {
+                            module.exports.aggregate()
+                        } else {
+                            lineReader.nextLines()
+                        }
+                    }
+                )
+
+                lineReader.nextLines()
+                /*
                 const lineReader = require('readline').createInterface({
                     input: fs.createReadStream(graphPath)
                 })
@@ -84,6 +110,7 @@ function split() {
                             GenerationShutdown.terminate()
                         }
                     })
+                */
             })
         })
     }

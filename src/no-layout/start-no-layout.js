@@ -16,6 +16,9 @@ const LogConstants = require('./../utilities/constants/log-constants')
     .LogConstants
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants
+const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
+    .GlobalNameConstants
+const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
 
 MainShutdown.setShutdownBehaviour()
 main()
@@ -27,17 +30,51 @@ function main() {
     var block = 0
     var all = 0
 
-    var api
-
     if (params.help) {
         console.log(optionsOutput())
     } else if (params.resume) {
-        console.log('TO-DO implement resume')
+        if (checkResourceExists(NoLayoutConstants.noLayoutTemporaryPath())) {
+            //import saved config
+            const config = JSON.parse(
+                fs.readFileSync(
+                    NoLayoutConstants.noLayoutTemporaryPath() +
+                        GlobalNameConstants.infoFilename()
+                )
+            )
+
+            logger.setPath(config.logger_path)
+            logger.log(
+                'Resume started! previous download settings: ' +
+                    config.requested_data
+            )
+
+            RunSettings.setRequestedData(config.requested_data)
+            RunSettings.setSaveFolderPath(config.folder_path)
+            RunSettings.setFolderName(config.folder_name)
+            RunSettings.setRange(config.range)
+            MainShutdown.changePhase(config.phase)
+            memoryConfig()
+
+            //resume
+            switch (config.phase) {
+                case MainProcessPhases.DownloadPhase():
+                    downloadPhase({
+                        start: parseInt(config.missing.start),
+                        end: parseInt(config.missing.end)
+                    })
+                    break
+                case MainProcessPhases.GenerationPhase():
+                    console.log('TO-DO implement resume on generation phase')
+                    break
+            }
+        } else {
+            console.log('No previous download to resume!\n')
+            console.log(optionsOutput())
+        }
     } else if (params.api != undefined) {
         memoryConfig()
 
-        api = params.api
-        const retriever = retrieverSetKey(api)
+        const retriever = retrieverSetKey(params.api)
 
         const eth = createEth(params.api)
         eth.lastBlock().then(lastBlock => {
@@ -77,8 +114,13 @@ function main() {
                         )
                 }
                 ensureDirExists(NoLayoutConstants.noLayoutTemporaryPath())
+
                 if (time == 1) {
                     ensureDirExists(NoLayoutConstants.noLayoutTimePath())
+                    RunSettings.setRequestedData(
+                        params.firstDate + ' ' + params.lastDate
+                    )
+
                     RunSettings.setFolderName(
                         params.firstDate + '-' + params.lastDate
                     )
@@ -110,6 +152,10 @@ function main() {
                 }
                 if (block == 1) {
                     ensureDirExists(NoLayoutConstants.noLayoutBlockPath())
+                    RunSettings.setRequestedData(
+                        params.firstBlock + ' ' + params.lastBlock
+                    )
+
                     RunSettings.setFolderName(
                         params.firstBlock + '-' + params.lastBlock
                     )
@@ -138,6 +184,8 @@ function main() {
                 }
                 if (all == 1) {
                     ensureDirExists(NoLayoutConstants.noLayoutAllPath())
+                    RunSettings.setRequestedData('all')
+
                     RunSettings.setFolderName('all')
                     RunSettings.setSaveFolderPath(
                         NoLayoutConstants.noLayoutAllPath()
@@ -150,10 +198,10 @@ function main() {
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 1999998, end: 2000004 }
+                    const res = { start: 1999998, end: 1999998 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
-                    //range.start = 1999998 //comment when second execute has last 1999999
+                    range.start = 1999998 //comment when second execute has last 1999999
                     downloadPhase(range)
                     //end test block
 
@@ -199,7 +247,7 @@ function main() {
 
     function downloadPhase(blocks) {
         const workers = master(parseInt(blocks.start), parseInt(blocks.end))
-        workers.startWorkers(api)
+        workers.startWorkers(params.api)
     }
 
     function checkDateFormat(date) {

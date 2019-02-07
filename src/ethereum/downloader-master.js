@@ -108,7 +108,7 @@ module.exports = (start, end) => {
                                     shutdownCalled ||
                                     !MainShutdown.isRunning()
                                 ) {
-                                    MainShutdown.save({ missing: task })
+                                    MainShutdown.save({ missing: task[0] })
                                     MainShutdown.terminate()
                                 } else {
                                     generate()
