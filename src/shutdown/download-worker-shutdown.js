@@ -1,13 +1,15 @@
-var running = true
+const fs = require('fs')
+const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
+    .GlobalNameConstants
 
 module.exports = {
     setShutdownBehaviour: () => {
-        process.on('SIGINT', () => {
-            running = false
-        })
+        process.on('SIGINT', () => {})
     },
     isRunning: () => {
-        return running
+        return JSON.parse(
+            fs.readFileSync(GlobalNameConstants.runningFilename())
+        ).running
     },
     terminate: () => {
         process.disconnect()

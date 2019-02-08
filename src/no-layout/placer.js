@@ -56,6 +56,7 @@ function move() {
             fs.unlinkSync(NoLayoutConstants.noLayoutTemporaryPath() + file)
         )
     fs.rmdirSync(NoLayoutConstants.noLayoutTemporaryPath())
+    fs.unlinkSync(GlobalNameConstants.runningFilename())
     logger.log('Delete temp files')
     logger.log('End moving files')
 

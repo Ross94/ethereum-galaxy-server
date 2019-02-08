@@ -44,16 +44,6 @@ function checkAll(lastBlock) {
         )
 
         lastBlockDownloaded = parseInt(info.range.end)
-
-        //info
-        MainShutdown.save({
-            missing: [
-                {
-                    start: lastBlockDownloaded + 1,
-                    end: lastBlock
-                }
-            ]
-        })
     } else {
         lastBlockDownloaded = -1
         logger.log('No previous download of "all", split phase skipped')

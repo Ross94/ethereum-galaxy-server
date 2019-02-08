@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 const logger = require('../utilities/log')
 const MainProcessPhases = require('./phases').MainProcessPhases
 const RunSettings = require('../utilities/settings/run-settings')
@@ -7,8 +9,8 @@ const NoLayoutConstants = require('./../utilities/constants/no-layout-constants'
 const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
     .GlobalNameConstants
 const { saveInfo } = require('./../utilities/files')
+const { ensureDirExists } = require('./../utilities/utils')
 
-var running = true
 var currentPhase = MainProcessPhases.ParsePhase()
 
 function infoData() {
@@ -26,18 +28,30 @@ function infoData() {
 
 module.exports = {
     setShutdownBehaviour: () => {
+        ensureDirExists(NoLayoutConstants.noLayoutPath())
+        fs.writeFileSync(
+            GlobalNameConstants.runningFilename(),
+            JSON.stringify({ running: true })
+        )
+
         process.on('SIGINT', () => {
             if (currentPhase === MainProcessPhases.ParsePhase()) {
                 process.exit(0)
             }
+
             logger.log(
                 'Start shutdown... next time you can resume this run whit -resume param or start new one'
             )
-            running = false
+            fs.writeFileSync(
+                GlobalNameConstants.runningFilename(),
+                JSON.stringify({ running: false })
+            )
         })
     },
     isRunning: () => {
-        return running
+        return JSON.parse(
+            fs.readFileSync(GlobalNameConstants.runningFilename())
+        ).running
     },
     changePhase: phase => {
         currentPhase = phase
@@ -70,6 +84,7 @@ module.exports = {
         )
     },
     terminate: () => {
+        fs.unlinkSync(GlobalNameConstants.runningFilename())
         logger.log('Shutdown completed', () => process.exit(0))
     }
 }

@@ -1,6 +1,9 @@
+const NoLayoutConstants = require('./no-layout-constants').NoLayoutConstants
+
 const GlobalNameConstants = Object.freeze({
     globalFormat: () => 'common',
-    infoFilename: () => 'info.json'
+    infoFilename: () => 'info.json',
+    runningFilename: () => NoLayoutConstants.noLayoutPath() + 'running.json'
 })
 
 const PajekNameConstants = Object.freeze({
