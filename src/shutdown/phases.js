@@ -5,7 +5,10 @@ const MainProcessPhases = Object.freeze({
 })
 
 const GenerationProcessPhases = Object.freeze({
-    SplitPhase: () => 'Split'
+    SplitPhase: () => 'Split',
+    NodesPhase: () => 'Nodes',
+    TransactionsPhase: () => 'Transactions',
+    ComposePhase: () => 'Compose'
 })
 
 module.exports = {

@@ -2,7 +2,6 @@ var saveFolderPath = undefined
 var folderName = undefined
 var range = undefined
 var oldDownload = false
-var requestedData = undefined
 
 module.exports = {
     setSaveFolderPath: (path: string) => {
@@ -28,11 +27,5 @@ module.exports = {
     },
     getOldDownload: () => {
         return oldDownload
-    },
-    setRequestedData: (data: string) => {
-        requestedData = data
-    },
-    getRequestedData: () => {
-        return requestedData
     }
 }

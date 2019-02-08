@@ -4,6 +4,8 @@ const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GenerationProcessPhases = require('./../../shutdown/phases')
+    .GenerationProcessPhases
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
@@ -47,6 +49,7 @@ function nodesAggregation(filePath, callback) {
     function nodesInitializer() {
         return reader(
             nodesPath,
+            GenerationProcessPhases.NodesPhase(),
             module.exports.nodeParser,
             (lines, options) => {
                 _.flatten(lines).forEach(elem => nodesToWrite.remove(elem))
@@ -79,13 +82,18 @@ function nodesAggregation(filePath, callback) {
     }
 
     function currentFileInitializer() {
-        return reader(filePath, transactionParser, (lines, options) => {
-            _.flatten(lines).forEach(elem => nodesToWrite.insert(elem))
-            if (options.endFile) {
-                lastTempRead = true
+        return reader(
+            filePath,
+            GenerationProcessPhases.NodesPhase(),
+            transactionParser,
+            (lines, options) => {
+                _.flatten(lines).forEach(elem => nodesToWrite.insert(elem))
+                if (options.endFile) {
+                    lastTempRead = true
+                }
+                nodesFile.nextLines()
             }
-            nodesFile.nextLines()
-        })
+        )
     }
 
     function endCurrentFileBlock(cb) {

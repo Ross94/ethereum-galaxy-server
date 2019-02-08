@@ -48,6 +48,7 @@ function split() {
 
     var nodeWriter
     var transactionWriter
+    var lastLine = 0
 
     if (checkResourceExists(graphPath)) {
         writer(nodePath, nodeW => {
@@ -57,6 +58,7 @@ function split() {
 
                 const lineReader = reader(
                     graphPath,
+                    GenerationProcessPhases.SplitPhase(),
                     line => {
                         return line
                     },
@@ -64,9 +66,21 @@ function split() {
                         lines.forEach(line => {
                             console.log(line)
                             if (GenerationShutdown.isRunning()) {
+                                lastLine++
                                 addToFile(line)
                             } else {
-                                //TO-DO save split
+                                sendMessage(
+                                    GlobalProcessCommand.stoppedCommand(),
+                                    {
+                                        format: {
+                                            format_name: FormatSettings.getFormat(),
+                                            phase: GenerationShutdown.getCurrentPhase(),
+                                            last_line: lastLine,
+                                            file_path: graphPath
+                                        }
+                                    }
+                                )
+                                GenerationShutdown.terminate()
                             }
                         })
                         if (options.endFile) {
@@ -78,39 +92,6 @@ function split() {
                 )
 
                 lineReader.nextLines()
-                /*
-                const lineReader = require('readline').createInterface({
-                    input: fs.createReadStream(graphPath)
-                })
-
-                lineReader
-                    .on('line', function(line) {
-                        if (GenerationShutdown.isRunning()) {
-                            addToFile(line)
-                        } else {
-                            lineReader.close()
-                        }
-                    })
-                    .on('close', function() {
-                        if (GenerationShutdown.isRunning()) {
-                            logger.log(
-                                FormatSettings.getFormat() +
-                                    ' splitting terminated'
-                            )
-                            module.exports.aggregate()
-                        } else {
-                            fs.unlinkSync(nodePath)
-                            fs.unlinkSync(transactionPath)
-                            sendMessage(GlobalProcessCommand.stoppedCommand(), {
-                                format: {
-                                    format_name: FormatSettings.getFormat(),
-                                    phase: GenerationShutdown.getCurrentPhase()
-                                }
-                            })
-                            GenerationShutdown.terminate()
-                        }
-                    })
-                */
             })
         })
     }

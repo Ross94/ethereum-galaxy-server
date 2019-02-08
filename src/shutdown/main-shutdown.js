@@ -1,7 +1,7 @@
 const logger = require('../utilities/log')
 const MainProcessPhases = require('./phases').MainProcessPhases
 const RunSettings = require('../utilities/settings/run-settings')
-const SpecSettings = require('../utilities/settings/spec-settings')
+const RecoverySettings = require('../utilities/settings/recovery-settings')
 const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
     .NoLayoutConstants
 const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
@@ -14,7 +14,7 @@ var currentPhase = MainProcessPhases.ParsePhase()
 function infoData() {
     return {
         logger_path: logger.getPath(),
-        requested_data: RunSettings.getRequestedData(),
+        requested_data: RecoverySettings.getRequestedData(),
         folder_path: RunSettings.getSaveFolderPath(),
         folder_name: RunSettings.getFolderName(),
         range: RunSettings.getRange(),

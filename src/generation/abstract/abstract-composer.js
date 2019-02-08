@@ -2,6 +2,8 @@ const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GenerationProcessPhases = require('./../../shutdown/phases')
+    .GenerationProcessPhases
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
@@ -73,6 +75,7 @@ function compose() {
     function nodePhase() {
         lineReader = reader(
             nodesPath,
+            GenerationProcessPhases.ComposePhase(),
             line => {
                 return line
             },
@@ -104,6 +107,7 @@ function compose() {
     function transactionPhase() {
         lineReader = reader(
             transactionsPath,
+            GenerationProcessPhases.ComposePhase(),
             line => {
                 return line
             },

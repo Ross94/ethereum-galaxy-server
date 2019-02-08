@@ -1,8 +1,9 @@
 const LineByLineReader = require('line-by-line')
 const execSync = require('child_process').execSync
 const SpecSettings = require('../utilities/settings/spec-settings')
+const RecoverySettings = require('../utilities/settings/recovery-settings')
 
-module.exports = (filepath, parseLogic, callback) => {
+module.exports = (filepath, phase, parseLogic, callback) => {
     /*there is a proportion of 5000000 of lines for each 1000 MB this params as been tuned.
     This method has been called on temp file and nodes file, so you can read 2500000 lines form temp and 2500000 from nodes
     */
@@ -14,34 +15,47 @@ module.exports = (filepath, parseLogic, callback) => {
     const chunkSize = Math.ceil(
         tunedLines * SpecSettings.getProcessMemory() / tunedMemory
     )
+    //const chunkSize = 2
     const linesNumber = parseInt(execSync('wc -l < ' + filepath).toString())
-    const blocks = Math.ceil(linesNumber / chunkSize)
+    const blocks = Math.ceil(
+        (linesNumber - RecoverySettings.getLastLine()) / chunkSize
+    )
     var reader
     var blocksReaded = 0
     var readedLine = 0
     var lines = []
 
+    var skippedLine = 0
+
     function initialization() {
         reader = new LineByLineReader(filepath)
         reader.pause()
         reader.on('line', function(line) {
-            const elements = parseLogic(line)
-            lines.push(elements)
-            readedLine++
-            const remainingLines = linesNumber - blocksReaded * chunkSize
             if (
-                readedLine ==
-                (remainingLines > chunkSize ? chunkSize : remainingLines)
+                skippedLine < RecoverySettings.getLastLine() &&
+                filepath === RecoverySettings.setCurrentFilepath() &&
+                phase === RecoverySettings.getCurrentReadPhase()
             ) {
-                blocksReaded++
-                readedLine = 0
-                reader.pause()
-                const copy = lines
-                lines = []
-                if (blocksReaded == blocks) {
-                    callback(copy, { endFile: true })
-                } else {
-                    callback(copy, { endFile: false })
+                skippedLine++
+            } else {
+                const elements = parseLogic(line)
+                lines.push(elements)
+                readedLine++
+                const remainingLines = linesNumber - blocksReaded * chunkSize
+                if (
+                    readedLine ==
+                    (remainingLines > chunkSize ? chunkSize : remainingLines)
+                ) {
+                    blocksReaded++
+                    readedLine = 0
+                    reader.pause()
+                    const copy = lines
+                    lines = []
+                    if (blocksReaded == blocks) {
+                        callback(copy, { endFile: true })
+                    } else {
+                        callback(copy, { endFile: false })
+                    }
                 }
             }
         })

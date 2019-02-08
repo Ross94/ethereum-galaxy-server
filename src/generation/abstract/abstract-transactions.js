@@ -2,6 +2,8 @@ const _ = require('lodash')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GenerationProcessPhases = require('./../../shutdown/phases')
+    .GenerationProcessPhases
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
@@ -62,6 +64,7 @@ function transactionsAggregation(filePath, cb) {
     function tempInitializer() {
         return reader(
             filePath,
+            GenerationProcessPhases.TransactionsPhase(),
             module.exports.tempFileParser,
             (lines, options) => {
                 transactions = _.flatten(lines)
@@ -77,6 +80,7 @@ function transactionsAggregation(filePath, cb) {
     function nodesInitializer() {
         return reader(
             nodesPath,
+            GenerationProcessPhases.TransactionsPhase(),
             module.exports.nodeFileParser,
             (lines, options) => {
                 //convert transaction from json to pajek

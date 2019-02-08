@@ -3,6 +3,7 @@ const argv = require('named-argv')
 
 const SpecSettings = require('../utilities/settings/spec-settings')
 const RunSettings = require('../utilities/settings/run-settings')
+const RecoverySettings = require('../utilities/settings/recovery-settings')
 const logger = require('./../utilities/log')
 
 const MainShutdown = require('../shutdown/main-shutdown')
@@ -48,11 +49,11 @@ function main() {
                     config.requested_data
             )
 
-            RunSettings.setRequestedData(config.requested_data)
             RunSettings.setSaveFolderPath(config.folder_path)
             RunSettings.setFolderName(config.folder_name)
             RunSettings.setRange(config.range)
             MainShutdown.changePhase(config.phase)
+            RecoverySettings.setRequestedData(config.requested_data)
             memoryConfig()
 
             //resume
@@ -117,7 +118,7 @@ function main() {
 
                 if (time == 1) {
                     ensureDirExists(NoLayoutConstants.noLayoutTimePath())
-                    RunSettings.setRequestedData(
+                    RecoverySettings.setRequestedData(
                         params.firstDate + ' ' + params.lastDate
                     )
 
@@ -152,7 +153,7 @@ function main() {
                 }
                 if (block == 1) {
                     ensureDirExists(NoLayoutConstants.noLayoutBlockPath())
-                    RunSettings.setRequestedData(
+                    RecoverySettings.setRequestedData(
                         params.firstBlock + ' ' + params.lastBlock
                     )
 
@@ -184,7 +185,7 @@ function main() {
                 }
                 if (all == 1) {
                     ensureDirExists(NoLayoutConstants.noLayoutAllPath())
-                    RunSettings.setRequestedData('all')
+                    RecoverySettings.setRequestedData('all')
 
                     RunSettings.setFolderName('all')
                     RunSettings.setSaveFolderPath(
