@@ -20,9 +20,11 @@ function generate() {
         './build/generation/json/json-generator',
         './build/generation/pajek/pajek-generator'
     ]
-    /*const format = [
+    /*
+    const format = [
         './build/generation/json/json-generator'
-    ]*/
+    ]
+    */
     SpecSettings.setProcessMemory(
         Math.ceil(SpecSettings.getGlobalMemory() / format.length)
     )

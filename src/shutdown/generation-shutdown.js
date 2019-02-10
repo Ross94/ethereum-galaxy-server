@@ -17,6 +17,7 @@ module.exports = {
         return currentPhase
     },
     terminate: () => {
+        //TO-DO call process.disconnect() ?
         process.exit(0)
     }
 }

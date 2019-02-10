@@ -21,37 +21,32 @@ module.exports = (start, end) => {
     MainShutdown.changePhase(MainProcessPhases.DownloadPhase())
 
     const workers = new Map()
-    const firstBlock = start
-    const lastBlock = end
 
-    var nextBlock = start
     var shutdownCalled = false
     //only for graphic reason, can use progressBar.curr, but log would be wrong
     var lastChunk = 0
 
-    var task = [
-        {
-            start: firstBlock,
-            end: lastBlock
-        }
-    ]
+    var task = {
+        start: start,
+        end: end
+    }
 
-    const chunkNumber = Math.ceil((lastBlock - firstBlock + 1) / chunkSize)
+    const chunkNumber = Math.ceil((task.end - task.start + 1) / chunkSize)
     const progressBar = logger.progress(progressBarMsg, chunkNumber)
 
     function availableTask() {
         function getTask() {
             const ret = Array(
-                lastBlock - nextBlock >= chunkSize
+                task.end - task.start >= chunkSize
                     ? chunkSize
-                    : lastBlock - nextBlock + 1
+                    : task.end - task.start + 1
             )
                 .fill(1)
-                .map((one, index) => nextBlock + one + (index - 1))
-            nextBlock += chunkSize
+                .map((one, index) => task.start + one + (index - 1))
+            task.start += chunkSize
             return ret
         }
-        if (nextBlock <= lastBlock && MainShutdown.isRunning()) {
+        if (task.start <= task.end && MainShutdown.isRunning()) {
             return getTask()
         }
         return false
@@ -77,10 +72,7 @@ module.exports = (start, end) => {
             child.on('message', function(message) {
                 switch (message.command) {
                     case DownloadProcessCommand.newTaskCommand():
-                        if (message.data != undefined) {
-                            message.data.forEach(elem => {
-                                addElem(elem)
-                            })
+                        if (!message.data.config) {
                             lastChunk += 1
                             const progressBarTextualForm =
                                 progressBarMsg +
@@ -108,7 +100,7 @@ module.exports = (start, end) => {
                                     shutdownCalled ||
                                     !MainShutdown.isRunning()
                                 ) {
-                                    MainShutdown.save({ missing: task[0] })
+                                    MainShutdown.save({ missing: task })
                                     MainShutdown.terminate()
                                 } else {
                                     generate()
@@ -139,68 +131,6 @@ module.exports = (start, end) => {
                 }
             })
         }
-    }
-
-    /*
-    Transaxtions to download are rappresented as range of block indexes for better memory usage.
-    Due to more process is possible are missing blocks between other dowloaded
-    (ex. 1-2-4-5 downloaded, 3 is missing).
-    So are saved an array of range, when a block has been downloaded go in the array and remove a range,
-    if is only for the block, increase lower bound or decrease upper bound if is presente on bound
-    or split one range in two in other case.
-    */
-    function addElem(elem) {
-        var find = false
-        var ind = 0
-        const block = parseInt(elem)
-        while (!find && ind < task.length) {
-            const currentRange = task[ind]
-            if (inside(block, currentRange)) {
-                if (single(block, currentRange)) {
-                    task.splice(task.indexOf(currentRange), 1)
-                } else if (bottom(block, currentRange)) {
-                    currentRange.start = block + 1
-                } else if (top(block, currentRange)) {
-                    currentRange.end = block - 1
-                } else {
-                    const start = currentRange.start
-                    const end = currentRange.end
-                    task.splice(task.indexOf(currentRange), 1)
-                    task.push({ start: start, end: block - 1 })
-                    task.push({ start: block + 1, end: end })
-                }
-                find = true
-            }
-            ind++
-        }
-    }
-
-    function inside(e, range) {
-        if (e >= range.start && e <= range.end) {
-            return true
-        }
-        return false
-    }
-
-    function single(e, range) {
-        if (e == range.start && e == range.end) {
-            return true
-        }
-        return false
-    }
-
-    function top(e, range) {
-        if (e == range.end) {
-            return true
-        }
-        return false
-    }
-
-    function bottom(e, range) {
-        if (e == range.start) {
-            return true
-        }
-        return false
     }
 
     return {

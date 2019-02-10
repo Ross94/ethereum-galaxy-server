@@ -25,7 +25,9 @@ process.on('message', function(message) {
             DownloadWorkerShutdown.setShutdownBehaviour()
             eth = createEth(message.data.api)
             setTransactionStream(message.data.filename, () => {
-                sendMessage(DownloadProcessCommand.newTaskCommand())
+                sendMessage(DownloadProcessCommand.newTaskCommand(), {
+                    config: true
+                })
             })
             break
         case DownloadProcessCommand.newTaskCommand():
@@ -40,7 +42,7 @@ process.on('message', function(message) {
                         () =>
                             sendMessage(
                                 DownloadProcessCommand.newTaskCommand(),
-                                message.data.task
+                                { config: false }
                             )
                     )
                 })

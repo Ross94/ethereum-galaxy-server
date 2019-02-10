@@ -33,6 +33,7 @@ function startProcess() {
                 }
                 break
             case GlobalProcessCommand.endCommand():
+                //TO-DO call generation-shutdown terminate ?
                 process.disconnect()
                 process.exit(0)
                 break
