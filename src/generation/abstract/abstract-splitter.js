@@ -1,8 +1,6 @@
 const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
-const GlobalProcessCommand = require('./../../utilities/process')
-    .GlobalProcessCommand
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const GenerationProcessPhases = require('./../../shutdown/phases')
     .GenerationProcessPhases
@@ -12,7 +10,6 @@ const logger = require('./../../utilities/log')
 const GenerationShutdown = require('../../shutdown/generation-shutdown')
 const RecoverySettings = require('./../../utilities/settings/recovery-settings')
 const { checkResourceExists } = require('./../../utilities/utils')
-const { sendMessage } = require('./../../utilities/process')
 
 const TYPE = Object.freeze({
     node: 'node',
@@ -40,8 +37,8 @@ aggregate = function() {
 }
 
 function split() {
-    logger.log('Start ' + FormatSettings.getFormat() + ' splitting')
     GenerationShutdown.changePhase(GenerationProcessPhases.SplitPhase())
+    logger.log('Start ' + FormatSettings.getFormat() + ' splitting')
 
     const graphPath = module.exports.path.graphPath
     const nodePath = module.exports.path.nodePath
@@ -117,14 +114,10 @@ function split() {
 
     function terminate() {
         if (callTerminate) {
-            sendMessage(GlobalProcessCommand.stoppedCommand(), {
-                format: {
-                    format_name: FormatSettings.getFormat(),
-                    phase: GenerationShutdown.getCurrentPhase(),
-                    last_line: lastLine + RecoverySettings.getLastLine(),
-                    file_path: graphPath
-                }
-            })
+            GenerationShutdown.saveState(
+                lastLine + RecoverySettings.getLastLine(),
+                graphPath
+            )
             GenerationShutdown.terminate()
         }
     }

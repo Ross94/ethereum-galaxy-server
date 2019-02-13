@@ -9,6 +9,7 @@ const GenerationProcessPhases = require('./../../shutdown/phases')
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
+const GenerationShutdown = require('./../../shutdown/generation-shutdown')
 const { checkResourceExists } = require('./../../utilities/utils')
 
 nodesPath = ERRORS_MESSAGES.fieldError('abstract-nodes', 'nodesPath')
@@ -32,12 +33,16 @@ function nodesAggregation(filePath, callback) {
     var nodesFile
     var lastTempRead = false
 
+    var saveLine = 0
+    var lastLine = 0
+
     //check file exist if exist don't create new one or empty nodes created by splitter
     if (!checkResourceExists(nodesPath)) {
         //create file if doesn't exist, need if no previous download
         fs.closeSync(fs.openSync(nodesPath, 'w'))
     }
     nodesFile = nodesInitializer()
+    GenerationShutdown.changePhase(GenerationProcessPhases.NodesPhase())
     logger.log(
         'Start ' +
             FormatSettings.getFormat() +
@@ -52,7 +57,14 @@ function nodesAggregation(filePath, callback) {
             GenerationProcessPhases.NodesPhase(),
             module.exports.nodeParser,
             (lines, options) => {
-                _.flatten(lines).forEach(elem => nodesToWrite.remove(elem))
+                _.flatten(lines).forEach(elem => {
+                    if (GenerationShutdown.isRunning()) {
+                        nodesToWrite.remove(elem)
+                    } else {
+                        GenerationShutdown.saveState(saveLine, filePath)
+                        GenerationShutdown.terminate()
+                    }
+                })
 
                 if (options.endFile) {
                     endCurrentFileBlock(() => {
@@ -87,7 +99,15 @@ function nodesAggregation(filePath, callback) {
             GenerationProcessPhases.NodesPhase(),
             transactionParser,
             (lines, options) => {
-                _.flatten(lines).forEach(elem => nodesToWrite.insert(elem))
+                _.flatten(lines).forEach(elem => {
+                    if (GenerationShutdown.isRunning()) {
+                        nodesToWrite.insert(elem)
+                    } else {
+                        GenerationShutdown.saveState(saveLine, filePath)
+                        GenerationShutdown.terminate()
+                    }
+                })
+                lastLine += lines.length
                 if (options.endFile) {
                     lastTempRead = true
                 }
@@ -119,7 +139,13 @@ function nodesAggregation(filePath, callback) {
                     app.map(elem => module.exports.elemToNode(elem) + '\n'),
                     () => {
                         writeNode = true
-                        checkThreshold()
+                        saveLine = lastLine
+                        if (GenerationShutdown.isRunning()) {
+                            checkThreshold()
+                        } else {
+                            GenerationShutdown.saveState(saveLine, filePath)
+                            GenerationShutdown.terminate()
+                        }
                     }
                 )
             })

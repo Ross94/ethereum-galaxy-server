@@ -1,9 +1,12 @@
 const logger = require('./../../utilities/log')
 
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
     .NoLayoutConstants
+const GenerationProcessPhases = require('./../../shutdown/phases')
+    .GenerationProcessPhases
 const FormatSettings = require('./../../utilities/settings/format-settings')
-const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const RecoverySettings = require('./../../utilities/settings/recovery-settings')
 
 nodesAggregation = function(filepath, cb) {
     throw ERRORS_MESSAGES.functionError(
@@ -29,16 +32,36 @@ function aggregate() {
         .readdirSync(tempFilesFolderPath)
         .filter(file => filterFiles(file))
         .map(file => tempFilesFolderPath + file)
+        .sort()
 
-    var nextFile = 0
-    var currentFile = -1
+    var nextFileIndex = 0
+    var currentFileIndex = -1
 
     logger.log(
         'Start ' +
             FormatSettings.getFormat() +
             ' nodes and transactions aggregation'
     )
-    nextTempFile()
+    //recovery, start from last file in last mode (nodes or transactions)
+    if (RecoverySettings.getCurrentReadPhase() != undefined) {
+        currentFileIndex = tempFiles.indexOf(
+            RecoverySettings.getCurrentFilepath()
+        )
+        nextFileIndex = currentFileIndex + 1
+        if (
+            RecoverySettings.getCurrentReadPhase() ===
+            GenerationProcessPhases.NodesPhase()
+        ) {
+            nodesPhase()
+        } else if (
+            RecoverySettings.getCurrentReadPhase() ===
+            GenerationProcessPhases.TransactionsPhase()
+        ) {
+            transactionsPhase()
+        }
+    } else {
+        nextTempFile()
+    }
 
     function filterFiles(file) {
         const folders = file.split('/')
@@ -50,17 +73,10 @@ function aggregate() {
     }
 
     function nextTempFile() {
-        if (nextFile < tempFiles.length) {
-            currentFile = nextFile
-            nextFile++
-            module.exports.nodesAggregation(tempFiles[currentFile], () => {
-                module.exports.transactionsAggregation(
-                    tempFiles[currentFile],
-                    () => {
-                        nextTempFile()
-                    }
-                )
-            })
+        if (nextFileIndex < tempFiles.length) {
+            currentFileIndex = nextFileIndex
+            nextFileIndex++
+            nodesPhase()
         } else {
             logger.log(
                 'All temp files scanned for ' +
@@ -69,6 +85,21 @@ function aggregate() {
             )
             module.exports.compose()
         }
+    }
+
+    function nodesPhase() {
+        module.exports.nodesAggregation(tempFiles[currentFileIndex], () => {
+            transactionsPhase()
+        })
+    }
+
+    function transactionsPhase() {
+        module.exports.transactionsAggregation(
+            tempFiles[currentFileIndex],
+            () => {
+                nextTempFile()
+            }
+        )
     }
 }
 

@@ -15,7 +15,7 @@ module.exports = (filepath, phase, parseLogic, callback) => {
     const chunkSize = Math.ceil(
         tunedLines * SpecSettings.getProcessMemory() / tunedMemory
     )
-    //const chunkSize = 4
+    //const chunkSize = 2000
     const linesNumber = parseInt(execSync('wc -l < ' + filepath).toString())
     const blocks =
         filepath === RecoverySettings.getCurrentFilepath() &&
