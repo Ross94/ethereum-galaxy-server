@@ -19,8 +19,8 @@ module.exports = (filepath, cb) => {
         }
     }
 
-    function write(elem) {
-        writer.write(elem)
+    function write(elem, cb) {
+        writer.write(elem, cb)
     }
 
     writer.on('open', function() {

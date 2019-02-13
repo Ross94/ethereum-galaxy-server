@@ -2,12 +2,15 @@ const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GlobalProcessCommand = require('./../../utilities/process')
+    .GlobalProcessCommand
 const GenerationProcessPhases = require('./../../shutdown/phases')
     .GenerationProcessPhases
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
 const { checkResourceExists } = require('./../../utilities/utils')
+const { sendMessage } = require('./../../utilities/process')
 
 path = {
     graphPath: ERRORS_MESSAGES.fieldError(
@@ -89,7 +92,9 @@ function compose() {
                         tempWriter.write(module.exports.nodesPhaseEnd())
 
                         logger.log(
-                            'End compact ' + module.exports.format + ' nodes'
+                            'End compact ' +
+                                FormatSettings.getFormat() +
+                                ' nodes'
                         )
                         transactionPhase()
                     } else {
@@ -130,10 +135,10 @@ function compose() {
                         }
                         fs.renameSync(tempPath, graphPath)
                         //communicate to master end generation
-                        process.send({
-                            pid: process.pid,
-                            command: 'end'
-                        })
+                        sendMessage(
+                            GlobalProcessCommand.endCommand(),
+                            undefined
+                        )
                     } else {
                         lineReader.nextLines()
                     }

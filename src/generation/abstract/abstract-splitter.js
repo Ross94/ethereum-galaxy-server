@@ -10,6 +10,7 @@ const writer = require('./../writer')
 const reader = require('./../reader')
 const logger = require('./../../utilities/log')
 const GenerationShutdown = require('../../shutdown/generation-shutdown')
+const RecoverySettings = require('./../../utilities/settings/recovery-settings')
 const { checkResourceExists } = require('./../../utilities/utils')
 const { sendMessage } = require('./../../utilities/process')
 
@@ -50,6 +51,9 @@ function split() {
     var transactionWriter
     var lastLine = 0
 
+    var writeTerminated = 0
+    var callTerminate = false
+
     if (checkResourceExists(graphPath)) {
         writer(nodePath, nodeW => {
             nodeWriter = nodeW
@@ -63,34 +67,22 @@ function split() {
                         return line
                     },
                     (lines, options) => {
-                        lines.forEach(line => {
-                            console.log(line)
+                        lines.some(line => {
                             if (GenerationShutdown.isRunning()) {
                                 lastLine++
                                 addToFile(line)
                             } else {
-                                sendMessage(
-                                    GlobalProcessCommand.stoppedCommand(),
-                                    {
-                                        format: {
-                                            format_name: FormatSettings.getFormat(),
-                                            phase: GenerationShutdown.getCurrentPhase(),
-                                            last_line: lastLine,
-                                            file_path: graphPath
-                                        }
-                                    }
-                                )
-                                GenerationShutdown.terminate()
+                                callTerminate = true
+                                return true
                             }
                         })
-                        if (options.endFile) {
+                        if (options.endFile && !callTerminate) {
                             module.exports.aggregate()
                         } else {
                             lineReader.nextLines()
                         }
                     }
                 )
-
                 lineReader.nextLines()
             })
         })
@@ -100,11 +92,40 @@ function split() {
         const elem = module.exports.parser(line)
         switch (elem.type) {
             case TYPE.node:
-                nodeWriter.write(elem.data)
+                writeElem(nodeWriter, elem.data)
                 break
             case TYPE.transaction:
-                transactionWriter.write(elem.data)
+                writeElem(transactionWriter, elem.data)
                 break
+            default:
+                /*
+                needed for line not to write (*Verticles, {nodes: [], ...),
+                whitout this, writeTerminated !== lastLine and never shutdown
+                */
+                writeTerminated++
+        }
+    }
+
+    function writeElem(writer, data) {
+        writer.write(data, () => {
+            writeTerminated++
+            if (writeTerminated === lastLine) {
+                terminate()
+            }
+        })
+    }
+
+    function terminate() {
+        if (callTerminate) {
+            sendMessage(GlobalProcessCommand.stoppedCommand(), {
+                format: {
+                    format_name: FormatSettings.getFormat(),
+                    phase: GenerationShutdown.getCurrentPhase(),
+                    last_line: lastLine + RecoverySettings.getLastLine(),
+                    file_path: graphPath
+                }
+            })
+            GenerationShutdown.terminate()
         }
     }
 }

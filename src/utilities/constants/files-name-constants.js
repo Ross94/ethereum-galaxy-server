@@ -7,7 +7,6 @@ const GlobalNameConstants = Object.freeze({
 })
 
 const PajekNameConstants = Object.freeze({
-    pajekFormat: () => 'Pajek',
     pajekTempFilename: () => 'pajekTemp.net',
     pajekNodesFilename: () => 'nodes.net',
     pajekTransactionsFilename: () => 'transactions.net',
@@ -15,15 +14,20 @@ const PajekNameConstants = Object.freeze({
 })
 
 const JsonNameConstants = Object.freeze({
-    jsonFormat: () => 'Json',
     jsonTempFilename: () => 'jsonTemp.json',
     jsonNodesFilename: () => 'nodes.json',
     jsonTransactionsFilename: () => 'transactions.json',
     jsonGraphFilename: () => 'graph.json'
 })
 
+const FormatNamesConstants = Object.freeze({
+    jsonFormat: () => 'Json',
+    pajekFormat: () => 'Pajek'
+})
+
 module.exports = {
     GlobalNameConstants,
     PajekNameConstants,
-    JsonNameConstants
+    JsonNameConstants,
+    FormatNamesConstants
 }

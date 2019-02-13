@@ -13,17 +13,15 @@ const { ensureDirExists } = require('./../utilities/utils')
 
 var currentPhase = MainProcessPhases.ParsePhase()
 
-function infoData() {
-    return {
-        logger_path: logger.getPath(),
-        requested_data: RecoverySettings.getRequestedData(),
-        folder_path: RunSettings.getSaveFolderPath(),
-        folder_name: RunSettings.getFolderName(),
-        range: RunSettings.getRange(),
-        missing: {},
-        phase: currentPhase,
-        format: []
-    }
+const info = {
+    logger_path: logger.getPath(),
+    requested_data: RecoverySettings.getRequestedData(),
+    folder_path: RunSettings.getSaveFolderPath(),
+    folder_name: RunSettings.getFolderName(),
+    range: RunSettings.getRange(),
+    missing: {},
+    phase: currentPhase,
+    format: []
 }
 
 module.exports = {
@@ -49,9 +47,18 @@ module.exports = {
         })
     },
     isRunning: () => {
-        return JSON.parse(
-            fs.readFileSync(GlobalNameConstants.runningFilename())
-        ).running
+        /*
+        if json is correct read the vaue, if is incorrect, main process write file while
+        children read, then state was change to false, and i return false in catch.
+        */
+        try {
+            const jsonData = JSON.parse(
+                fs.readFileSync(GlobalNameConstants.runningFilename())
+            )
+            return jsonData.running
+        } catch (err) {
+            return false
+        }
     },
     changePhase: phase => {
         currentPhase = phase
@@ -60,7 +67,15 @@ module.exports = {
         return currentPhase
     },
     save: changes => {
-        const info = infoData()
+        //refresh fields
+        ;(info.logger_path = logger.getPath()),
+            (info.requested_data = RecoverySettings.getRequestedData())
+        info.folder_path = RunSettings.getSaveFolderPath()
+        info.folder_name = RunSettings.getFolderName()
+        info.range = RunSettings.getRange()
+        info.phase = currentPhase
+
+        //add format fields
         Object.keys(changes).forEach(key => {
             var find = false
             if (key === 'format') {
@@ -77,6 +92,8 @@ module.exports = {
                 info[key] = changes[key]
             }
         })
+
+        //save
         saveInfo(
             NoLayoutConstants.noLayoutTemporaryPath() +
                 GlobalNameConstants.infoFilename(),

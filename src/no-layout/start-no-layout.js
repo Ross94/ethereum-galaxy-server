@@ -20,6 +20,7 @@ const NoLayoutConstants = require('./../utilities/constants/no-layout-constants'
 const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
     .GlobalNameConstants
 const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
+const { generate } = require('./../generation/generator-master')
 
 MainShutdown.setShutdownBehaviour()
 main()
@@ -65,7 +66,7 @@ function main() {
                     })
                     break
                 case MainProcessPhases.GenerationPhase():
-                    console.log('TO-DO implement resume on generation phase')
+                    generate(config.format)
                     break
             }
         } else {
@@ -199,7 +200,8 @@ function main() {
                     logger.log('Log of all type')
 
                     //start test block
-                    const res = { start: 1999998, end: 1999999 }
+                    //const res = { start: 1999998, end: 2000000 }
+                    const res = { start: 2724709, end: 2730770 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
                     //range.start = 1999998 //comment when second execute has last 1999999

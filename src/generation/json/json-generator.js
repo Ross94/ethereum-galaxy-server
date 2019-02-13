@@ -1,9 +1,8 @@
 const abstractGenerator = require('./../abstract/abstract-generator')
 const { split } = require('./json-splitter')
 const { aggregate } = require('./json-aggregator')
-const FormatSettings = require('./../../utilities/settings/format-settings')
-
-FormatSettings.setFormat('Json')
+const FormatNamesConstants = require('./../../utilities/constants/files-name-constants')
+    .FormatNamesConstants
 
 abstractGenerator.split = function() {
     split()
@@ -13,4 +12,4 @@ abstractGenerator.aggregate = function() {
     aggregate()
 }
 
-abstractGenerator.startProcess()
+abstractGenerator.startProcess(FormatNamesConstants.jsonFormat())

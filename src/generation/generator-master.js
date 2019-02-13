@@ -7,53 +7,80 @@ const MainShutdown = require('./../shutdown/main-shutdown')
 const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
 const GlobalProcessCommand = require('./../utilities/process')
     .GlobalProcessCommand
+const FormatNamesConstants = require('./../utilities/constants/files-name-constants')
+    .FormatNamesConstants
 const { move } = require('./../no-layout/placer')
+const { sendMessage } = require('./../utilities/process')
 
-function generate() {
+function generate(resumeData) {
     MainShutdown.changePhase(MainProcessPhases.GenerationPhase())
 
     const workers = new Map()
     var children = 0
     var childrenTerminated = 0
+    var shutdownCalled = false
 
-    const format = [
-        './build/generation/json/json-generator',
-        './build/generation/pajek/pajek-generator'
-    ]
+    const format = []
+    format.push(
+        processObject(
+            './build/generation/json/json-generator',
+            FormatNamesConstants.jsonFormat()
+        ),
+        processObject(
+            './build/generation/pajek/pajek-generator',
+            FormatNamesConstants.pajekFormat()
+        )
+    )
     /*
     const format = [
         './build/generation/json/json-generator'
-    ]
-    */
+    ]*/
+
     SpecSettings.setProcessMemory(
         Math.ceil(SpecSettings.getGlobalMemory() / format.length)
     )
-    format.forEach(childPath => startWorker(childPath))
 
-    function response(pid, message) {
-        workers.get(pid).send(message)
+    format.forEach(elem => startWorker(elem))
+
+    function processObject(modulePath, formatName) {
+        return {
+            path: modulePath,
+            format: formatName
+        }
     }
 
-    function startWorker(modulePath) {
+    function startWorker(formatElem) {
         children += 1
 
-        const child = child_process.fork(modulePath)
+        const child = child_process.fork(formatElem.path)
 
         workers.set(child.pid, child)
 
         child.on('message', function(message) {
             switch (message.command) {
                 case GlobalProcessCommand.endCommand():
-                    response(message.pid, {
-                        command: GlobalProcessCommand.endCommand()
-                    })
+                    sendMessage(
+                        GlobalProcessCommand.endCommand(),
+                        undefined,
+                        workers.get(message.pid)
+                    )
                     childrenTerminated += 1
                     if (childrenTerminated == children) {
-                        terminated()
+                        if (shutdownCalled || !MainShutdown.isRunning()) {
+                            MainShutdown.save(message.data)
+                            MainShutdown.terminate()
+                        } else {
+                            move()
+                        }
                     }
                     break
                 case GlobalProcessCommand.stoppedCommand():
+                    shutdownCalled = true
+                    childrenTerminated += 1
                     MainShutdown.save(message.data)
+                    if (childrenTerminated == children) {
+                        MainShutdown.terminate()
+                    }
                     break
                 default:
                     logger.error(
@@ -65,19 +92,26 @@ function generate() {
             }
         })
 
-        child.send({
-            command: GlobalProcessCommand.startCommand(),
-            loggerPath: logger.getPath(),
-            saveFolder: RunSettings.getSaveFolderPath(),
-            folderName: RunSettings.getFolderName(),
-            range: RunSettings.getRange(),
-            memory: SpecSettings.getProcessMemory(),
-            oldDownload: RunSettings.getOldDownload()
-        })
-    }
+        const resData =
+            resumeData != undefined
+                ? resumeData.filter(
+                      format => format.format_name === formatElem.format
+                  )[0]
+                : undefined
 
-    function terminated() {
-        move()
+        sendMessage(
+            GlobalProcessCommand.startCommand(),
+            {
+                loggerPath: logger.getPath(),
+                saveFolder: RunSettings.getSaveFolderPath(),
+                folderName: RunSettings.getFolderName(),
+                range: RunSettings.getRange(),
+                memory: SpecSettings.getProcessMemory(),
+                oldDownload: RunSettings.getOldDownload(),
+                resumeData: resData
+            },
+            child
+        )
     }
 }
 

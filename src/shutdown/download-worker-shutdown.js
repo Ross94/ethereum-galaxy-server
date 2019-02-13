@@ -7,9 +7,18 @@ module.exports = {
         process.on('SIGINT', () => {})
     },
     isRunning: () => {
-        return JSON.parse(
-            fs.readFileSync(GlobalNameConstants.runningFilename())
-        ).running
+        /*
+        if json is correct read the vaue, if is incorrect, main process write file while
+        children read, then state was change to false, and i return false in catch.
+        */
+        try {
+            const jsonData = JSON.parse(
+                fs.readFileSync(GlobalNameConstants.runningFilename())
+            )
+            return jsonData.running
+        } catch (err) {
+            return false
+        }
     },
     terminate: () => {
         process.disconnect()

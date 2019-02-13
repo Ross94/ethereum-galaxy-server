@@ -15,11 +15,15 @@ module.exports = (filepath, phase, parseLogic, callback) => {
     const chunkSize = Math.ceil(
         tunedLines * SpecSettings.getProcessMemory() / tunedMemory
     )
-    //const chunkSize = 2
+    //const chunkSize = 4
     const linesNumber = parseInt(execSync('wc -l < ' + filepath).toString())
-    const blocks = Math.ceil(
-        (linesNumber - RecoverySettings.getLastLine()) / chunkSize
-    )
+    const blocks =
+        filepath === RecoverySettings.getCurrentFilepath() &&
+        phase === RecoverySettings.getCurrentReadPhase()
+            ? Math.ceil(
+                  (linesNumber - RecoverySettings.getLastLine()) / chunkSize
+              )
+            : Math.ceil(linesNumber / chunkSize)
     var reader
     var blocksReaded = 0
     var readedLine = 0
@@ -33,7 +37,7 @@ module.exports = (filepath, phase, parseLogic, callback) => {
         reader.on('line', function(line) {
             if (
                 skippedLine < RecoverySettings.getLastLine() &&
-                filepath === RecoverySettings.setCurrentFilepath() &&
+                filepath === RecoverySettings.getCurrentFilepath() &&
                 phase === RecoverySettings.getCurrentReadPhase()
             ) {
                 skippedLine++
@@ -41,7 +45,14 @@ module.exports = (filepath, phase, parseLogic, callback) => {
                 const elements = parseLogic(line)
                 lines.push(elements)
                 readedLine++
-                const remainingLines = linesNumber - blocksReaded * chunkSize
+                const remainingLines =
+                    filepath === RecoverySettings.getCurrentFilepath() &&
+                    phase === RecoverySettings.getCurrentReadPhase()
+                        ? linesNumber -
+                          RecoverySettings.getLastLine() -
+                          blocksReaded * chunkSize
+                        : linesNumber - blocksReaded * chunkSize
+
                 if (
                     readedLine ==
                     (remainingLines > chunkSize ? chunkSize : remainingLines)
