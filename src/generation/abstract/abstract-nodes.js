@@ -122,7 +122,6 @@ function nodesAggregation(filePath, callback) {
         )
     }
 
-    var writedBlocks = 0
     function endCurrentFileBlock(cb) {
         var writeNode = true
 
@@ -147,12 +146,6 @@ function nodesAggregation(filePath, callback) {
                     () => {
                         writeNode = true
                         saveLine = lastLine
-                        writedBlocks++
-                        console.log(
-                            FormatSettings.getFormat() +
-                                ' writedBlocks: ' +
-                                writedBlocks
-                        )
                         if (GenerationShutdown.isRunning()) {
                             checkThreshold()
                         } else {
