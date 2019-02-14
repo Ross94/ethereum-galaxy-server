@@ -16,15 +16,15 @@ function jsonTransactionsAggregation(filePath, cb) {
     }
 
     abstractTransactions.nodeFileParser = function(line) {
-        return line
+        return { key: line }
     }
 
     abstractTransactions.tempFileParser = function(line) {
         return line
     }
 
-    abstractTransactions.transactionConverter = function(lines, transactions) {
-        return transactions
+    abstractTransactions.transactionConverter = function(transaction, nodes) {
+        return transaction
     }
 
     abstractTransactions.transactionsAggregation(filePath, cb)

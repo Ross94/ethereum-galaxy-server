@@ -1,5 +1,4 @@
 const abstractTransactions = require('./../abstract/abstract-transactions')
-const RBTree = require('bintrees').RBTree
 const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
     .PajekNameConstants
 const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
@@ -31,11 +30,7 @@ function pajekTransactionsAggregation(filePath, cb) {
         return JSON.parse(line)
     }
 
-    abstractTransactions.transactionConverter = function(lines, transactions) {
-        const nodes = new RBTree((a, b) => {
-            return a.key.localeCompare(b.key)
-        })
-
+    abstractTransactions.transactionConverter = function(transaction, nodes) {
         function getIndex(hashCode) {
             if (typeof hashCode == 'string') {
                 const elem = nodes.find({ key: hashCode })
@@ -44,27 +39,23 @@ function pajekTransactionsAggregation(filePath, cb) {
             return hashCode
         }
 
-        //convert transaction from json to pajek
-        lines.forEach(elem => nodes.insert(elem))
-        return transactions.map(trans => {
-            trans.source = getIndex(trans.source)
-            trans.target = getIndex(trans.target)
-            if (
-                typeof trans.source == 'number' &&
-                typeof trans.target == 'number'
-            ) {
-                return (
-                    trans.source +
-                    ' ' +
-                    trans.target +
-                    ' "' +
-                    trans.amount +
-                    '"'
-                )
-            } else {
-                return trans
-            }
-        })
+        transaction.source = getIndex(transaction.source)
+        transaction.target = getIndex(transaction.target)
+        if (
+            typeof transaction.source == 'number' &&
+            typeof transaction.target == 'number'
+        ) {
+            return (
+                transaction.source +
+                ' ' +
+                transaction.target +
+                ' "' +
+                transaction.amount +
+                '"'
+            )
+        } else {
+            return transaction
+        }
     }
 
     abstractTransactions.transactionsAggregation(filePath, cb)

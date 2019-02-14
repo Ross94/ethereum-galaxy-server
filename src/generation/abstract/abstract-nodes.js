@@ -3,6 +3,7 @@ const RBTree = require('bintrees').RBTree
 const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
+const RecoverySettings = require('./../../utilities/settings/recovery-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const GenerationProcessPhases = require('./../../shutdown/phases')
     .GenerationProcessPhases
@@ -34,7 +35,12 @@ function nodesAggregation(filePath, callback) {
     var lastTempRead = false
 
     var saveLine = 0
-    var lastLine = 0
+    var lastLine =
+        filePath === RecoverySettings.getCurrentFilepath() &&
+        GenerationProcessPhases.NodesPhase() ===
+            RecoverySettings.getCurrentReadPhase()
+            ? RecoverySettings.getLastLine()
+            : 0
 
     //check file exist if exist don't create new one or empty nodes created by splitter
     if (!checkResourceExists(nodesPath)) {
@@ -116,6 +122,7 @@ function nodesAggregation(filePath, callback) {
         )
     }
 
+    var writedBlocks = 0
     function endCurrentFileBlock(cb) {
         var writeNode = true
 
@@ -140,6 +147,12 @@ function nodesAggregation(filePath, callback) {
                     () => {
                         writeNode = true
                         saveLine = lastLine
+                        writedBlocks++
+                        console.log(
+                            FormatSettings.getFormat() +
+                                ' writedBlocks: ' +
+                                writedBlocks
+                        )
                         if (GenerationShutdown.isRunning()) {
                             checkThreshold()
                         } else {

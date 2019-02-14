@@ -56,12 +56,8 @@ function startProcess(formatName) {
                             module.exports.split()
                             break
                         case GenerationProcessPhases.NodesPhase():
-                            module.exports.aggregate()
-                            break
                         case GenerationProcessPhases.TransactionsPhase():
-                            console.log(
-                                'TO-DO transaction phase resume in abstract generator'
-                            )
+                            module.exports.aggregate()
                             break
                         case GenerationProcessPhases.ComposePhase():
                             console.log(
