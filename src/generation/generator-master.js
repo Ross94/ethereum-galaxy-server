@@ -5,6 +5,8 @@ const logger = require('./../utilities/log')
 const MainShutdown = require('./../shutdown/main-shutdown')
 
 const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
+const GenerationProcessPhases = require('./../shutdown/phases')
+    .GenerationProcessPhases
 const GlobalProcessCommand = require('./../utilities/process')
     .GlobalProcessCommand
 const FormatNamesConstants = require('./../utilities/constants/files-name-constants')
@@ -40,7 +42,21 @@ function generate(resumeData) {
         Math.ceil(SpecSettings.getGlobalMemory() / format.length)
     )
 
-    format.forEach(elem => startWorker(elem))
+    //filter and start children not terminated
+    if (resumeData != undefined) {
+        resumeData.forEach(res => {
+            const f = format.filter(
+                f =>
+                    f.format === res.format_name &&
+                    res.phase !== GenerationProcessPhases.TerminatedPhase()
+            )[0]
+            if (f != undefined) {
+                startWorker(f)
+            }
+        })
+    } else {
+        format.forEach(elem => startWorker(elem))
+    }
 
     function processObject(modulePath, formatName) {
         return {
@@ -65,9 +81,9 @@ function generate(resumeData) {
                         workers.get(message.pid)
                     )
                     childrenTerminated += 1
+                    MainShutdown.save(message.data)
                     if (childrenTerminated == children) {
                         if (shutdownCalled || !MainShutdown.isRunning()) {
-                            MainShutdown.save(message.data)
                             MainShutdown.terminate()
                         } else {
                             move()
@@ -92,6 +108,7 @@ function generate(resumeData) {
             }
         })
 
+        //send config of previous run
         const resData =
             resumeData != undefined
                 ? resumeData.filter(

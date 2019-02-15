@@ -145,37 +145,6 @@ function transactionsAggregation(filePath, cb) {
                 } else {
                     nodesReader.nextLines()
                 }
-                //convert transaction from json to pajek
-                /*transactions = module.exports.transactionConverter(
-                    lines,
-                    transactions
-                )
-                if (options.endFile) {
-                    transactionsWriter.writeArray(
-                        transactions.map(line => line + '\n'),
-                        () => {
-                            saveLine = lastLine
-                            if (transactionsEnded) {
-                                logger.log(
-                                    'Termanited ' +
-                                        FormatSettings.getFormat() +
-                                        ' transactions copy from ' +
-                                        filePath
-                                )
-                                cb()
-                            } else {
-                                if(GenerationShutdown.isRunning()) {
-                                    tempReader.nextLines()
-                                } else {
-                                    GenerationShutdown.saveState(saveLine, filePath)
-                                    GenerationShutdown.terminate()
-                                }
-                            }
-                        }
-                    )
-                } else {
-                    nodesReader.nextLines()
-                }*/
             }
         )
     }

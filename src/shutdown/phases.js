@@ -8,7 +8,9 @@ const GenerationProcessPhases = Object.freeze({
     SplitPhase: () => 'Split',
     NodesPhase: () => 'Nodes',
     TransactionsPhase: () => 'Transactions',
-    ComposePhase: () => 'Compose'
+    ComposeNodesPhase: () => 'Compose Nodes',
+    ComposeTransactionsPhase: () => 'Compose Transactions',
+    TerminatedPhase: () => 'Terminated'
 })
 
 module.exports = {

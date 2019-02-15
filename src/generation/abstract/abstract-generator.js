@@ -18,6 +18,10 @@ aggregate = function() {
     throw ERRORS_MESSAGES.functionError('abstract-generator', 'aggregate')
 }
 
+compose = function() {
+    throw ERRORS_MESSAGES.functionError('abstract-generator', 'compose')
+}
+
 function startProcess(formatName) {
     FormatSettings.setFormat(formatName)
 
@@ -59,10 +63,9 @@ function startProcess(formatName) {
                         case GenerationProcessPhases.TransactionsPhase():
                             module.exports.aggregate()
                             break
-                        case GenerationProcessPhases.ComposePhase():
-                            console.log(
-                                'TO-DO compose phase resume in abstract generator'
-                            )
+                        case GenerationProcessPhases.ComposeNodesPhase():
+                        case GenerationProcessPhases.ComposeTransactionsPhase():
+                            module.exports.compose()
                             break
                     }
                 }
@@ -85,5 +88,6 @@ function startProcess(formatName) {
 module.exports = {
     split,
     aggregate,
+    compose,
     startProcess
 }

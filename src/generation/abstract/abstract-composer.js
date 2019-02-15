@@ -1,17 +1,15 @@
 const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
+const RecoverySettings = require('./../../utilities/settings/recovery-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const GenerationShutdown = require('./../../shutdown/generation-shutdown')
-const GlobalProcessCommand = require('./../../utilities/process')
-    .GlobalProcessCommand
 const GenerationProcessPhases = require('./../../shutdown/phases')
     .GenerationProcessPhases
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
 const { checkResourceExists } = require('./../../utilities/utils')
-const { sendMessage } = require('./../../utilities/process')
 
 path = {
     graphPath: ERRORS_MESSAGES.fieldError(
@@ -60,8 +58,6 @@ transactionsPhaseEnd = function() {
 }
 
 function compose() {
-    GenerationShutdown.changePhase(GenerationProcessPhases.ComposePhase())
-
     const graphPath = module.exports.path.graphPath
     const tempPath = module.exports.path.tempPath
     const nodesPath = module.exports.path.nodesPath
@@ -69,177 +65,203 @@ function compose() {
 
     var lineReader
     var tempWriter
-
+    /*
     if (checkResourceExists(tempPath)) {
         fs.unlinkSync(tempPath)
-    }
+    }*/
     writer(tempPath, writer => {
         tempWriter = writer
-        nodePhase()
+
+        if (
+            RecoverySettings.getCurrentReadPhase() ===
+            GenerationProcessPhases.ComposeNodesPhase()
+        ) {
+            nodePhase()
+        } else if (
+            RecoverySettings.getCurrentReadPhase() ===
+            GenerationProcessPhases.ComposeTransactionsPhase()
+        ) {
+            transactionPhase()
+        } else {
+            nodePhase()
+        }
     })
 
     function nodePhase() {
+        GenerationShutdown.changePhase(
+            GenerationProcessPhases.ComposeNodesPhase()
+        )
+
+        var lineNumber =
+            nodesPath === RecoverySettings.getCurrentFilepath() &&
+            GenerationProcessPhases.ComposeNodesPhase() ===
+                RecoverySettings.getCurrentReadPhase()
+                ? RecoverySettings.getLastLine()
+                : 0
+
         lineReader = reader(
             nodesPath,
-            GenerationProcessPhases.ComposePhase(),
+            GenerationProcessPhases.ComposeNodesPhase(),
             line => {
                 return line
             },
             (lines, options) => {
                 function writeElem(index) {
-                    const lastLine = index === lines.length - 1 ? true : false
-                    const endFile = options.endFile && lastLine ? true : false
-                    tempWriter.write(
-                        module.exports.nodesPhaseLine(lines[index], endFile),
-                        () => {
-                            if (lastLine) {
-                                if (endFile) {
-                                    tempWriter.write(
-                                        module.exports.nodesPhaseEnd(),
-                                        () => {
-                                            logger.log(
-                                                'End compact ' +
-                                                    FormatSettings.getFormat() +
-                                                    ' nodes'
-                                            )
-                                            transactionPhase()
-                                        }
-                                    )
+                    if (GenerationShutdown.isRunning()) {
+                        const lastLine =
+                            index === lines.length - 1 ? true : false
+                        const endFile =
+                            options.endFile && lastLine ? true : false
+                        tempWriter.write(
+                            module.exports.nodesPhaseLine(
+                                lines[index],
+                                endFile
+                            ),
+                            () => {
+                                lineNumber++
+                                if (lastLine) {
+                                    if (endFile) {
+                                        tempWriter.write(
+                                            module.exports.nodesPhaseEnd(),
+                                            () => {
+                                                logger.log(
+                                                    'End compact ' +
+                                                        FormatSettings.getFormat() +
+                                                        ' nodes'
+                                                )
+                                                transactionPhase()
+                                            }
+                                        )
+                                    } else {
+                                        console.log(
+                                            FormatSettings.getFormat() +
+                                                ' nodePhase lines: ' +
+                                                lineNumber
+                                        )
+                                        lineReader.nextLines()
+                                    }
                                 } else {
-                                    lineReader.nextLines()
+                                    index++
+                                    writeElem(index)
                                 }
-                            } else {
-                                index++
-                                writeElem(index)
                             }
-                        }
-                    )
+                        )
+                    } else {
+                        GenerationShutdown.saveState(lineNumber, nodesPath)
+                        GenerationShutdown.terminate()
+                    }
                 }
 
                 var index = 0
                 writeElem(index)
-
-                /*const writableLines = module.exports.nodesPhaseLine(
-                    lines,
-                    options.endFile
-                )
-                tempWriter.writeArray(writableLines, () => {
-                    if (options.endFile) {
-                        tempWriter.write(module.exports.nodesPhaseEnd(),
-                            () => {
-                                logger.log(
-                                    'End compact ' +
-                                        FormatSettings.getFormat() +
-                                        ' nodes'
-                                )
-                                transactionPhase()
-                            }
-                        )
-                        
-                    } else {
-                        lineReader.nextLines()
-                    }
-                })*/
             }
         )
 
         logger.log('Start compact ' + FormatSettings.getFormat() + ' nodes')
-        tempWriter.write(module.exports.nodesPhaseStart(), () => {
+        if (lineNumber === 0) {
+            tempWriter.write(module.exports.nodesPhaseStart(), () => {
+                lineReader.nextLines()
+            })
+        } else {
             lineReader.nextLines()
-        })
+        }
     }
 
     function transactionPhase() {
+        GenerationShutdown.changePhase(
+            GenerationProcessPhases.ComposeTransactionsPhase()
+        )
+
+        var lineNumber =
+            transactionsPath === RecoverySettings.getCurrentFilepath() &&
+            GenerationProcessPhases.ComposeTransactionsPhase() ===
+                RecoverySettings.getCurrentReadPhase()
+                ? RecoverySettings.getLastLine()
+                : 0
+
         lineReader = reader(
             transactionsPath,
-            GenerationProcessPhases.ComposePhase(),
+            GenerationProcessPhases.ComposeTransactionsPhase(),
             line => {
                 return line
             },
             (lines, options) => {
                 function writeElem(index) {
-                    const lastLine = index === lines.length - 1 ? true : false
-                    const endFile = options.endFile && lastLine ? true : false
-                    tempWriter.write(
-                        module.exports.transactionsPhaseLine(
-                            lines[index],
-                            endFile
-                        ),
-                        () => {
-                            if (lastLine) {
-                                if (endFile) {
-                                    tempWriter.write(
-                                        module.exports.transactionsPhaseEnd(),
-                                        () => {
-                                            logger.log(
-                                                'End compact ' +
-                                                    FormatSettings.getFormat() +
-                                                    ' transactions'
-                                            )
-                                            if (
-                                                checkResourceExists(graphPath)
-                                            ) {
-                                                fs.unlinkSync(graphPath)
+                    if (GenerationShutdown.isRunning()) {
+                        const lastLine =
+                            index === lines.length - 1 ? true : false
+                        const endFile =
+                            options.endFile && lastLine ? true : false
+                        tempWriter.write(
+                            module.exports.transactionsPhaseLine(
+                                lines[index],
+                                endFile
+                            ),
+                            () => {
+                                lineNumber++
+                                if (lastLine) {
+                                    if (endFile) {
+                                        tempWriter.write(
+                                            module.exports.transactionsPhaseEnd(),
+                                            () => {
+                                                logger.log(
+                                                    'End compact ' +
+                                                        FormatSettings.getFormat() +
+                                                        ' transactions'
+                                                )
+                                                if (
+                                                    checkResourceExists(
+                                                        graphPath
+                                                    )
+                                                ) {
+                                                    fs.unlinkSync(graphPath)
+                                                }
+                                                fs.renameSync(
+                                                    tempPath,
+                                                    graphPath
+                                                )
+                                                //communicate to master end generation
+                                                GenerationShutdown.onCompletedProcess()
                                             }
-                                            fs.renameSync(tempPath, graphPath)
-                                            //communicate to master end generation
-                                            sendMessage(
-                                                GlobalProcessCommand.endCommand(),
-                                                undefined
-                                            )
-                                        }
-                                    )
+                                        )
+                                    } else {
+                                        console.log(
+                                            FormatSettings.getFormat() +
+                                                ' transactionPhase lines: ' +
+                                                lineNumber
+                                        )
+                                        lineReader.nextLines()
+                                    }
                                 } else {
-                                    lineReader.nextLines()
+                                    index++
+                                    writeElem(index)
                                 }
-                            } else {
-                                index++
-                                writeElem(index)
                             }
-                        }
-                    )
+                        )
+                    } else {
+                        GenerationShutdown.saveState(
+                            lineNumber,
+                            transactionsPath
+                        )
+                        GenerationShutdown.terminate()
+                    }
                 }
 
                 var index = 0
                 writeElem(index)
-
-                /*const writableLines = module.exports.transactionsPhaseLine(
-                    lines,
-                    options.endFile
-                )
-                tempWriter.writeArray(writableLines, () => {
-                    if (options.endFile) {
-                        tempWriter.write(module.exports.transactionsPhaseEnd(),
-                            () => {
-                                logger.log(
-                                    'End compact ' +
-                                        FormatSettings.getFormat() +
-                                        ' transactions'
-                                )
-                                if (checkResourceExists(graphPath)) {
-                                    fs.unlinkSync(graphPath)
-                                }
-                                fs.renameSync(tempPath, graphPath)
-                                //communicate to master end generation
-                                sendMessage(
-                                    GlobalProcessCommand.endCommand(),
-                                    undefined
-                                )
-                            }
-                        )
-                    } else {
-                        lineReader.nextLines()
-                    }
-                })*/
             }
         )
 
         logger.log(
             'Start compact ' + FormatSettings.getFormat() + ' transactions'
         )
-        tempWriter.write(module.exports.transactionsPhaseStart(), () => {
+        if (lineNumber === 0) {
+            tempWriter.write(module.exports.transactionsPhaseStart(), () => {
+                lineReader.nextLines()
+            })
+        } else {
             lineReader.nextLines()
-        })
+        }
     }
 }
 

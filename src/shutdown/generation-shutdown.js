@@ -5,6 +5,8 @@ const GlobalNameConstants = require('./../utilities/constants/files-name-constan
     .GlobalNameConstants
 const GlobalProcessCommand = require('./../utilities/process')
     .GlobalProcessCommand
+const GenerationProcessPhases = require('./../shutdown/phases')
+    .GenerationProcessPhases
 const { sendMessage } = require('./../utilities/process')
 
 var currentPhase = undefined
@@ -42,6 +44,24 @@ module.exports = {
                 file_path: graphPath
             }
         })
+    },
+    onCompletedProcess: () => {
+        process.send(
+            {
+                pid: process.pid,
+                command: GlobalProcessCommand.endCommand(),
+                data: {
+                    format: {
+                        format_name: FormatSettings.getFormat(),
+                        phase: GenerationProcessPhases.TerminatedPhase()
+                    }
+                }
+            },
+            () => {
+                process.disconnect()
+                process.exit(0)
+            }
+        )
     },
     terminate: () => {
         process.disconnect()
