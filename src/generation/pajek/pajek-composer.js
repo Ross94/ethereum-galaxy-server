@@ -38,8 +38,8 @@ function compose() {
         return pajekLines.vertices
     }
 
-    abstractComposer.nodesPhaseLine = function(lines, hasLast) {
-        return pajekConverter(lines)
+    abstractComposer.nodesPhaseLine = function(line, hasLast) {
+        return writableLine(line)
     }
 
     abstractComposer.nodesPhaseEnd = function() {
@@ -50,16 +50,12 @@ function compose() {
         return pajekLines.arcs + '\n'
     }
 
-    abstractComposer.transactionsPhaseLine = function(lines, hasLast) {
-        return pajekConverter(lines)
+    abstractComposer.transactionsPhaseLine = function(line, hasLast) {
+        return writableLine(line)
     }
 
     abstractComposer.transactionsPhaseEnd = function() {
         return ''
-    }
-
-    function pajekConverter(lines) {
-        return lines.map(elem => writableLine(elem))
     }
 
     function writableLine(line) {

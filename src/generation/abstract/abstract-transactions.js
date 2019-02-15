@@ -36,7 +36,7 @@ tempFileParser = function(line) {
     )
 }
 
-transactionConverter = function(lines, transactions) {
+transactionConverter = function(transaction, nodes) {
     throw ERRORS_MESSAGES.functionError(
         'abstract-transactions',
         'transactionConverter'

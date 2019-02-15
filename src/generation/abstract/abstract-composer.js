@@ -2,6 +2,7 @@ const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GenerationShutdown = require('./../../shutdown/generation-shutdown')
 const GlobalProcessCommand = require('./../../utilities/process')
     .GlobalProcessCommand
 const GenerationProcessPhases = require('./../../shutdown/phases')
@@ -32,7 +33,7 @@ nodesPhaseStart = function() {
     throw ERRORS_MESSAGES.functionError('abstract-composer', 'nodesPhaseStart')
 }
 
-nodesPhaseLine = function(lines, hasLast) {
+nodesPhaseLine = function(line, hasLast) {
     throw ERRORS_MESSAGES.functionError('abstract-composer', 'nodesPhaseLine')
 }
 
@@ -47,7 +48,7 @@ transactionsPhaseStart = function() {
     )
 }
 
-transactionsPhaseLine = function(lines, hasLast) {
+transactionsPhaseLine = function(line, hasLast) {
     throw ERRORS_MESSAGES.functionError(
         'abstract-composer',
         'transactionsPhaseLine'
@@ -59,6 +60,8 @@ transactionsPhaseEnd = function() {
 }
 
 function compose() {
+    GenerationShutdown.changePhase(GenerationProcessPhases.ComposePhase())
+
     const graphPath = module.exports.path.graphPath
     const tempPath = module.exports.path.tempPath
     const nodesPath = module.exports.path.nodesPath
@@ -83,30 +86,67 @@ function compose() {
                 return line
             },
             (lines, options) => {
-                const writableLines = module.exports.nodesPhaseLine(
+                function writeElem(index) {
+                    const lastLine = index === lines.length - 1 ? true : false
+                    const endFile = options.endFile && lastLine ? true : false
+                    tempWriter.write(
+                        module.exports.nodesPhaseLine(lines[index], endFile),
+                        () => {
+                            if (lastLine) {
+                                if (endFile) {
+                                    tempWriter.write(
+                                        module.exports.nodesPhaseEnd(),
+                                        () => {
+                                            logger.log(
+                                                'End compact ' +
+                                                    FormatSettings.getFormat() +
+                                                    ' nodes'
+                                            )
+                                            transactionPhase()
+                                        }
+                                    )
+                                } else {
+                                    lineReader.nextLines()
+                                }
+                            } else {
+                                index++
+                                writeElem(index)
+                            }
+                        }
+                    )
+                }
+
+                var index = 0
+                writeElem(index)
+
+                /*const writableLines = module.exports.nodesPhaseLine(
                     lines,
                     options.endFile
                 )
                 tempWriter.writeArray(writableLines, () => {
                     if (options.endFile) {
-                        tempWriter.write(module.exports.nodesPhaseEnd())
-
-                        logger.log(
-                            'End compact ' +
-                                FormatSettings.getFormat() +
-                                ' nodes'
+                        tempWriter.write(module.exports.nodesPhaseEnd(),
+                            () => {
+                                logger.log(
+                                    'End compact ' +
+                                        FormatSettings.getFormat() +
+                                        ' nodes'
+                                )
+                                transactionPhase()
+                            }
                         )
-                        transactionPhase()
+                        
                     } else {
                         lineReader.nextLines()
                     }
-                })
+                })*/
             }
         )
 
         logger.log('Start compact ' + FormatSettings.getFormat() + ' nodes')
-        tempWriter.write(module.exports.nodesPhaseStart())
-        lineReader.nextLines()
+        tempWriter.write(module.exports.nodesPhaseStart(), () => {
+            lineReader.nextLines()
+        })
     }
 
     function transactionPhase() {
@@ -117,40 +157,89 @@ function compose() {
                 return line
             },
             (lines, options) => {
-                const writableLines = module.exports.transactionsPhaseLine(
+                function writeElem(index) {
+                    const lastLine = index === lines.length - 1 ? true : false
+                    const endFile = options.endFile && lastLine ? true : false
+                    tempWriter.write(
+                        module.exports.transactionsPhaseLine(
+                            lines[index],
+                            endFile
+                        ),
+                        () => {
+                            if (lastLine) {
+                                if (endFile) {
+                                    tempWriter.write(
+                                        module.exports.transactionsPhaseEnd(),
+                                        () => {
+                                            logger.log(
+                                                'End compact ' +
+                                                    FormatSettings.getFormat() +
+                                                    ' transactions'
+                                            )
+                                            if (
+                                                checkResourceExists(graphPath)
+                                            ) {
+                                                fs.unlinkSync(graphPath)
+                                            }
+                                            fs.renameSync(tempPath, graphPath)
+                                            //communicate to master end generation
+                                            sendMessage(
+                                                GlobalProcessCommand.endCommand(),
+                                                undefined
+                                            )
+                                        }
+                                    )
+                                } else {
+                                    lineReader.nextLines()
+                                }
+                            } else {
+                                index++
+                                writeElem(index)
+                            }
+                        }
+                    )
+                }
+
+                var index = 0
+                writeElem(index)
+
+                /*const writableLines = module.exports.transactionsPhaseLine(
                     lines,
                     options.endFile
                 )
                 tempWriter.writeArray(writableLines, () => {
                     if (options.endFile) {
-                        tempWriter.write(module.exports.transactionsPhaseEnd())
-
-                        logger.log(
-                            'End compact ' +
-                                FormatSettings.getFormat() +
-                                ' transactions'
-                        )
-                        if (checkResourceExists(graphPath)) {
-                            fs.unlinkSync(graphPath)
-                        }
-                        fs.renameSync(tempPath, graphPath)
-                        //communicate to master end generation
-                        sendMessage(
-                            GlobalProcessCommand.endCommand(),
-                            undefined
+                        tempWriter.write(module.exports.transactionsPhaseEnd(),
+                            () => {
+                                logger.log(
+                                    'End compact ' +
+                                        FormatSettings.getFormat() +
+                                        ' transactions'
+                                )
+                                if (checkResourceExists(graphPath)) {
+                                    fs.unlinkSync(graphPath)
+                                }
+                                fs.renameSync(tempPath, graphPath)
+                                //communicate to master end generation
+                                sendMessage(
+                                    GlobalProcessCommand.endCommand(),
+                                    undefined
+                                )
+                            }
                         )
                     } else {
                         lineReader.nextLines()
                     }
-                })
+                })*/
             }
         )
 
         logger.log(
             'Start compact ' + FormatSettings.getFormat() + ' transactions'
         )
-        tempWriter.write(module.exports.transactionsPhaseStart())
-        lineReader.nextLines()
+        tempWriter.write(module.exports.transactionsPhaseStart(), () => {
+            lineReader.nextLines()
+        })
     }
 }
 

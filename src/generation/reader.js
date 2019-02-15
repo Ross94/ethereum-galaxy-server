@@ -12,6 +12,7 @@ module.exports = (filepath, phase, parseLogic, callback) => {
     /*
     chunkSize is the number of lines for each block, it is a proportion, 2500000 for 1000 mb for available memory 
     */
+
     const chunkSize = Math.ceil(
         tunedLines * SpecSettings.getProcessMemory() / tunedMemory
     )

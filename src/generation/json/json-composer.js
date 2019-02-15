@@ -40,8 +40,8 @@ function compose() {
         return jsonLines.open + '\n'
     }
 
-    abstractComposer.nodesPhaseLine = function(lines, hasLast) {
-        return jsonConverter(lines, hasLast)
+    abstractComposer.nodesPhaseLine = function(line, hasLast) {
+        return jsonConverter(line, hasLast)
     }
 
     abstractComposer.nodesPhaseEnd = function() {
@@ -52,33 +52,19 @@ function compose() {
         return '\t' + jsonLines.mid + '\n'
     }
 
-    abstractComposer.transactionsPhaseLine = function(lines, hasLast) {
-        return jsonConverter(lines, hasLast)
+    abstractComposer.transactionsPhaseLine = function(line, hasLast) {
+        return jsonConverter(line, hasLast)
     }
 
     abstractComposer.transactionsPhaseEnd = function() {
         return jsonLines.close + '\n'
     }
 
-    function jsonConverter(lines, hasLast) {
-        const wLines = []
-        //map lines in writable form
-        for (var i = 0; i < lines.length; i++) {
-            if (hasLast && i == lines.length - 1) {
-                wLines.push(lastLine(lines[i]))
-            } else {
-                wLines.push(commonLine(lines[i]))
-            }
+    function jsonConverter(line, hasLast) {
+        if (hasLast) {
+            return '\t\t' + line + '\n'
         }
-        return wLines
-    }
-
-    function commonLine(line) {
         return '\t\t' + line + ',\n'
-    }
-
-    function lastLine(line) {
-        return '\t\t' + line + '\n'
     }
 
     abstractComposer.compose()
