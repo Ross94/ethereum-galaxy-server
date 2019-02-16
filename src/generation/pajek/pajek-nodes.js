@@ -1,15 +1,18 @@
-const abstractNodes = require('./../abstract/abstract-nodes')
 const execSync = require('child_process').execSync
-const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
-    .PajekNameConstants
-const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
+
+const abstractNodes = require('./../abstract/abstract-nodes')
+
+const PAJEK_CONSTANTS = require('./../../utilities/constants/files-name-constants')
+    .PAJEK_CONSTANTS
+const NO_LAYOUT_CONSTANTS = require('./../../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
+
 const { checkResourceExists } = require('./../../utilities/utils')
 
 function pajekNodesAggregation(filePath, cb) {
     const nodesPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        PajekNameConstants.pajekNodesFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        PAJEK_CONSTANTS.pajekNodesFilename()
 
     var nextNodeID
 

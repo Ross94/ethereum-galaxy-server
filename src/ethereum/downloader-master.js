@@ -1,14 +1,17 @@
 const child_process = require('child_process')
 
-const logger = require('./../utilities/log')
-const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
-const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
-const GlobalProcessCommand = require('./../utilities/process')
-    .GlobalProcessCommand
-const DownloadProcessCommand = require('./../utilities/process')
-    .DownloadProcessCommand
 const MainShutdown = require('./../shutdown/main-shutdown')
+
+const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
+const MAIN_PROCESS_PHASES = require('./../shutdown/phases').MAIN_PROCESS_PHASES
+const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
+    .GLOBAL_PROCESS_COMMAND
+const DOWNLOAD_PROCESS_COMMAND = require('./../utilities/process')
+    .DOWNLOAD_PROCESS_COMMAND
+
+const logger = require('./../utilities/log')
+
 const { generate } = require('./../generation/generator-master')
 const { sendMessage } = require('./../utilities/process')
 
@@ -18,7 +21,7 @@ const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
 module.exports = (start, end) => {
     logger.log('Start download phase')
-    MainShutdown.changePhase(MainProcessPhases.DownloadPhase())
+    MainShutdown.changePhase(MAIN_PROCESS_PHASES.DownloadPhase())
 
     const workers = new Map()
 
@@ -61,17 +64,19 @@ module.exports = (start, end) => {
             )
             workers.set(child.pid, child)
             sendMessage(
-                DownloadProcessCommand.configCommand(),
+                DOWNLOAD_PROCESS_COMMAND.configCommand(),
                 {
                     filename:
-                        NoLayoutConstants.noLayoutTemporaryPath() + i + '.json',
+                        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+                        i +
+                        '.json',
                     api: infuraApiKey
                 },
                 child
             )
             child.on('message', function(message) {
                 switch (message.command) {
-                    case DownloadProcessCommand.newTaskCommand():
+                    case DOWNLOAD_PROCESS_COMMAND.newTaskCommand():
                         if (!message.data.config) {
                             lastChunk += 1
                             const progressBarTextualForm =
@@ -90,7 +95,7 @@ module.exports = (start, end) => {
                         const res = availableTask()
                         if (!res) {
                             sendMessage(
-                                GlobalProcessCommand.endCommand(),
+                                GLOBAL_PROCESS_COMMAND.endCommand(),
                                 undefined,
                                 workers.get(message.pid)
                             )
@@ -108,13 +113,13 @@ module.exports = (start, end) => {
                             }
                         } else {
                             sendMessage(
-                                DownloadProcessCommand.newTaskCommand(),
+                                DOWNLOAD_PROCESS_COMMAND.newTaskCommand(),
                                 { task: res },
                                 workers.get(message.pid)
                             )
                         }
                         break
-                    case GlobalProcessCommand.stoppedCommand():
+                    case GLOBAL_PROCESS_COMMAND.stoppedCommand():
                         shutdownCalled = true
                         endedChild++
                         if (endedChild == CPUs) {

@@ -1,16 +1,19 @@
 const fs = require('fs')
 const execSync = require('child_process').execSync
 
-const logger = require('./../utilities/log')
-const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
-const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
-    .GlobalNameConstants
-const JsonNameConstants = require('./../utilities/constants/files-name-constants')
-    .JsonNameConstants
-const PajekNameConstants = require('./../utilities/constants/files-name-constants')
-    .PajekNameConstants
 const RunSettings = require('./../utilities/settings/run-settings')
+
+const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
+const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .GLOBAL_CONSTANTS
+const JSON_COSTANTS = require('./../utilities/constants/files-name-constants')
+    .JSON_COSTANTS
+const PAJEK_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .PAJEK_CONSTANTS
+
+const logger = require('./../utilities/log')
+
 const { ensureDirExists } = require('./../utilities/utils')
 const { saveInfo } = require('./../utilities/files')
 
@@ -22,48 +25,47 @@ function move() {
 
     //move json
     fs.renameSync(
-        NoLayoutConstants.noLayoutTemporaryPath() +
-            JsonNameConstants.jsonGraphFilename(),
-        RunSettings.getSaveFolderPath() + JsonNameConstants.jsonGraphFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+            JSON_COSTANTS.jsonGraphFilename(),
+        RunSettings.getSaveFolderPath() + JSON_COSTANTS.jsonGraphFilename()
     )
-    logger.log('Moved ' + JsonNameConstants.jsonGraphFilename())
+    logger.log('Moved ' + JSON_COSTANTS.jsonGraphFilename())
 
     //move pajek
     fs.renameSync(
-        NoLayoutConstants.noLayoutTemporaryPath() +
-            PajekNameConstants.pajekGraphFilename(),
-        RunSettings.getSaveFolderPath() +
-            PajekNameConstants.pajekGraphFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+            PAJEK_CONSTANTS.pajekGraphFilename(),
+        RunSettings.getSaveFolderPath() + PAJEK_CONSTANTS.pajekGraphFilename()
     )
-    logger.log('Moved ' + PajekNameConstants.pajekGraphFilename())
+    logger.log('Moved ' + PAJEK_CONSTANTS.pajekGraphFilename())
 
     //generate info
     const elemsData = countElems()
     saveInfo(
-        RunSettings.getSaveFolderPath() + GlobalNameConstants.infoFilename(),
+        RunSettings.getSaveFolderPath() + GLOBAL_CONSTANTS.infoFilename(),
         {
             range: RunSettings.getRange(),
             nodes_number: elemsData.nodesNumber,
             links_number: elemsData.linksNumber
         }
     )
-    logger.log('Generated ' + GlobalNameConstants.infoFilename())
+    logger.log('Generated ' + GLOBAL_CONSTANTS.infoFilename())
 
     //delete temp files
     fs
-        .readdirSync(NoLayoutConstants.noLayoutTemporaryPath())
+        .readdirSync(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())
         .forEach(file =>
-            fs.unlinkSync(NoLayoutConstants.noLayoutTemporaryPath() + file)
+            fs.unlinkSync(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() + file)
         )
-    fs.rmdirSync(NoLayoutConstants.noLayoutTemporaryPath())
-    fs.unlinkSync(GlobalNameConstants.runningFilename())
+    fs.rmdirSync(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())
+    fs.unlinkSync(GLOBAL_CONSTANTS.runningFilename())
     logger.log('Delete temp files')
     logger.log('End moving files')
 
     function countElems() {
         const filePath =
             RunSettings.getSaveFolderPath() +
-            PajekNameConstants.pajekGraphFilename()
+            PAJEK_CONSTANTS.pajekGraphFilename()
         const linesNumber = parseInt(execSync('wc -l < ' + filePath).toString())
         const pajekLines = 2
 

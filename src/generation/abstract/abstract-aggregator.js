@@ -1,12 +1,13 @@
-const logger = require('./../../utilities/log')
-
-const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
-const GenerationProcessPhases = require('./../../shutdown/phases')
-    .GenerationProcessPhases
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const RecoverySettings = require('./../../utilities/settings/recovery-settings')
+
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const NO_LAYOUT_CONSTANTS = require('./../../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
+const GENERATION_PROCESS_PHASES = require('./../../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
+
+const logger = require('./../../utilities/log')
 
 nodesAggregation = function(filepath, cb) {
     throw ERRORS_MESSAGES.functionError(
@@ -27,7 +28,7 @@ compose = function() {
 }
 
 function aggregate() {
-    const tempFilesFolderPath = NoLayoutConstants.noLayoutTemporaryPath()
+    const tempFilesFolderPath = NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath()
     const tempFiles = require('fs')
         .readdirSync(tempFilesFolderPath)
         .filter(file => filterFiles(file))
@@ -50,12 +51,12 @@ function aggregate() {
         nextFileIndex = currentFileIndex + 1
         if (
             RecoverySettings.getCurrentReadPhase() ===
-            GenerationProcessPhases.NodesPhase()
+            GENERATION_PROCESS_PHASES.NodesPhase()
         ) {
             nodesPhase()
         } else if (
             RecoverySettings.getCurrentReadPhase() ===
-            GenerationProcessPhases.TransactionsPhase()
+            GENERATION_PROCESS_PHASES.TransactionsPhase()
         ) {
             transactionsPhase()
         }

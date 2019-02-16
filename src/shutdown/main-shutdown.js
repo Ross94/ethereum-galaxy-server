@@ -1,17 +1,18 @@
 const fs = require('fs')
 
 const logger = require('../utilities/log')
-const MainProcessPhases = require('./phases').MainProcessPhases
+
 const RunSettings = require('../utilities/settings/run-settings')
 const RecoverySettings = require('../utilities/settings/recovery-settings')
-const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
-const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
-    .GlobalNameConstants
+const MAIN_PROCESS_PHASES = require('./phases').MAIN_PROCESS_PHASES
+const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
+const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .GLOBAL_CONSTANTS
 const { saveInfo } = require('./../utilities/files')
 const { ensureDirExists } = require('./../utilities/utils')
 
-var currentPhase = MainProcessPhases.ParsePhase()
+var currentPhase = MAIN_PROCESS_PHASES.ParsePhase()
 
 const info = {
     logger_path: logger.getPath(),
@@ -26,14 +27,14 @@ const info = {
 
 module.exports = {
     setShutdownBehaviour: () => {
-        ensureDirExists(NoLayoutConstants.noLayoutPath())
+        ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutPath())
         fs.writeFileSync(
-            GlobalNameConstants.runningFilename(),
+            GLOBAL_CONSTANTS.runningFilename(),
             JSON.stringify({ running: true })
         )
 
         process.on('SIGINT', () => {
-            if (currentPhase === MainProcessPhases.ParsePhase()) {
+            if (currentPhase === MAIN_PROCESS_PHASES.ParsePhase()) {
                 process.exit(0)
             }
 
@@ -41,7 +42,7 @@ module.exports = {
                 'Start shutdown... next time you can resume this run whit -resume param or start new one'
             )
             fs.writeFileSync(
-                GlobalNameConstants.runningFilename(),
+                GLOBAL_CONSTANTS.runningFilename(),
                 JSON.stringify({ running: false })
             )
         })
@@ -53,7 +54,7 @@ module.exports = {
         */
         try {
             const jsonData = JSON.parse(
-                fs.readFileSync(GlobalNameConstants.runningFilename())
+                fs.readFileSync(GLOBAL_CONSTANTS.runningFilename())
             )
             return jsonData.running
         } catch (err) {
@@ -95,13 +96,13 @@ module.exports = {
 
         //save
         saveInfo(
-            NoLayoutConstants.noLayoutTemporaryPath() +
-                GlobalNameConstants.infoFilename(),
+            NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+                GLOBAL_CONSTANTS.infoFilename(),
             info
         )
     },
     terminate: () => {
-        fs.unlinkSync(GlobalNameConstants.runningFilename())
+        fs.unlinkSync(GLOBAL_CONSTANTS.runningFilename())
         logger.log('Shutdown completed', () => process.exit(0))
     }
 }

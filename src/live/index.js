@@ -2,10 +2,10 @@ const schedule = require('node-schedule')
 
 const logger = require('./../utilities/log')
 const createEth = require('./../ethereum/eth')
-const LiveConstants = require('./../utilities/constants/live-constants')
-    .LiveConstants
+const LIVE_CONSTANTS = require('./../utilities/constants/live-constants')
+    .LIVE_CONSTANTS
 
-logger.setPath(LiveConstants.logFilename())
+logger.setPath(LIVE_CONSTANTS.logFilename())
 
 if (!process.env.INFURA_API_KEY) {
     throw new Error('INFURA_API_KEY env variable not found')

@@ -1,17 +1,18 @@
 const abstractTransactions = require('./../abstract/abstract-transactions')
-const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
-    .PajekNameConstants
-const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
+
+const PAJEK_CONSTANTS = require('./../../utilities/constants/files-name-constants')
+    .PAJEK_CONSTANTS
+const NO_LAYOUT_CONSTANTS = require('./../../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
 
 function pajekTransactionsAggregation(filePath, cb) {
     const nodesPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        PajekNameConstants.pajekNodesFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        PAJEK_CONSTANTS.pajekNodesFilename()
 
     const transactionsPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        PajekNameConstants.pajekTransactionsFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        PAJEK_CONSTANTS.pajekTransactionsFilename()
 
     abstractTransactions.path = {
         nodesPath: nodesPath,

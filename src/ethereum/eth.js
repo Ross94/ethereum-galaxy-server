@@ -2,13 +2,14 @@ const Web3 = require('web3')
 const _ = require('lodash')
 const saveGraph = require('ngraph.tobinary')
 
+const LIVE_CONSTANTS = require('./../utilities/constants/live-constants')
+    .LIVE_CONSTANTS
+
+const calculateNgraphLayout = require('./../live/ngraph-layout')
 const logger = require('./../utilities/log')
 
-const LiveConstants = require('./../utilities/constants/live-constants')
-    .LiveConstants
 const { ensureDirExists } = require('./../utilities/utils')
 const { dumpJSON, dumpPajek, dumpInfo } = require('./../utilities/files')
-const calculateNgraphLayout = require('./../live/ngraph-layout')
 
 export type Range = {
     start: number,
@@ -130,7 +131,7 @@ module.exports = (infuraApiKey: string) => {
         const graph = { nodes, links: transactions }
 
         if (doLayout) {
-            const ngraphOutDirPath = LiveConstants.ngraphBasePath()
+            const ngraphOutDirPath = LIVE_CONSTANTS.ngraphBasePath()
             ensureDirExists(ngraphOutDirPath)
             const ngraph = await calculateNgraphLayout(graph, ngraphOutDirPath)
 
@@ -144,15 +145,15 @@ module.exports = (infuraApiKey: string) => {
 
         logger.log('Exporting the graph to JSON...')
 
-        dumpJSON(LiveConstants.jsonFilename(), graph)
+        dumpJSON(LIVE_CONSTANTS.jsonFilename(), graph)
 
         logger.log('Export the graph infos...')
 
-        dumpInfo(LiveConstants.infoFilename(), graph, range)
+        dumpInfo(LIVE_CONSTANTS.infoFilename(), graph, range)
 
         logger.log('Exporting the graph to Pajek...')
 
-        dumpPajek(LiveConstants.pajekFilename(), graph)
+        dumpPajek(LIVE_CONSTANTS.pajekFilename(), graph)
 
         logger.log('Finished, cya')
     }

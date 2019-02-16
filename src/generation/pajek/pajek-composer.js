@@ -1,26 +1,28 @@
 const execSync = require('child_process').execSync
+
 const abstractComposer = require('./../abstract/abstract-composer')
-const PajekNameConstants = require('./../../utilities/constants/files-name-constants')
-    .PajekNameConstants
-const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
+
+const PAJEK_CONSTANTS = require('./../../utilities/constants/files-name-constants')
+    .PAJEK_CONSTANTS
+const NO_LAYOUT_CONSTANTS = require('./../../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
 
 function compose() {
     const graphPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        PajekNameConstants.pajekGraphFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        PAJEK_CONSTANTS.pajekGraphFilename()
 
     const tempPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        PajekNameConstants.pajekTempFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        PAJEK_CONSTANTS.pajekTempFilename()
 
     const nodesPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        PajekNameConstants.pajekNodesFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        PAJEK_CONSTANTS.pajekNodesFilename()
 
     const transactionsPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        PajekNameConstants.pajekTransactionsFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        PAJEK_CONSTANTS.pajekTransactionsFilename()
 
     const pajekLines = {
         vertices: '*Vertices ' + execSync('wc -l < ' + nodesPath),

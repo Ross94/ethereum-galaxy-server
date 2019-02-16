@@ -3,13 +3,15 @@ const RBTree = require('bintrees').RBTree
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const RecoverySettings = require('./../../utilities/settings/recovery-settings')
+const GenerationShutdown = require('./../../shutdown/generation-shutdown')
+
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-const GenerationProcessPhases = require('./../../shutdown/phases')
-    .GenerationProcessPhases
+const GENERATION_PROCESS_PHASES = require('./../../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
+
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
-const GenerationShutdown = require('./../../shutdown/generation-shutdown')
 
 path = {
     nodesPath: ERRORS_MESSAGES.fieldError(
@@ -44,7 +46,9 @@ transactionConverter = function(transaction, nodes) {
 }
 
 function transactionsAggregation(filePath, cb) {
-    GenerationShutdown.changePhase(GenerationProcessPhases.TransactionsPhase())
+    GenerationShutdown.changePhase(
+        GENERATION_PROCESS_PHASES.TransactionsPhase()
+    )
 
     const nodesPath = module.exports.path.nodesPath
     const transactionsPath = module.exports.path.transactionsPath
@@ -58,7 +62,7 @@ function transactionsAggregation(filePath, cb) {
 
     var lastLine =
         filePath === RecoverySettings.getCurrentFilepath() &&
-        GenerationProcessPhases.TransactionsPhase() ===
+        GENERATION_PROCESS_PHASES.TransactionsPhase() ===
             RecoverySettings.getCurrentReadPhase()
             ? RecoverySettings.getLastLine()
             : 0
@@ -78,7 +82,7 @@ function transactionsAggregation(filePath, cb) {
     function tempInitializer() {
         return reader(
             filePath,
-            GenerationProcessPhases.TransactionsPhase(),
+            GENERATION_PROCESS_PHASES.TransactionsPhase(),
             module.exports.tempFileParser,
             (lines, options) => {
                 transactions = _.flatten(lines)
@@ -95,7 +99,7 @@ function transactionsAggregation(filePath, cb) {
     function nodesInitializer() {
         return reader(
             nodesPath,
-            GenerationProcessPhases.TransactionsPhase(),
+            GENERATION_PROCESS_PHASES.TransactionsPhase(),
             module.exports.nodeFileParser,
             (lines, options) => {
                 const nodes = new RBTree((a, b) => {

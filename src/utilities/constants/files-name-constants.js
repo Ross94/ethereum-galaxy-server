@@ -1,33 +1,33 @@
-const NoLayoutConstants = require('./no-layout-constants').NoLayoutConstants
+const NO_LAYOUT_CONSTANTS = require('./no-layout-constants').NO_LAYOUT_CONSTANTS
 
-const GlobalNameConstants = Object.freeze({
+const GLOBAL_CONSTANTS = Object.freeze({
     globalFormat: () => 'common',
     infoFilename: () => 'info.json',
-    runningFilename: () => NoLayoutConstants.noLayoutPath() + 'running.json'
+    runningFilename: () => NO_LAYOUT_CONSTANTS.noLayoutPath() + 'running.json'
 })
 
-const PajekNameConstants = Object.freeze({
+const PAJEK_CONSTANTS = Object.freeze({
     pajekTempFilename: () => 'pajekTemp.net',
     pajekNodesFilename: () => 'nodes.net',
     pajekTransactionsFilename: () => 'transactions.net',
     pajekGraphFilename: () => 'graph.net'
 })
 
-const JsonNameConstants = Object.freeze({
+const JSON_COSTANTS = Object.freeze({
     jsonTempFilename: () => 'jsonTemp.json',
     jsonNodesFilename: () => 'nodes.json',
     jsonTransactionsFilename: () => 'transactions.json',
     jsonGraphFilename: () => 'graph.json'
 })
 
-const FormatNamesConstants = Object.freeze({
+const FORMAT_CONSTANTS = Object.freeze({
     jsonFormat: () => 'Json',
     pajekFormat: () => 'Pajek'
 })
 
 module.exports = {
-    GlobalNameConstants,
-    PajekNameConstants,
-    JsonNameConstants,
-    FormatNamesConstants
+    GLOBAL_CONSTANTS,
+    PAJEK_CONSTANTS,
+    JSON_COSTANTS,
+    FORMAT_CONSTANTS
 }

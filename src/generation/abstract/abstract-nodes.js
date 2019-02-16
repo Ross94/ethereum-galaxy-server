@@ -4,13 +4,16 @@ const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const RecoverySettings = require('./../../utilities/settings/recovery-settings')
+const GenerationShutdown = require('./../../shutdown/generation-shutdown')
+
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-const GenerationProcessPhases = require('./../../shutdown/phases')
-    .GenerationProcessPhases
+const GENERATION_PROCESS_PHASES = require('./../../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
+
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
-const GenerationShutdown = require('./../../shutdown/generation-shutdown')
+
 const { checkResourceExists } = require('./../../utilities/utils')
 
 nodesPath = ERRORS_MESSAGES.fieldError('abstract-nodes', 'nodesPath')
@@ -37,7 +40,7 @@ function nodesAggregation(filePath, callback) {
     var saveLine = 0
     var lastLine =
         filePath === RecoverySettings.getCurrentFilepath() &&
-        GenerationProcessPhases.NodesPhase() ===
+        GENERATION_PROCESS_PHASES.NodesPhase() ===
             RecoverySettings.getCurrentReadPhase()
             ? RecoverySettings.getLastLine()
             : 0
@@ -48,7 +51,7 @@ function nodesAggregation(filePath, callback) {
         fs.closeSync(fs.openSync(nodesPath, 'w'))
     }
     nodesFile = nodesInitializer()
-    GenerationShutdown.changePhase(GenerationProcessPhases.NodesPhase())
+    GenerationShutdown.changePhase(GENERATION_PROCESS_PHASES.NodesPhase())
     logger.log(
         'Start ' +
             FormatSettings.getFormat() +
@@ -60,7 +63,7 @@ function nodesAggregation(filePath, callback) {
     function nodesInitializer() {
         return reader(
             nodesPath,
-            GenerationProcessPhases.NodesPhase(),
+            GENERATION_PROCESS_PHASES.NodesPhase(),
             module.exports.nodeParser,
             (lines, options) => {
                 _.flatten(lines).forEach(elem => {
@@ -102,7 +105,7 @@ function nodesAggregation(filePath, callback) {
     function currentFileInitializer() {
         return reader(
             filePath,
-            GenerationProcessPhases.NodesPhase(),
+            GENERATION_PROCESS_PHASES.NodesPhase(),
             transactionParser,
             (lines, options) => {
                 _.flatten(lines).forEach(elem => {

@@ -1,9 +1,11 @@
 const abstractGenerator = require('./../abstract/abstract-generator')
+
+const FORMAT_CONSTANTS = require('./../../utilities/constants/files-name-constants')
+    .FORMAT_CONSTANTS
+
 const { split } = require('./pajek-splitter')
 const { aggregate } = require('./pajek-aggregator')
 const { compose } = require('./pajek-composer')
-const FormatNamesConstants = require('./../../utilities/constants/files-name-constants')
-    .FormatNamesConstants
 
 abstractGenerator.split = function() {
     split()
@@ -17,4 +19,4 @@ abstractGenerator.compose = function() {
     compose()
 }
 
-abstractGenerator.startProcess(FormatNamesConstants.pajekFormat())
+abstractGenerator.startProcess(FORMAT_CONSTANTS.pajekFormat())

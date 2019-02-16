@@ -1,34 +1,36 @@
 const fs = require('fs')
 
-const MainShutdown = require('./../shutdown/main-shutdown')
 const RunSettings = require('../utilities/settings/run-settings')
+
+const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
+const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .GLOBAL_CONSTANTS
+const JSON_COSTANTS = require('./../utilities/constants/files-name-constants')
+    .JSON_COSTANTS
+const PAJEK_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .PAJEK_CONSTANTS
+
 const logger = require('./../utilities/log')
-const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
-const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
-    .GlobalNameConstants
-const JsonNameConstants = require('./../utilities/constants/files-name-constants')
-    .JsonNameConstants
-const PajekNameConstants = require('./../utilities/constants/files-name-constants')
-    .PajekNameConstants
+
 const { checkResourceExists, ensureDirExists } = require('./../utilities/utils')
 
 function checkAll(lastBlock) {
     var lastBlockDownloaded
 
-    ensureDirExists(NoLayoutConstants.noLayoutTemporaryPath())
+    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())
     if (
         checkResourceExists(
-            NoLayoutConstants.noLayoutAllPath() +
-                GlobalNameConstants.infoFilename()
+            NO_LAYOUT_CONSTANTS.noLayoutAllPath() +
+                GLOBAL_CONSTANTS.infoFilename()
         ) &&
         checkResourceExists(
-            NoLayoutConstants.noLayoutAllPath() +
-                JsonNameConstants.jsonGraphFilename()
+            NO_LAYOUT_CONSTANTS.noLayoutAllPath() +
+                JSON_COSTANTS.jsonGraphFilename()
         ) &&
         checkResourceExists(
-            NoLayoutConstants.noLayoutAllPath() +
-                PajekNameConstants.pajekGraphFilename()
+            NO_LAYOUT_CONSTANTS.noLayoutAllPath() +
+                PAJEK_CONSTANTS.pajekGraphFilename()
         )
     ) {
         RunSettings.setOldDownload(true)
@@ -38,8 +40,8 @@ function checkAll(lastBlock) {
 
         const info = JSON.parse(
             fs.readFileSync(
-                NoLayoutConstants.noLayoutAllPath() +
-                    GlobalNameConstants.infoFilename()
+                NO_LAYOUT_CONSTANTS.noLayoutAllPath() +
+                    GLOBAL_CONSTANTS.infoFilename()
             )
         )
 

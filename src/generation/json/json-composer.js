@@ -1,25 +1,26 @@
 const abstractComposer = require('./../abstract/abstract-composer')
-const JsonNameConstants = require('./../../utilities/constants/files-name-constants')
-    .JsonNameConstants
-const NoLayoutConstants = require('./../../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
+
+const JSON_COSTANTS = require('./../../utilities/constants/files-name-constants')
+    .JSON_COSTANTS
+const NO_LAYOUT_CONSTANTS = require('./../../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
 
 function compose() {
     const graphPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        JsonNameConstants.jsonGraphFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        JSON_COSTANTS.jsonGraphFilename()
 
     const tempPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        JsonNameConstants.jsonTempFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        JSON_COSTANTS.jsonTempFilename()
 
     const nodesPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        JsonNameConstants.jsonNodesFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        JSON_COSTANTS.jsonNodesFilename()
 
     const transactionsPath =
-        NoLayoutConstants.noLayoutTemporaryPath() +
-        JsonNameConstants.jsonTransactionsFilename()
+        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+        JSON_COSTANTS.jsonTransactionsFilename()
 
     const jsonLines = {
         open: '{"nodes":[',

@@ -1,6 +1,6 @@
 const fs = require('fs')
-const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
-    .GlobalNameConstants
+const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .GLOBAL_CONSTANTS
 
 module.exports = {
     setShutdownBehaviour: () => {
@@ -13,7 +13,7 @@ module.exports = {
         */
         try {
             const jsonData = JSON.parse(
-                fs.readFileSync(GlobalNameConstants.runningFilename())
+                fs.readFileSync(GLOBAL_CONSTANTS.runningFilename())
             )
             return jsonData.running
         } catch (err) {

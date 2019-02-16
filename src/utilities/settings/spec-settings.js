@@ -1,7 +1,7 @@
 var globalMemory = undefined
 var processMemory = undefined
 
-module.exports = {
+module.exports = Object.freeze({
     setGlobalMemory: (memory: number) => {
         globalMemory = memory
     },
@@ -14,4 +14,4 @@ module.exports = {
     getProcessMemory: () => {
         return processMemory
     }
-}
+})

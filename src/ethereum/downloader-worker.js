@@ -2,11 +2,14 @@ const createEth = require('./eth')
 const _ = require('lodash')
 
 const DownloadWorkerShutdown = require('./../shutdown/download-worker-shutdown')
+
+const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
+    .GLOBAL_PROCESS_COMMAND
+const DOWNLOAD_PROCESS_COMMAND = require('./../utilities/process')
+    .DOWNLOAD_PROCESS_COMMAND
+
 const logger = require('./../utilities/log')
-const GlobalProcessCommand = require('./../utilities/process')
-    .GlobalProcessCommand
-const DownloadProcessCommand = require('./../utilities/process')
-    .DownloadProcessCommand
+
 const {
     setTransactionStream,
     dumpTransactions
@@ -21,16 +24,16 @@ function convertTransaction(t) {
 
 process.on('message', function(message) {
     switch (message.command) {
-        case DownloadProcessCommand.configCommand():
+        case DOWNLOAD_PROCESS_COMMAND.configCommand():
             DownloadWorkerShutdown.setShutdownBehaviour()
             eth = createEth(message.data.api)
             setTransactionStream(message.data.filename, () => {
-                sendMessage(DownloadProcessCommand.newTaskCommand(), {
+                sendMessage(DOWNLOAD_PROCESS_COMMAND.newTaskCommand(), {
                     config: true
                 })
             })
             break
-        case DownloadProcessCommand.newTaskCommand():
+        case DOWNLOAD_PROCESS_COMMAND.newTaskCommand():
             if (DownloadWorkerShutdown.isRunning()) {
                 eth.queryBlocks(message.data.task).then(block_array => {
                     dumpTransactions(
@@ -41,17 +44,17 @@ process.on('message', function(message) {
                         ).map(t => convertTransaction(t)),
                         () =>
                             sendMessage(
-                                DownloadProcessCommand.newTaskCommand(),
+                                DOWNLOAD_PROCESS_COMMAND.newTaskCommand(),
                                 { config: false }
                             )
                     )
                 })
             } else {
-                sendMessage(GlobalProcessCommand.stoppedCommand())
+                sendMessage(GLOBAL_PROCESS_COMMAND.stoppedCommand())
                 DownloadWorkerShutdown.terminate()
             }
             break
-        case GlobalProcessCommand.endCommand():
+        case GLOBAL_PROCESS_COMMAND.endCommand():
             DownloadWorkerShutdown.terminate()
             break
         default:

@@ -1,13 +1,15 @@
-const GenerationShutdown = require('../../shutdown/generation-shutdown')
-const GlobalProcessCommand = require('./../../utilities/process')
-    .GlobalProcessCommand
-const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-const GenerationProcessPhases = require('./../../shutdown/phases')
-    .GenerationProcessPhases
 const RunSettings = require('../../utilities/settings/run-settings')
 const SpecSettings = require('../../utilities/settings/spec-settings')
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const RecoverySettings = require('./../../utilities/settings/recovery-settings')
+const GenerationShutdown = require('../../shutdown/generation-shutdown')
+
+const GLOBAL_PROCESS_COMMAND = require('./../../utilities/process')
+    .GLOBAL_PROCESS_COMMAND
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GENERATION_PROCESS_PHASES = require('./../../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
+
 const logger = require('../../utilities/log')
 
 split = function() {
@@ -27,7 +29,7 @@ function startProcess(formatName) {
 
     process.on('message', function(message) {
         switch (message.command) {
-            case GlobalProcessCommand.startCommand():
+            case GLOBAL_PROCESS_COMMAND.startCommand():
                 //global settings
                 GenerationShutdown.setShutdownBehaviour()
 
@@ -56,22 +58,22 @@ function startProcess(formatName) {
                     )
 
                     switch (message.data.resumeData.phase) {
-                        case GenerationProcessPhases.SplitPhase():
+                        case GENERATION_PROCESS_PHASES.SplitPhase():
                             module.exports.split()
                             break
-                        case GenerationProcessPhases.NodesPhase():
-                        case GenerationProcessPhases.TransactionsPhase():
+                        case GENERATION_PROCESS_PHASES.NodesPhase():
+                        case GENERATION_PROCESS_PHASES.TransactionsPhase():
                             module.exports.aggregate()
                             break
-                        case GenerationProcessPhases.ComposeNodesPhase():
-                        case GenerationProcessPhases.ComposeTransactionsPhase():
+                        case GENERATION_PROCESS_PHASES.ComposeNodesPhase():
+                        case GENERATION_PROCESS_PHASES.ComposeTransactionsPhase():
                             module.exports.compose()
                             break
                     }
                 }
 
                 break
-            case GlobalProcessCommand.endCommand():
+            case GLOBAL_PROCESS_COMMAND.endCommand():
                 GenerationShutdown.terminate()
                 break
             default:

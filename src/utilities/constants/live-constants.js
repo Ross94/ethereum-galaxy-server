@@ -1,7 +1,7 @@
 const howOftenToRun = process.env.ETH_HOURS || 1
 const baseFilename = () => `eth-${howOftenToRun}/${new Date().getHours()}`
 
-const LiveConstants = Object.freeze({
+const LIVE_CONSTANTS = Object.freeze({
     jsonFilename: () => `./graphs/layout/${baseFilename()}/graph.json`,
     infoFilename: () => `./graphs/layout/${baseFilename()}/info.json`,
     pajekFilename: () => `./graphs/layout/${baseFilename()}/graph.net`,
@@ -11,5 +11,5 @@ const LiveConstants = Object.freeze({
 })
 
 module.exports = {
-    LiveConstants
+    LIVE_CONSTANTS
 }

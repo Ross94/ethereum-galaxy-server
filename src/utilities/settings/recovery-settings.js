@@ -3,7 +3,7 @@ var lastLine = 0
 var currentFilepath = undefined
 var currentReadPhase = undefined
 
-module.exports = {
+module.exports = Object.freeze({
     setRequestedData: (data: string) => {
         requestedData = data
     },
@@ -28,4 +28,4 @@ module.exports = {
     getCurrentReadPhase: () => {
         return currentReadPhase
     }
-}
+})

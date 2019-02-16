@@ -3,7 +3,7 @@ var folderName = undefined
 var range = undefined
 var oldDownload = false
 
-module.exports = {
+module.exports = Object.freeze({
     setSaveFolderPath: (path: string) => {
         saveFolderPath = path
     },
@@ -28,4 +28,4 @@ module.exports = {
     getOldDownload: () => {
         return oldDownload
     }
-}
+})

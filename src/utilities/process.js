@@ -1,10 +1,10 @@
-const GlobalProcessCommand = Object.freeze({
+const GLOBAL_PROCESS_COMMAND = Object.freeze({
     startCommand: () => 'start',
     stoppedCommand: () => 'stopped',
     endCommand: () => 'end'
 })
 
-const DownloadProcessCommand = Object.freeze({
+const DOWNLOAD_PROCESS_COMMAND = Object.freeze({
     configCommand: () => 'config',
     newTaskCommand: () => 'new Task'
 })
@@ -19,7 +19,7 @@ function sendMessage(command, data = undefined, receiver = undefined) {
 }
 
 module.exports = {
-    GlobalProcessCommand,
-    DownloadProcessCommand,
+    GLOBAL_PROCESS_COMMAND,
+    DOWNLOAD_PROCESS_COMMAND,
     sendMessage
 }

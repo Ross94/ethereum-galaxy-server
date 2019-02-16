@@ -1,25 +1,28 @@
 const fs = require('fs')
 const argv = require('named-argv')
 
-const SpecSettings = require('../utilities/settings/spec-settings')
-const RunSettings = require('../utilities/settings/run-settings')
-const RecoverySettings = require('../utilities/settings/recovery-settings')
-const logger = require('./../utilities/log')
-
-const MainShutdown = require('../shutdown/main-shutdown')
 const createEth = require('./../ethereum/eth')
 const master = require('./../ethereum/downloader-master')
 const retrieverSetKey = require('./../no-layout/block-retriever')
+
+const SpecsSettings = require('../utilities/settings/spec-settings')
+const RunSettings = require('../utilities/settings/run-settings')
+const RecoverySettings = require('../utilities/settings/recovery-settings')
+const MainShutdown = require('../shutdown/main-shutdown')
+
+const LOG_CONSTANTS = require('./../utilities/constants/log-constants')
+    .LOG_CONSTANTS
+const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constants')
+    .NO_LAYOUT_CONSTANTS
+const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .GLOBAL_CONSTANTS
+const MAIN_PROCESS_PHASES = require('./../shutdown/phases').MAIN_PROCESS_PHASES
+
+const logger = require('./../utilities/log')
+
 const { checkResourceExists, ensureDirExists } = require('./../utilities/utils')
 const { dateComparator } = require('./../utilities/utils')
 const { checkAll } = require('./checker')
-const LogConstants = require('./../utilities/constants/log-constants')
-    .LogConstants
-const NoLayoutConstants = require('./../utilities/constants/no-layout-constants')
-    .NoLayoutConstants
-const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
-    .GlobalNameConstants
-const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
 const { generate } = require('./../generation/generator-master')
 
 MainShutdown.setShutdownBehaviour()
@@ -35,12 +38,12 @@ function main() {
     if (params.help) {
         console.log(optionsOutput())
     } else if (params.resume) {
-        if (checkResourceExists(NoLayoutConstants.noLayoutTemporaryPath())) {
+        if (checkResourceExists(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())) {
             //import saved config
             const config = JSON.parse(
                 fs.readFileSync(
-                    NoLayoutConstants.noLayoutTemporaryPath() +
-                        GlobalNameConstants.infoFilename()
+                    NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+                        GLOBAL_CONSTANTS.infoFilename()
                 )
             )
 
@@ -59,13 +62,13 @@ function main() {
 
             //resume
             switch (config.phase) {
-                case MainProcessPhases.DownloadPhase():
+                case MAIN_PROCESS_PHASES.DownloadPhase():
                     downloadPhase({
                         start: parseInt(config.missing.start),
                         end: parseInt(config.missing.end)
                     })
                     break
-                case MainProcessPhases.GenerationPhase():
+                case MAIN_PROCESS_PHASES.GenerationPhase():
                     generate(config.format)
                     break
             }
@@ -104,21 +107,24 @@ function main() {
                 //clean old download, if i don't want it if i want to resume, pass -resume param
                 if (
                     checkResourceExists(
-                        NoLayoutConstants.noLayoutTemporaryPath()
+                        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath()
                     )
                 ) {
                     fs
-                        .readdirSync(NoLayoutConstants.noLayoutTemporaryPath())
+                        .readdirSync(
+                            NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath()
+                        )
                         .forEach(file =>
                             fs.unlinkSync(
-                                NoLayoutConstants.noLayoutTemporaryPath() + file
+                                NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+                                    file
                             )
                         )
                 }
-                ensureDirExists(NoLayoutConstants.noLayoutTemporaryPath())
+                ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())
 
                 if (time == 1) {
-                    ensureDirExists(NoLayoutConstants.noLayoutTimePath())
+                    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutTimePath())
                     RecoverySettings.setRequestedData(
                         params.firstDate + ' ' + params.lastDate
                     )
@@ -127,12 +133,12 @@ function main() {
                         params.firstDate + '-' + params.lastDate
                     )
                     RunSettings.setSaveFolderPath(
-                        NoLayoutConstants.noLayoutTimePath() +
+                        NO_LAYOUT_CONSTANTS.noLayoutTimePath() +
                             RunSettings.getFolderName() +
                             '/'
                     )
                     logger.setPath(
-                        LogConstants.noLayoutTimeLog() +
+                        LOG_CONSTANTS.noLayoutTimeLog() +
                             RunSettings.getFolderName() +
                             '.log'
                     )
@@ -153,7 +159,7 @@ function main() {
                         })
                 }
                 if (block == 1) {
-                    ensureDirExists(NoLayoutConstants.noLayoutBlockPath())
+                    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutBlockPath())
                     RecoverySettings.setRequestedData(
                         params.firstBlock + ' ' + params.lastBlock
                     )
@@ -162,12 +168,12 @@ function main() {
                         params.firstBlock + '-' + params.lastBlock
                     )
                     RunSettings.setSaveFolderPath(
-                        NoLayoutConstants.noLayoutBlockPath() +
+                        NO_LAYOUT_CONSTANTS.noLayoutBlockPath() +
                             RunSettings.getFolderName() +
                             '/'
                     )
                     logger.setPath(
-                        LogConstants.noLayoutBlockLog() +
+                        LOG_CONSTANTS.noLayoutBlockLog() +
                             RunSettings.getFolderName() +
                             '.log'
                     )
@@ -185,23 +191,23 @@ function main() {
                     downloadPhase(range)
                 }
                 if (all == 1) {
-                    ensureDirExists(NoLayoutConstants.noLayoutAllPath())
+                    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutAllPath())
                     RecoverySettings.setRequestedData('all')
 
                     RunSettings.setFolderName('all')
                     RunSettings.setSaveFolderPath(
-                        NoLayoutConstants.noLayoutAllPath()
+                        NO_LAYOUT_CONSTANTS.noLayoutAllPath()
                     )
                     logger.setPath(
-                        LogConstants.noLayoutAllLog() +
+                        LOG_CONSTANTS.noLayoutAllLog() +
                             RunSettings.getFolderName() +
                             '.log'
                     )
                     logger.log('Log of all type')
 
                     //start test block
-                    //const res = { start: 1999998, end: 2000000 }
-                    const res = { start: 2724709, end: 2730770 }
+                    const res = { start: 1999998, end: 2000000 }
+                    //const res = { start: 2724709, end: 2730770 }
                     RunSettings.setRange(res)
                     const range = checkAll(res.end)
                     //range.start = 1999998 //comment when second execute has last 1999999
@@ -236,15 +242,15 @@ function main() {
     }
 
     function memoryConfig() {
-        SpecSettings.setGlobalMemory(
+        SpecsSettings.setGlobalMemory(
             Math.ceil(require('os').freemem() / 1000000)
         )
         if (params.memory) {
             const defaultNodeMemory = 1400
-            SpecSettings.setGlobalMemory(defaultNodeMemory)
+            SpecsSettings.setGlobalMemory(defaultNodeMemory)
         }
         if (!isNaN(parseInt(params.memory))) {
-            SpecSettings.setGlobalMemory(parseInt(params.memory))
+            SpecsSettings.setGlobalMemory(parseInt(params.memory))
         }
     }
 

@@ -1,21 +1,24 @@
 const child_process = require('child_process')
+
 const SpecSettings = require('../utilities/settings/spec-settings')
 const RunSettings = require('../utilities/settings/run-settings')
-const logger = require('./../utilities/log')
 const MainShutdown = require('./../shutdown/main-shutdown')
 
-const MainProcessPhases = require('./../shutdown/phases').MainProcessPhases
-const GenerationProcessPhases = require('./../shutdown/phases')
-    .GenerationProcessPhases
-const GlobalProcessCommand = require('./../utilities/process')
-    .GlobalProcessCommand
-const FormatNamesConstants = require('./../utilities/constants/files-name-constants')
-    .FormatNamesConstants
+const MAIN_PROCESS_PHASES = require('./../shutdown/phases').MAIN_PROCESS_PHASES
+const GENERATION_PROCESS_PHASES = require('./../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
+const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
+    .GLOBAL_PROCESS_COMMAND
+const FORMAT_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .FORMAT_CONSTANTS
+
+const logger = require('./../utilities/log')
+
 const { move } = require('./../no-layout/placer')
 const { sendMessage } = require('./../utilities/process')
 
 function generate(resumeData) {
-    MainShutdown.changePhase(MainProcessPhases.GenerationPhase())
+    MainShutdown.changePhase(MAIN_PROCESS_PHASES.GenerationPhase())
 
     const workers = new Map()
     var children = 0
@@ -26,11 +29,11 @@ function generate(resumeData) {
     format.push(
         processObject(
             './build/generation/json/json-generator',
-            FormatNamesConstants.jsonFormat()
+            FORMAT_CONSTANTS.jsonFormat()
         ),
         processObject(
             './build/generation/pajek/pajek-generator',
-            FormatNamesConstants.pajekFormat()
+            FORMAT_CONSTANTS.pajekFormat()
         )
     )
     /*
@@ -48,7 +51,7 @@ function generate(resumeData) {
             const f = format.filter(
                 f =>
                     f.format === res.format_name &&
-                    res.phase !== GenerationProcessPhases.TerminatedPhase()
+                    res.phase !== GENERATION_PROCESS_PHASES.TerminatedPhase()
             )[0]
             if (f != undefined) {
                 startWorker(f)
@@ -74,9 +77,9 @@ function generate(resumeData) {
 
         child.on('message', function(message) {
             switch (message.command) {
-                case GlobalProcessCommand.endCommand():
+                case GLOBAL_PROCESS_COMMAND.endCommand():
                     sendMessage(
-                        GlobalProcessCommand.endCommand(),
+                        GLOBAL_PROCESS_COMMAND.endCommand(),
                         undefined,
                         workers.get(message.pid)
                     )
@@ -90,7 +93,7 @@ function generate(resumeData) {
                         }
                     }
                     break
-                case GlobalProcessCommand.stoppedCommand():
+                case GLOBAL_PROCESS_COMMAND.stoppedCommand():
                     shutdownCalled = true
                     childrenTerminated += 1
                     MainShutdown.save(message.data)
@@ -117,7 +120,7 @@ function generate(resumeData) {
                 : undefined
 
         sendMessage(
-            GlobalProcessCommand.startCommand(),
+            GLOBAL_PROCESS_COMMAND.startCommand(),
             {
                 loggerPath: logger.getPath(),
                 saveFolder: RunSettings.getSaveFolderPath(),

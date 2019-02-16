@@ -2,13 +2,16 @@ const fs = require('fs')
 
 const FormatSettings = require('./../../utilities/settings/format-settings')
 const RecoverySettings = require('./../../utilities/settings/recovery-settings')
-const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
 const GenerationShutdown = require('./../../shutdown/generation-shutdown')
-const GenerationProcessPhases = require('./../../shutdown/phases')
-    .GenerationProcessPhases
+
+const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
+const GENERATION_PROCESS_PHASES = require('./../../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
+
 const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
+
 const { checkResourceExists } = require('./../../utilities/utils')
 
 path = {
@@ -74,12 +77,12 @@ function compose() {
 
         if (
             RecoverySettings.getCurrentReadPhase() ===
-            GenerationProcessPhases.ComposeNodesPhase()
+            GENERATION_PROCESS_PHASES.ComposeNodesPhase()
         ) {
             nodePhase()
         } else if (
             RecoverySettings.getCurrentReadPhase() ===
-            GenerationProcessPhases.ComposeTransactionsPhase()
+            GENERATION_PROCESS_PHASES.ComposeTransactionsPhase()
         ) {
             transactionPhase()
         } else {
@@ -89,19 +92,19 @@ function compose() {
 
     function nodePhase() {
         GenerationShutdown.changePhase(
-            GenerationProcessPhases.ComposeNodesPhase()
+            GENERATION_PROCESS_PHASES.ComposeNodesPhase()
         )
 
         var lineNumber =
             nodesPath === RecoverySettings.getCurrentFilepath() &&
-            GenerationProcessPhases.ComposeNodesPhase() ===
+            GENERATION_PROCESS_PHASES.ComposeNodesPhase() ===
                 RecoverySettings.getCurrentReadPhase()
                 ? RecoverySettings.getLastLine()
                 : 0
 
         lineReader = reader(
             nodesPath,
-            GenerationProcessPhases.ComposeNodesPhase(),
+            GENERATION_PROCESS_PHASES.ComposeNodesPhase(),
             line => {
                 return line
             },
@@ -169,19 +172,19 @@ function compose() {
 
     function transactionPhase() {
         GenerationShutdown.changePhase(
-            GenerationProcessPhases.ComposeTransactionsPhase()
+            GENERATION_PROCESS_PHASES.ComposeTransactionsPhase()
         )
 
         var lineNumber =
             transactionsPath === RecoverySettings.getCurrentFilepath() &&
-            GenerationProcessPhases.ComposeTransactionsPhase() ===
+            GENERATION_PROCESS_PHASES.ComposeTransactionsPhase() ===
                 RecoverySettings.getCurrentReadPhase()
                 ? RecoverySettings.getLastLine()
                 : 0
 
         lineReader = reader(
             transactionsPath,
-            GenerationProcessPhases.ComposeTransactionsPhase(),
+            GENERATION_PROCESS_PHASES.ComposeTransactionsPhase(),
             line => {
                 return line
             },

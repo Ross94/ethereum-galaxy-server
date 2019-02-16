@@ -6,10 +6,10 @@ import type { $Response } from 'express'
 const { ensureDirExists } = require('./../utilities/utils')
 const logger = require('./../utilities/log')
 
-const LiveConstants = require('./../utilities/constants/live-constants')
-    .LiveConstants
+const LIVE_CONSTANTS = require('./../utilities/constants/live-constants')
+    .LIVE_CONSTANTS
 
-logger.setPath(LiveConstants.logLayoutServer() + 'server.log')
+logger.setPath(LIVE_CONSTANTS.logLayoutServer() + 'server.log')
 
 const app = express()
 const port = 8888

@@ -1,12 +1,13 @@
 const fs = require('fs')
 
 const FormatSettings = require('./../utilities/settings/format-settings')
-const GlobalNameConstants = require('./../utilities/constants/files-name-constants')
-    .GlobalNameConstants
-const GlobalProcessCommand = require('./../utilities/process')
-    .GlobalProcessCommand
-const GenerationProcessPhases = require('./../shutdown/phases')
-    .GenerationProcessPhases
+
+const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
+    .GLOBAL_CONSTANTS
+const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
+    .GLOBAL_PROCESS_COMMAND
+const GENERATION_PROCESS_PHASES = require('./../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
 const { sendMessage } = require('./../utilities/process')
 
 var currentPhase = undefined
@@ -22,7 +23,7 @@ module.exports = {
         */
         try {
             const jsonData = JSON.parse(
-                fs.readFileSync(GlobalNameConstants.runningFilename())
+                fs.readFileSync(GLOBAL_CONSTANTS.runningFilename())
             )
             return jsonData.running
         } catch (err) {
@@ -36,7 +37,7 @@ module.exports = {
         return currentPhase
     },
     saveState: (lastLine, graphPath) => {
-        sendMessage(GlobalProcessCommand.stoppedCommand(), {
+        sendMessage(GLOBAL_PROCESS_COMMAND.stoppedCommand(), {
             format: {
                 format_name: FormatSettings.getFormat(),
                 phase: currentPhase,
@@ -49,11 +50,11 @@ module.exports = {
         process.send(
             {
                 pid: process.pid,
-                command: GlobalProcessCommand.endCommand(),
+                command: GLOBAL_PROCESS_COMMAND.endCommand(),
                 data: {
                     format: {
                         format_name: FormatSettings.getFormat(),
-                        phase: GenerationProcessPhases.TerminatedPhase()
+                        phase: GENERATION_PROCESS_PHASES.TerminatedPhase()
                     }
                 }
             },

@@ -1,4 +1,4 @@
-const NoLayoutConstants = Object.freeze({
+const NO_LAYOUT_CONSTANTS = Object.freeze({
     noLayoutPath: () => './graphs/no-layout/',
     noLayoutAllPath: () => './graphs/no-layout/all/',
     noLayoutTimePath: () => './graphs/no-layout/time/',
@@ -7,5 +7,5 @@ const NoLayoutConstants = Object.freeze({
 })
 
 module.exports = {
-    NoLayoutConstants
+    NO_LAYOUT_CONSTANTS
 }

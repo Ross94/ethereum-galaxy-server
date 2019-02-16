@@ -1,14 +1,15 @@
-const fs = require('fs')
-
 const FormatSettings = require('./../../utilities/settings/format-settings')
+const RecoverySettings = require('./../../utilities/settings/recovery-settings')
+const GenerationShutdown = require('../../shutdown/generation-shutdown')
+
 const ERRORS_MESSAGES = require('./abstract-errors').ERRORS_MESSAGES
-const GenerationProcessPhases = require('./../../shutdown/phases')
-    .GenerationProcessPhases
+const GENERATION_PROCESS_PHASES = require('./../../shutdown/phases')
+    .GENERATION_PROCESS_PHASES
+
 const writer = require('./../writer')
 const reader = require('./../reader')
 const logger = require('./../../utilities/log')
-const GenerationShutdown = require('../../shutdown/generation-shutdown')
-const RecoverySettings = require('./../../utilities/settings/recovery-settings')
+
 const { checkResourceExists } = require('./../../utilities/utils')
 
 const TYPE = Object.freeze({
@@ -37,7 +38,7 @@ aggregate = function() {
 }
 
 function split() {
-    GenerationShutdown.changePhase(GenerationProcessPhases.SplitPhase())
+    GenerationShutdown.changePhase(GENERATION_PROCESS_PHASES.SplitPhase())
     logger.log('Start ' + FormatSettings.getFormat() + ' splitting')
 
     const graphPath = module.exports.path.graphPath
@@ -59,7 +60,7 @@ function split() {
 
                 const lineReader = reader(
                     graphPath,
-                    GenerationProcessPhases.SplitPhase(),
+                    GENERATION_PROCESS_PHASES.SplitPhase(),
                     line => {
                         return line
                     },
