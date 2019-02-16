@@ -124,6 +124,16 @@ will generate the graph of all blocks, be careful this could be very slow.
 
 ---
 
+### Resume
+
+```
+$ node ./build/no-layout/start-no-layout.js -api=<INFURA_API_KEY> -resume
+```
+
+Resume a previous download interrupted.
+
+---
+
 ### Optional flags
 
 In order to increase performance this project use all free space in memory (if needed).
