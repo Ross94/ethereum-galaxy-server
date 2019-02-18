@@ -68,19 +68,11 @@ function compose() {
 
     var lineReader
     var tempWriter
-    /*
-    if (checkResourceExists(tempPath)) {
-        fs.unlinkSync(tempPath)
-    }*/
+
     writer(tempPath, writer => {
         tempWriter = writer
 
         if (
-            RecoverySettings.getCurrentReadPhase() ===
-            GENERATION_PROCESS_PHASES.ComposeNodesPhase()
-        ) {
-            nodePhase()
-        } else if (
             RecoverySettings.getCurrentReadPhase() ===
             GENERATION_PROCESS_PHASES.ComposeTransactionsPhase()
         ) {
@@ -136,11 +128,6 @@ function compose() {
                                             }
                                         )
                                     } else {
-                                        console.log(
-                                            FormatSettings.getFormat() +
-                                                ' nodePhase lines: ' +
-                                                lineNumber
-                                        )
                                         lineReader.nextLines()
                                     }
                                 } else {
@@ -228,11 +215,6 @@ function compose() {
                                             }
                                         )
                                     } else {
-                                        console.log(
-                                            FormatSettings.getFormat() +
-                                                ' transactionPhase lines: ' +
-                                                lineNumber
-                                        )
                                         lineReader.nextLines()
                                     }
                                 } else {

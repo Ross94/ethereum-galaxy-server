@@ -9,8 +9,7 @@ const GENERATION_PROCESS_PHASES = require('./../shutdown/phases')
     .GENERATION_PROCESS_PHASES
 const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
     .GLOBAL_PROCESS_COMMAND
-const FORMAT_CONSTANTS = require('./../utilities/constants/files-name-constants')
-    .FORMAT_CONSTANTS
+const CURRENT_FORMATS = require('./current-formats').CURRENT_FORMATS
 
 const logger = require('./../utilities/log')
 
@@ -25,53 +24,36 @@ function generate(resumeData) {
     var childrenTerminated = 0
     var shutdownCalled = false
 
-    const format = []
-    format.push(
-        processObject(
-            './build/generation/json/json-generator',
-            FORMAT_CONSTANTS.jsonFormat()
-        ),
-        processObject(
-            './build/generation/pajek/pajek-generator',
-            FORMAT_CONSTANTS.pajekFormat()
-        )
-    )
-    /*
-    const format = [
-        './build/generation/json/json-generator'
-    ]*/
-
     SpecSettings.setProcessMemory(
-        Math.ceil(SpecSettings.getGlobalMemory() / format.length)
+        Math.ceil(
+            SpecSettings.getGlobalMemory() / Object.keys(CURRENT_FORMATS).length
+        )
     )
 
     //filter and start children not terminated
     if (resumeData != undefined) {
         resumeData.forEach(res => {
-            const f = format.filter(
-                f =>
-                    f.format === res.format_name &&
+            const key = Object.keys(CURRENT_FORMATS).filter(
+                key =>
+                    CURRENT_FORMATS[key].name === res.format_name &&
                     res.phase !== GENERATION_PROCESS_PHASES.TerminatedPhase()
             )[0]
-            if (f != undefined) {
-                startWorker(f)
+            const formatName = CURRENT_FORMATS[key].name
+            const formatPath = CURRENT_FORMATS[key].process
+            if (formatName != undefined && formatPath != undefined) {
+                startWorker(formatName, formatPath)
             }
         })
     } else {
-        format.forEach(elem => startWorker(elem))
+        Object.keys(CURRENT_FORMATS).forEach(key =>
+            startWorker(CURRENT_FORMATS[key].name, CURRENT_FORMATS[key].process)
+        )
     }
 
-    function processObject(modulePath, formatName) {
-        return {
-            path: modulePath,
-            format: formatName
-        }
-    }
-
-    function startWorker(formatElem) {
+    function startWorker(formatName, formatPath) {
         children += 1
 
-        const child = child_process.fork(formatElem.path)
+        const child = child_process.fork(formatPath)
 
         workers.set(child.pid, child)
 
@@ -115,7 +97,7 @@ function generate(resumeData) {
         const resData =
             resumeData != undefined
                 ? resumeData.filter(
-                      format => format.format_name === formatElem.format
+                      format => format.format_name === formatName
                   )[0]
                 : undefined
 

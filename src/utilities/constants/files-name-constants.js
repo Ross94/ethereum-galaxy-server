@@ -10,14 +10,16 @@ const PAJEK_CONSTANTS = Object.freeze({
     pajekTempFilename: () => 'pajekTemp.net',
     pajekNodesFilename: () => 'nodes.net',
     pajekTransactionsFilename: () => 'transactions.net',
-    pajekGraphFilename: () => 'graph.net'
+    pajekGraphFilename: () => 'graph.net',
+    pajekProcessScriptPath: () => './build/generation/pajek/pajek-generator'
 })
 
 const JSON_COSTANTS = Object.freeze({
     jsonTempFilename: () => 'jsonTemp.json',
     jsonNodesFilename: () => 'nodes.json',
     jsonTransactionsFilename: () => 'transactions.json',
-    jsonGraphFilename: () => 'graph.json'
+    jsonGraphFilename: () => 'graph.json',
+    jsonProcessScriptPath: () => './build/generation/json/json-generator'
 })
 
 const FORMAT_CONSTANTS = Object.freeze({

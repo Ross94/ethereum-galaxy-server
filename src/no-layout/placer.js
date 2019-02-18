@@ -11,33 +11,33 @@ const JSON_COSTANTS = require('./../utilities/constants/files-name-constants')
     .JSON_COSTANTS
 const PAJEK_CONSTANTS = require('./../utilities/constants/files-name-constants')
     .PAJEK_CONSTANTS
+const CURRENT_FORMATS = require('./../generation/current-formats')
+    .CURRENT_FORMATS
 
 const logger = require('./../utilities/log')
 
-const { ensureDirExists } = require('./../utilities/utils')
 const { saveInfo } = require('./../utilities/files')
 
 function move() {
     logger.log('Start moving files to correct directory')
 
-    ensureDirExists(RunSettings.getSaveFolderPath())
     logger.log('Destination directory: ' + RunSettings.getSaveFolderPath())
 
-    //move json
-    fs.renameSync(
-        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
-            JSON_COSTANTS.jsonGraphFilename(),
-        RunSettings.getSaveFolderPath() + JSON_COSTANTS.jsonGraphFilename()
-    )
-    logger.log('Moved ' + JSON_COSTANTS.jsonGraphFilename())
-
-    //move pajek
-    fs.renameSync(
-        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
-            PAJEK_CONSTANTS.pajekGraphFilename(),
-        RunSettings.getSaveFolderPath() + PAJEK_CONSTANTS.pajekGraphFilename()
-    )
-    logger.log('Moved ' + PAJEK_CONSTANTS.pajekGraphFilename())
+    //move files
+    Object.keys(CURRENT_FORMATS).forEach(format => {
+        fs.renameSync(
+            NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+                CURRENT_FORMATS[format].graph,
+            RunSettings.getSaveFolderPath() + CURRENT_FORMATS[format].graph
+        )
+        logger.log(
+            'Moved ' +
+                CURRENT_FORMATS[format].graph +
+                ' for ' +
+                CURRENT_FORMATS[format].name +
+                ' format'
+        )
+    })
 
     //generate info
     const elemsData = countElems()

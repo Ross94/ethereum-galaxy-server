@@ -124,14 +124,18 @@ function main() {
                 ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())
 
                 if (time == 1) {
-                    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutTimePath())
+                    const folderName = params.firstDate + '-' + params.lastDate
+                    ensureDirExists(
+                        NO_LAYOUT_CONSTANTS.noLayoutTimePath() +
+                            folderName +
+                            '/'
+                    )
                     RecoverySettings.setRequestedData(
                         params.firstDate + ' ' + params.lastDate
                     )
 
-                    RunSettings.setFolderName(
-                        params.firstDate + '-' + params.lastDate
-                    )
+                    RunSettings.setFolderName(folderName)
+
                     RunSettings.setSaveFolderPath(
                         NO_LAYOUT_CONSTANTS.noLayoutTimePath() +
                             RunSettings.getFolderName() +
@@ -159,14 +163,19 @@ function main() {
                         })
                 }
                 if (block == 1) {
-                    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutBlockPath())
+                    const folderName =
+                        params.firstBlock + '-' + params.lastBlock
+                    ensureDirExists(
+                        NO_LAYOUT_CONSTANTS.noLayoutBlockPath() +
+                            folderName +
+                            '/'
+                    )
+
                     RecoverySettings.setRequestedData(
                         params.firstBlock + ' ' + params.lastBlock
                     )
 
-                    RunSettings.setFolderName(
-                        params.firstBlock + '-' + params.lastBlock
-                    )
+                    RunSettings.setFolderName(folderName)
                     RunSettings.setSaveFolderPath(
                         NO_LAYOUT_CONSTANTS.noLayoutBlockPath() +
                             RunSettings.getFolderName() +
