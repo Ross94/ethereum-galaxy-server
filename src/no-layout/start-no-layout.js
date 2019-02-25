@@ -1,4 +1,5 @@
 const fs = require('fs')
+const execSync = require('child_process').execSync
 const argv = require('named-argv')
 
 const createEth = require('./../ethereum/eth')
@@ -214,21 +215,11 @@ function main() {
                     )
                     logger.log('Log of all type')
 
-                    //start test block
-                    const res = { start: 1999998, end: 2000000 }
-                    //const res = { start: 2724709, end: 2730770 }
-                    RunSettings.setRange(res)
-                    const range = checkAll(res.end)
-                    //range.start = 1999998 //comment when second execute has last 1999999
-                    downloadPhase(range)
-                    //end test block
-
-                    /*
                     retriever.allToBlocks().then(res => {
                         RunSettings.setRange(res)
                         const range = checkAll(res.last)
                         downloadPhase(range)
-                    })*/
+                    })
                 }
             }
         })
@@ -251,9 +242,11 @@ function main() {
     }
 
     function memoryConfig() {
-        SpecsSettings.setGlobalMemory(
-            Math.ceil(require('os').freemem() / 1000000)
-        )
+        const freeOutput = execSync('free --mega').toString()
+        const elems = freeOutput.split('\n')[1].split(' ')
+        const availableMemory = elems[elems.length - 1]
+        SpecsSettings.setGlobalMemory(availableMemory)
+
         if (params.memory) {
             const defaultNodeMemory = 1400
             SpecsSettings.setGlobalMemory(defaultNodeMemory)

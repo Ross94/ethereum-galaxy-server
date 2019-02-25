@@ -85,7 +85,7 @@ function transactionsAggregation(filePath, cb) {
             GENERATION_PROCESS_PHASES.TransactionsPhase(),
             module.exports.tempFileParser,
             (lines, options) => {
-                transactions = _.flatten(lines)
+                transactions = lines
                 lastLine += lines.length
                 if (options.endFile) {
                     transactionsEnded = true
@@ -102,7 +102,7 @@ function transactionsAggregation(filePath, cb) {
             GENERATION_PROCESS_PHASES.TransactionsPhase(),
             module.exports.nodeFileParser,
             (lines, options) => {
-                const nodes = new RBTree((a, b) => {
+                var nodes = new RBTree((a, b) => {
                     return a.key.localeCompare(b.key)
                 })
 

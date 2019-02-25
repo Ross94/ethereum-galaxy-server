@@ -38,23 +38,23 @@ module.exports = (infuraApiKey: string) => {
 
     async function queryBlocks(blocksIndexes, cb = () => {}) {
         //download blocks
-        const blocksPromises = blocksIndexes.map(x =>
-            web3.eth
-                .getBlock(x, true)
+        function downloadBlock(index) {
+            return web3.eth
+                .getBlock(index, true)
                 .then(block => {
                     cb()
                     return block
                 })
                 .catch(err => {
-                    cb()
-                    logger.error(`Error retrieving getBlock(${x}): ${err}`)
-                    return null
+                    return downloadBlock(index)
                 })
-        )
+        }
+        const blocksPromises = blocksIndexes.map(x => {
+            return downloadBlock(x)
+        })
 
         //get blocks from Promises
         const blocks = _.compact(await Promise.all(blocksPromises))
-
         //get transactions from blocks
         const onlyTransactions = blocks.map(b => ({
             transactions: b.transactions
@@ -110,12 +110,6 @@ module.exports = (infuraApiKey: string) => {
                 .filter(block => block.transactions.length > 0)
                 .map(block => block.transactions)
         )
-
-        // const minifiedTransactions = transactions
-        //     .map(transaction =>
-        //         transformTransaction(transaction, web3.utils.fromWei)
-        //     )
-        //     .filter(t => t.amount > 0)
 
         logger.log('Processing nodes...')
 

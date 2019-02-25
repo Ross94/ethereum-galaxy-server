@@ -30,9 +30,8 @@ function nodesAggregation(filePath, callback) {
     const nodesPath = module.exports.nodesPath
 
     const currentFile = currentFileInitializer()
-    const nodesToWrite = new RBTree((a, b) => {
-        return a.localeCompare(b)
-    })
+
+    var nodesToWrite
 
     var nodesFile
     var lastTempRead = false
@@ -108,6 +107,7 @@ function nodesAggregation(filePath, callback) {
             GENERATION_PROCESS_PHASES.NodesPhase(),
             transactionParser,
             (lines, options) => {
+                treeInitializer()
                 _.flatten(lines).forEach(elem => {
                     if (GenerationShutdown.isRunning()) {
                         nodesToWrite.insert(elem)
@@ -161,6 +161,12 @@ function nodesAggregation(filePath, callback) {
         } else {
             checkThreshold()
         }
+    }
+
+    function treeInitializer() {
+        nodesToWrite = new RBTree((a, b) => {
+            return a.localeCompare(b)
+        })
     }
 }
 

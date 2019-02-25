@@ -53,7 +53,11 @@ function generate(resumeData) {
     function startWorker(formatName, formatPath) {
         children += 1
 
-        const child = child_process.fork(formatPath)
+        const child = child_process.fork(formatPath, {
+            execArgv: [
+                '--max-old-space-size=' + SpecSettings.getProcessMemory()
+            ]
+        })
 
         workers.set(child.pid, child)
 

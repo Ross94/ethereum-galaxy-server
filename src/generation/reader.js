@@ -4,11 +4,11 @@ const SpecSettings = require('../utilities/settings/spec-settings')
 const RecoverySettings = require('../utilities/settings/recovery-settings')
 
 module.exports = (filepath, phase, parseLogic, callback) => {
-    /*there is a proportion of 5000000 of lines for each 1000 MB this params as been tuned.
-    This method has been called on temp file and nodes file, so you can read 2500000 lines form temp and 2500000 from nodes
-    */
-    const tunedMemory = 1000
-    const tunedLines = 2500000
+    /*there is a proportion of 4500000 of lines for each 1400 MB, this params as been tuned.
+    This number should be divided for three, nodes file, transactions file and writer buffer.
+    So nodes and transactions readers can read 1250000 lines each.*/
+    const tunedMemory = 1400
+    const tunedLines = 1250000
     /*
     chunkSize is the number of lines for each block, it is a proportion, 2500000 for 1000 mb for available memory 
     */
