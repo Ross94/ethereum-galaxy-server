@@ -94,6 +94,14 @@ By default the web server will serve on port `8888`.
 
 By default the server will calculate a 3D layout of the graph, but this is a very CPU intensive operation. If you don't need this data you can use the `src/start-no-layout.js` script.
 
+Help section:
+
+```
+$ node ./build/no-layout/start-no-layout.js -help
+```
+
+Show all possible commands, same as in list below.
+
 ### Block range
 
 ```
