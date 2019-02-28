@@ -2,6 +2,8 @@ const child_process = require('child_process')
 
 const MainShutdown = require('./../shutdown/main-shutdown')
 
+const SpecsSettings = require('../utilities/settings/spec-settings')
+
 const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constants')
     .NO_LAYOUT_CONSTANTS
 const MAIN_PROCESS_PHASES = require('./../shutdown/phases').MAIN_PROCESS_PHASES
@@ -15,7 +17,6 @@ const logger = require('./../utilities/log')
 const { generate } = require('./../generation/generator-master')
 const { sendMessage } = require('./../utilities/process')
 
-const CPUs = require('os').cpus().length
 const chunkSize = 240
 const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
@@ -58,7 +59,7 @@ module.exports = (start, end) => {
     function startWorkers(infuraApiKey) {
         var endedChild = 0
 
-        for (var i = 0; i < CPUs; i++) {
+        for (var i = 0; i < SpecsSettings.getDownloadWorkers(); i++) {
             const child = child_process.fork(
                 './build/ethereum/downloader-worker'
             )
@@ -100,7 +101,9 @@ module.exports = (start, end) => {
                                 workers.get(message.pid)
                             )
                             endedChild++
-                            if (endedChild == CPUs) {
+                            if (
+                                endedChild == SpecsSettings.getDownloadWorkers()
+                            ) {
                                 if (
                                     shutdownCalled ||
                                     !MainShutdown.isRunning()
@@ -122,7 +125,7 @@ module.exports = (start, end) => {
                     case GLOBAL_PROCESS_COMMAND.stoppedCommand():
                         shutdownCalled = true
                         endedChild++
-                        if (endedChild == CPUs) {
+                        if (endedChild == SpecsSettings.getDownloadWorkers()) {
                             MainShutdown.terminate()
                         }
                         break

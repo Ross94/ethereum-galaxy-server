@@ -144,18 +144,30 @@ Resume a previous download interrupted.
 
 ### Optional flags
 
-In order to increase performance this project use all free space in memory (if needed).
+Default memory is 1400 MB for each format, total of 2800 MB.
+Default download process is 1.
+In order to increase memory perfomance you can use those commands:
 
-To limit memory usage:
+Use all available memory (best choince to optimize performance):
 
 ```
 -memory
 ```
 
-Use 1400 MB (default node memory).
+Specify the total size of memory to use in MB, this value will be splitted based on number of format actual two(json and pajek):
 
 ```
--memory=2000
+-memory=number
 ```
 
-Specify the size of memory to use in MB.
+Use n download workers, n is equal to processor threads (best choince to optimize performance):
+
+```
+-cpu
+```
+
+Specify the number of download workers:
+
+```
+-cpu=number
+```

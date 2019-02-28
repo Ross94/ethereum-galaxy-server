@@ -18,6 +18,8 @@ const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constant
 const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
     .GLOBAL_CONSTANTS
 const MAIN_PROCESS_PHASES = require('./../shutdown/phases').MAIN_PROCESS_PHASES
+const CURRENT_FORMATS = require('./../generation/current-formats')
+    .CURRENT_FORMATS
 
 const logger = require('./../utilities/log')
 
@@ -59,7 +61,9 @@ function main() {
             RunSettings.setRange(config.range)
             MainShutdown.changePhase(config.phase)
             RecoverySettings.setRequestedData(config.requested_data)
+
             memoryConfig()
+            CPUsConfig()
 
             //resume
             switch (config.phase) {
@@ -79,6 +83,7 @@ function main() {
         }
     } else if (params.api != undefined) {
         memoryConfig()
+        CPUsConfig()
 
         const retriever = retrieverSetKey(params.api)
 
@@ -242,18 +247,33 @@ function main() {
     }
 
     function memoryConfig() {
-        const freeOutput = execSync('free --mega').toString()
-        const elems = freeOutput.split('\n')[1].split(' ')
-        const availableMemory = elems[elems.length - 1]
-        SpecsSettings.setGlobalMemory(availableMemory)
+        const defaultNodeMemory = 1400
+        const formatsNum = Object.keys(CURRENT_FORMATS).length
+        var memory = defaultNodeMemory
 
-        if (params.memory) {
-            const defaultNodeMemory = 1400
-            SpecsSettings.setGlobalMemory(defaultNodeMemory)
-        }
         if (!isNaN(parseInt(params.memory))) {
-            SpecsSettings.setGlobalMemory(parseInt(params.memory))
+            memory = Math.ceil(parseInt(params.memory / formatsNum))
+        } else if (params.memory) {
+            const freeOutput = execSync('free --mega').toString()
+            const lines = freeOutput.split('\n')[1].split(' ')
+            const availableMemory = lines[lines.length - 1]
+            memory = Math.ceil(availableMemory / formatsNum)
         }
+
+        SpecsSettings.setProcessMemory(memory)
+    }
+
+    function CPUsConfig() {
+        const defaultCPUs = 1
+        var CPUs = defaultCPUs
+
+        if (!isNaN(parseInt(params.cpu))) {
+            CPUs = parseInt(params.cpu)
+        } else if (params.cpu) {
+            CPUs = require('os').cpus().length
+        }
+
+        SpecsSettings.setDownloadWorkers(CPUs)
     }
 
     function downloadPhase(blocks) {

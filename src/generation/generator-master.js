@@ -24,12 +24,6 @@ function generate(resumeData) {
     var childrenTerminated = 0
     var shutdownCalled = false
 
-    SpecSettings.setProcessMemory(
-        Math.ceil(
-            SpecSettings.getGlobalMemory() / Object.keys(CURRENT_FORMATS).length
-        )
-    )
-
     //filter and start children not terminated
     if (resumeData != undefined) {
         resumeData.forEach(res => {
