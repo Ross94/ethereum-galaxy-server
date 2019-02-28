@@ -144,8 +144,8 @@ Resume a previous download interrupted.
 
 ### Optional flags
 
-Default memory is 1400 MB for each format, total of 2800 MB.
-Default download process is 1.
+Default memory is 1400 MB for each format, total of 2800 MB.  
+Default download process is 1.  
 In order to increase memory perfomance you can use those commands:
 
 Use all available memory (best choince to optimize performance):
