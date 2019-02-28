@@ -154,13 +154,13 @@ Use all available memory (best choince to optimize performance):
 -memory
 ```
 
-Specify the total size of memory to use in MB, this value will be splitted based on number of format actual two(json and pajek):
+Specify the total size of memory to use in MB, this value will be splitted based on number of format actual two (json and pajek):
 
 ```
 -memory=number
 ```
 
-Use n download workers, n is equal to processor threads (best choince to optimize performance):
+Use n download workers, n is equal to processor threads (best choice to optimize performance):
 
 ```
 -cpu
