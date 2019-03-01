@@ -1,5 +1,6 @@
+const os = require('os')
 const fs = require('fs')
-const execSync = require('child_process').execSync
+
 const argv = require('named-argv')
 
 const createEth = require('./../ethereum/eth')
@@ -254,12 +255,9 @@ function main() {
         if (!isNaN(parseInt(params.memory))) {
             memory = Math.ceil(parseInt(params.memory / formatsNum))
         } else if (params.memory) {
-            const freeOutput = execSync('free --mega').toString()
-            const lines = freeOutput.split('\n')[1].split(' ')
-            const availableMemory = lines[lines.length - 1]
+            const availableMemory = os.freemem() /1024 / 1024
             memory = Math.ceil(availableMemory / formatsNum)
         }
-
         SpecsSettings.setProcessMemory(memory)
     }
 
@@ -270,9 +268,8 @@ function main() {
         if (!isNaN(parseInt(params.cpu))) {
             CPUs = parseInt(params.cpu)
         } else if (params.cpu) {
-            CPUs = require('os').cpus().length
+            CPUs = os.cpus().length
         }
-
         SpecsSettings.setDownloadWorkers(CPUs)
     }
 
