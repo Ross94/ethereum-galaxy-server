@@ -43,7 +43,6 @@ module.exports = (infuraApiKey: string) => {
                 .getBlock(index, true)
                 .then(block => {
                     cb()
-                    console.log(block)
                     return block
                 })
                 .catch(err => {
