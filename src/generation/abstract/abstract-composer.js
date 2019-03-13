@@ -142,6 +142,7 @@ function compose() {
                 }
 
                 var index = 0
+                //case no transactions
                 if (index == 0 && lines.length == 0) {
                     nextPhase()
                 } else {
@@ -230,6 +231,7 @@ function compose() {
                 }
 
                 var index = 0
+                //case no transactions
                 if (index == 0 && lines.length == 0) {
                     nextPhase()
                 } else {
