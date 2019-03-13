@@ -83,6 +83,15 @@ function compose() {
     })
 
     function nodePhase() {
+        function nextPhase() {
+            tempWriter.write(module.exports.nodesPhaseEnd(), () => {
+                logger.log(
+                    'End compact ' + FormatSettings.getFormat() + ' nodes'
+                )
+                transactionPhase()
+            })
+        }
+
         GenerationShutdown.changePhase(
             GENERATION_PROCESS_PHASES.ComposeNodesPhase()
         )
@@ -116,17 +125,7 @@ function compose() {
                                 lineNumber++
                                 if (lastLine) {
                                     if (endFile) {
-                                        tempWriter.write(
-                                            module.exports.nodesPhaseEnd(),
-                                            () => {
-                                                logger.log(
-                                                    'End compact ' +
-                                                        FormatSettings.getFormat() +
-                                                        ' nodes'
-                                                )
-                                                transactionPhase()
-                                            }
-                                        )
+                                        nextPhase()
                                     } else {
                                         lineReader.nextLines()
                                     }
@@ -143,7 +142,11 @@ function compose() {
                 }
 
                 var index = 0
-                writeElem(index)
+                if (index == 0 && lines.length == 0) {
+                    nextPhase()
+                } else {
+                    writeElem(index)
+                }
             }
         )
 
@@ -158,6 +161,22 @@ function compose() {
     }
 
     function transactionPhase() {
+        function nextPhase() {
+            tempWriter.write(module.exports.transactionsPhaseEnd(), () => {
+                logger.log(
+                    'End compact ' +
+                        FormatSettings.getFormat() +
+                        ' transactions'
+                )
+                if (checkResourceExists(graphPath)) {
+                    fs.unlinkSync(graphPath)
+                }
+                fs.renameSync(tempPath, graphPath)
+                //communicate to master end generation
+                GenerationShutdown.onCompletedProcess()
+            })
+        }
+
         GenerationShutdown.changePhase(
             GENERATION_PROCESS_PHASES.ComposeTransactionsPhase()
         )
@@ -191,29 +210,7 @@ function compose() {
                                 lineNumber++
                                 if (lastLine) {
                                     if (endFile) {
-                                        tempWriter.write(
-                                            module.exports.transactionsPhaseEnd(),
-                                            () => {
-                                                logger.log(
-                                                    'End compact ' +
-                                                        FormatSettings.getFormat() +
-                                                        ' transactions'
-                                                )
-                                                if (
-                                                    checkResourceExists(
-                                                        graphPath
-                                                    )
-                                                ) {
-                                                    fs.unlinkSync(graphPath)
-                                                }
-                                                fs.renameSync(
-                                                    tempPath,
-                                                    graphPath
-                                                )
-                                                //communicate to master end generation
-                                                GenerationShutdown.onCompletedProcess()
-                                            }
-                                        )
+                                        nextPhase()
                                     } else {
                                         lineReader.nextLines()
                                     }
@@ -233,7 +230,11 @@ function compose() {
                 }
 
                 var index = 0
-                writeElem(index)
+                if (index == 0 && lines.length == 0) {
+                    nextPhase()
+                } else {
+                    writeElem(index)
+                }
             }
         )
 
