@@ -50,9 +50,8 @@ function pajekTransactionsAggregation(filePath, cb) {
                 transaction.source +
                 ' ' +
                 transaction.target +
-                ' "' +
-                transaction.amount +
-                '"'
+                ' ' +
+                transaction.amount
             )
         } else {
             return transaction

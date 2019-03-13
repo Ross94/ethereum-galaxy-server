@@ -43,6 +43,7 @@ module.exports = (infuraApiKey: string) => {
                 .getBlock(index, true)
                 .then(block => {
                     cb()
+                    console.log(block)
                     return block
                 })
                 .catch(err => {
@@ -70,7 +71,7 @@ module.exports = (infuraApiKey: string) => {
         return {
             source: transaction.from,
             target: transaction.to,
-            amount: convertWei(transaction.value)
+            amount: parseFloat(convertWei(transaction.value))
         }
     }
 
