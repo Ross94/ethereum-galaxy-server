@@ -2,14 +2,14 @@ const Web3 = require('web3')
 const _ = require('lodash')
 const saveGraph = require('ngraph.tobinary')
 
-const LIVE_CONSTANTS = require('./../utilities/constants/live-constants')
+const LIVE_CONSTANTS = require('../utilities/constants/live-constants')
     .LIVE_CONSTANTS
 
-const calculateNgraphLayout = require('./../live/ngraph-layout')
-const logger = require('./../utilities/log')
+const calculateNgraphLayout = require('../live/ngraph-layout')
+const logger = require('../utilities/log')
 
-const { ensureDirExists } = require('./../utilities/utils')
-const { dumpJSON, dumpPajek, dumpInfo } = require('./../utilities/files')
+const { ensureDirExists } = require('../utilities/utils')
+const { dumpJSON, dumpPajek, dumpInfo } = require('../utilities/files')
 
 export type Range = {
     start: number,
