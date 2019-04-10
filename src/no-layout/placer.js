@@ -11,7 +11,7 @@ const JSON_COSTANTS = require('./../utilities/constants/files-name-constants')
     .JSON_COSTANTS
 const PAJEK_CONSTANTS = require('./../utilities/constants/files-name-constants')
     .PAJEK_CONSTANTS
-const CURRENT_FORMATS = require('./../generation/current-formats')
+const CURRENT_FORMATS = require('../current-project-state/current-formats')
     .CURRENT_FORMATS
 
 const logger = require('./../utilities/log')

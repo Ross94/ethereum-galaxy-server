@@ -2,6 +2,8 @@ var saveFolderPath = undefined
 var folderName = undefined
 var range = undefined
 var oldDownload = false
+var blockchain = undefined
+var api = undefined
 
 module.exports = Object.freeze({
     setSaveFolderPath: (path: string) => {
@@ -27,5 +29,17 @@ module.exports = Object.freeze({
     },
     getOldDownload: () => {
         return oldDownload
+    },
+    setAPI: blokchcainAPI => {
+        api = blokchcainAPI
+    },
+    getAPI: () => {
+        return api
+    },
+    setBlockchain: blokchcainType => {
+        blockchain = blokchcainType
+    },
+    getBlockchain: () => {
+        return blockchain
     }
 })

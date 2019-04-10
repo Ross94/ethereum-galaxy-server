@@ -7,7 +7,7 @@ const PAJEK_CONSTANTS = require('./../../utilities/constants/files-name-constant
 const NO_LAYOUT_CONSTANTS = require('./../../utilities/constants/no-layout-constants')
     .NO_LAYOUT_CONSTANTS
 
-const { checkResourceExists } = require('./../../utilities/utils')
+const { checkResourceExists } = require('./../../utilities/file-utils')
 
 function pajekNodesAggregation(filePath, cb) {
     const nodesPath =

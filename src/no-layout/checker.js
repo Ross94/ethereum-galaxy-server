@@ -6,12 +6,12 @@ const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constant
     .NO_LAYOUT_CONSTANTS
 const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
     .GLOBAL_CONSTANTS
-const CURRENT_FORMATS = require('./../generation/current-formats')
+const CURRENT_FORMATS = require('../current-project-state/current-formats')
     .CURRENT_FORMATS
 
 const logger = require('./../utilities/log')
 
-const { checkResourceExists } = require('./../utilities/utils')
+const { checkResourceExists } = require('../utilities/file-utils')
 
 function checkAll(lastBlock) {
     var lastBlockDownloaded

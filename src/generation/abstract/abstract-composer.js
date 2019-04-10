@@ -12,7 +12,7 @@ const logger = require('./../../utilities/log')
 const reader = require('./../reader')
 const writer = require('./../writer')
 
-const { checkResourceExists } = require('./../../utilities/utils')
+const { checkResourceExists } = require('./../../utilities/file-utils')
 
 path = {
     graphPath: ERRORS_MESSAGES.fieldError(

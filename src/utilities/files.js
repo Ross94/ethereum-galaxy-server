@@ -1,7 +1,7 @@
 const jsonfile = require('jsonfile')
 const fs = require('fs')
 
-const { ensureDirExists } = require('./../utilities/utils')
+const { ensureDirExists } = require('./file-utils')
 
 import type { Graph, Node, Link, Range } from './../ethereum/eth'
 

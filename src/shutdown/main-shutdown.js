@@ -10,7 +10,7 @@ const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constant
 const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
     .GLOBAL_CONSTANTS
 const { saveInfo } = require('./../utilities/files')
-const { ensureDirExists } = require('./../utilities/utils')
+const { ensureDirExists } = require('../utilities/file-utils')
 
 var currentPhase = MAIN_PROCESS_PHASES.ParsePhase()
 

@@ -1,4 +1,3 @@
-const Web3 = require('web3')
 const _ = require('lodash')
 const saveGraph = require('ngraph.tobinary')
 
@@ -8,6 +7,7 @@ const LIVE_CONSTANTS = require('../utilities/constants/live-constants')
 const calculateNgraphLayout = require('../live/ngraph-layout')
 const logger = require('../utilities/log')
 
+const { getTransactions } = require('./blockchain/ethereum')
 const { ensureDirExists } = require('../utilities/utils')
 const { dumpJSON, dumpPajek, dumpInfo } = require('../utilities/files')
 
@@ -31,145 +31,82 @@ export type Graph = {
     links: Link[]
 }
 
-module.exports = (infuraApiKey: string) => {
-    const web3 = new Web3(
-        Web3.givenProvider || `https://mainnet.infura.io/${infuraApiKey}:8546`
-    )
+//used from live download
+async function scanBlocks(range: Range, doLayout: boolean = true) {
+    logger.log('Retrieving blocks...')
+    //create an array, size = end - start
+    const blocksIndexes = Array(range.end - range.start)
+        .fill(1)
+        .map((one, index) => range.start + one + (index - 1))
 
-    async function queryBlocks(blocksIndexes, cb = () => {}) {
-        //download blocks
-        function downloadBlock(index) {
-            return web3.eth
-                .getBlock(index, true)
-                .then(block => {
-                    cb()
-                    return block
-                })
-                .catch(err => {
-                    return downloadBlock(index)
-                })
-        }
-        const blocksPromises = blocksIndexes.map(x => {
-            return downloadBlock(x)
-        })
+    //divide array in chunck of 240 elems
+    const blocksIndexesAtATime = _.chunk(blocksIndexes, 240)
 
-        //get blocks from Promises
-        const blocks = _.compact(await Promise.all(blocksPromises))
-        //get transactions from blocks
-        const onlyTransactions = blocks.map(b => ({
-            transactions: b.transactions
-                .map(t => transformTransaction(t, web3.utils.fromWei))
-                .filter(
-                    t => t.amount > 0 && t.source !== null && t.target !== null
-                )
-        }))
-        return onlyTransactions
-    }
-
-    function transformTransaction(transaction, convertWei) {
-        return {
-            source: transaction.from,
-            target: transaction.to,
-            amount: parseFloat(convertWei(transaction.value))
-        }
-    }
-
-    //used from live download
-    async function scanBlocks(range: Range, doLayout: boolean = true) {
-        logger.log('Retrieving blocks...')
-        //create an array, size = end - start
-        const blocksIndexes = Array(range.end - range.start)
-            .fill(1)
-            .map((one, index) => range.start + one + (index - 1))
-
-        //divide array in chunck of 240 elems
-        const blocksIndexesAtATime = _.chunk(blocksIndexes, 240)
-
-        const blockChunks = []
-        for (let i = 0; i < blocksIndexesAtATime.length; i++) {
-            const blocksIndexes = blocksIndexesAtATime[i]
-            const progressBar = logger.progress(
-                `Retrieving chunk ${i + 1} of ${
-                    blocksIndexesAtATime.length
-                }...`,
-                blocksIndexes.length
-            )
-            const blocksChunk = await queryBlocks(blocksIndexes, () =>
-                progressBar.tick()
-            )
-
-            blockChunks.push(blocksChunk)
-        }
-        const blocks = _.flatten(blockChunks)
-
-        const cleanedBlocks = _.compact(blocks) // I don't think we need this
-
-        logger.log('Processing transactions...')
-        const transactions = _.flatten(
-            cleanedBlocks
-                .filter(block => block.transactions.length > 0)
-                .map(block => block.transactions)
+    const blockChunks = []
+    for (let i = 0; i < blocksIndexesAtATime.length; i++) {
+        const blocksIndexes = blocksIndexesAtATime[i]
+        const progressBar = logger.progress(
+            `Retrieving chunk ${i + 1} of ${blocksIndexesAtATime.length}...`,
+            blocksIndexes.length
+        )
+        const blocksChunk = await getTransactions(blocksIndexes, () =>
+            progressBar.tick()
         )
 
-        logger.log('Processing nodes...')
+        blockChunks.push(blocksChunk)
+    }
+    const blocks = _.flatten(blockChunks)
 
-        //get source and target from stransactions and merge them
-        const sourceIds = transactions.map(t => t.source)
-        const targetIds = transactions.map(t => t.target)
-        const nodeIds = _.uniq(_.compact(_.union(sourceIds, targetIds)))
+    const cleanedBlocks = _.compact(blocks) // I don't think we need this
 
-        const nodes = nodeIds.map(id => ({ id }))
+    logger.log('Processing transactions...')
+    const transactions = _.flatten(
+        cleanedBlocks
+            .filter(block => block.transactions.length > 0)
+            .map(block => block.transactions)
+    )
 
-        logger.log('Calculating layout...')
+    logger.log('Processing nodes...')
 
-        const graph = { nodes, links: transactions }
+    //get source and target from stransactions and merge them
+    const sourceIds = transactions.map(t => t.source)
+    const targetIds = transactions.map(t => t.target)
+    const nodeIds = _.uniq(_.compact(_.union(sourceIds, targetIds)))
 
-        if (doLayout) {
-            const ngraphOutDirPath = LIVE_CONSTANTS.ngraphBasePath()
-            ensureDirExists(ngraphOutDirPath)
-            const ngraph = await calculateNgraphLayout(graph, ngraphOutDirPath)
+    const nodes = nodeIds.map(id => ({ id }))
 
-            saveGraph(ngraph, {
-                outDir: ngraphOutDirPath,
-                labels: `labels.json`,
-                meta: `meta.json`,
-                links: `links.bin`
-            })
-        }
+    logger.log('Calculating layout...')
 
-        logger.log('Exporting the graph to JSON...')
+    const graph = { nodes, links: transactions }
 
-        dumpJSON(LIVE_CONSTANTS.jsonFilename(), graph)
+    if (doLayout) {
+        const ngraphOutDirPath = LIVE_CONSTANTS.ngraphBasePath()
+        ensureDirExists(ngraphOutDirPath)
+        const ngraph = await calculateNgraphLayout(graph, ngraphOutDirPath)
 
-        logger.log('Export the graph infos...')
-
-        dumpInfo(LIVE_CONSTANTS.infoFilename(), graph, range)
-
-        logger.log('Exporting the graph to Pajek...')
-
-        dumpPajek(LIVE_CONSTANTS.pajekFilename(), graph)
-
-        logger.log('Finished, cya')
+        saveGraph(ngraph, {
+            outDir: ngraphOutDirPath,
+            labels: `labels.json`,
+            meta: `meta.json`,
+            links: `links.bin`
+        })
     }
 
-    async function lastBlock() {
-        const syncResult = await web3.eth.isSyncing()
-        if (syncResult) {
-            return syncResult.currentBlock
-        } else {
-            const lastBlockNumber = await web3.eth.getBlockNumber()
-            return lastBlockNumber
-        }
-    }
+    logger.log('Exporting the graph to JSON...')
 
-    async function getBlock(blockId) {
-        return await web3.eth.getBlock(blockId)
-    }
+    dumpJSON(LIVE_CONSTANTS.jsonFilename(), graph)
 
-    return {
-        queryBlocks,
-        scanBlocks,
-        lastBlock,
-        getBlock
-    }
+    logger.log('Export the graph infos...')
+
+    dumpInfo(LIVE_CONSTANTS.infoFilename(), graph, range)
+
+    logger.log('Exporting the graph to Pajek...')
+
+    dumpPajek(LIVE_CONSTANTS.pajekFilename(), graph)
+
+    logger.log('Finished, cya')
+}
+
+module.exports = {
+    scanBlocks
 }

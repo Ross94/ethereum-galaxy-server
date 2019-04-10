@@ -3,9 +3,7 @@ const fs = require('fs')
 
 const argv = require('named-argv')
 
-const createEth = require('./../ethereum/eth')
-const master = require('./../ethereum/downloader-master')
-const retrieverSetKey = require('./../no-layout/block-retriever')
+const master = require('./../download/downloader-master')
 
 const SpecsSettings = require('../utilities/settings/spec-settings')
 const RunSettings = require('../utilities/settings/run-settings')
@@ -19,13 +17,19 @@ const NO_LAYOUT_CONSTANTS = require('./../utilities/constants/no-layout-constant
 const GLOBAL_CONSTANTS = require('./../utilities/constants/files-name-constants')
     .GLOBAL_CONSTANTS
 const MAIN_PROCESS_PHASES = require('./../shutdown/phases').MAIN_PROCESS_PHASES
-const CURRENT_FORMATS = require('./../generation/current-formats')
+const CURRENT_FORMATS = require('../current-project-state/current-formats')
     .CURRENT_FORMATS
+const CURRENT_BLOCKCHAINS = require('../current-project-state/current-blockchain')
+    .CURRENT_BLOCKCHAINS
 
 const logger = require('./../utilities/log')
 
-const { checkResourceExists, ensureDirExists } = require('./../utilities/utils')
-const { dateComparator } = require('./../utilities/utils')
+const { allToBlocks, dateToBlocks } = require('./../no-layout/block-retriever')
+const {
+    checkResourceExists,
+    ensureDirExists
+} = require('../utilities/file-utils')
+const { dateComparator } = require('./../utilities/date-utils')
 const { checkAll } = require('./checker')
 const { generate } = require('./../generation/generator-master')
 
@@ -82,165 +86,201 @@ function main() {
             console.log('No previous download to resume!\n')
             console.log(optionsOutput())
         }
-    } else if (params.api != undefined) {
+    } else if (
+        params.api != undefined &&
+        Object.keys(CURRENT_BLOCKCHAINS)
+            .map(key => CURRENT_BLOCKCHAINS[key].type_name)
+            .includes(params.type)
+    ) {
         memoryConfig()
         CPUsConfig()
 
-        const retriever = retrieverSetKey(params.api)
+        RunSettings.setAPI(params.api)
+        RunSettings.setBlockchain(CURRENT_BLOCKCHAINS.ethereum)
 
-        const eth = createEth(params.api)
-        eth.lastBlock().then(lastBlock => {
-            //in this part check params and select the method to extract indexes
-            if (
-                checkDateFormat(params.firstDate) &&
-                checkDateFormat(params.lastDate) &&
-                dateComparator(params.firstDate, params.lastDate) >= 0
-            ) {
-                time = 1
-            }
-            if (
-                params.firstBlock >= 0 &&
-                params.lastBlock <= lastBlock &&
-                params.lastBlock >= params.firstBlock
-            ) {
-                block = 1
-            }
-            if (params.all) {
-                all = 1
-            }
-            if (time + block + all != 1) {
-                console.log(optionsOutput())
-            } else {
-                //clean old download, if i don't want it if i want to resume, pass -resume param
+        RunSettings.getBlockchain()
+            .last_block_id()
+            .then(lastBlock => {
+                //in this part check params and select the method to extract indexes
                 if (
-                    checkResourceExists(
-                        NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath()
-                    )
+                    checkDateFormat(params.firstDate) &&
+                    checkDateFormat(params.lastDate) &&
+                    dateComparator(params.firstDate, params.lastDate) >= 0
                 ) {
-                    fs
-                        .readdirSync(
+                    time = 1
+                }
+                if (
+                    params.firstBlock >= 0 &&
+                    params.lastBlock <= lastBlock &&
+                    params.lastBlock >= params.firstBlock
+                ) {
+                    block = 1
+                }
+                if (params.all) {
+                    all = 1
+                }
+                if (time + block + all != 1) {
+                    console.log(optionsOutput())
+                } else {
+                    //clean old download, if i don't want it if i want to resume, pass -resume param
+                    if (
+                        checkResourceExists(
                             NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath()
                         )
-                        .forEach(file =>
-                            fs.unlinkSync(
-                                NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
-                                    file
+                    ) {
+                        fs
+                            .readdirSync(
+                                NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath()
                             )
+                            .forEach(file =>
+                                fs.unlinkSync(
+                                    NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
+                                        file
+                                )
+                            )
+                    }
+                    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())
+
+                    if (time == 1) {
+                        const folderName =
+                            params.firstDate + '-' + params.lastDate
+                        RunSettings.setFolderName(folderName)
+
+                        RunSettings.setSaveFolderPath(
+                            NO_LAYOUT_CONSTANTS.noLayoutTimePath() +
+                                RunSettings.getFolderName() +
+                                '/' +
+                                RunSettings.getBlockchain().folder_name +
+                                '/'
                         )
-                }
-                ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath())
 
-                if (time == 1) {
-                    const folderName = params.firstDate + '-' + params.lastDate
-                    ensureDirExists(
-                        NO_LAYOUT_CONSTANTS.noLayoutTimePath() +
-                            folderName +
-                            '/'
-                    )
-                    RecoverySettings.setRequestedData(
-                        params.firstDate + ' ' + params.lastDate
-                    )
+                        ensureDirExists(RunSettings.getSaveFolderPath())
+                        RecoverySettings.setRequestedData(
+                            params.firstDate + ' ' + params.lastDate
+                        )
 
-                    RunSettings.setFolderName(folderName)
-
-                    RunSettings.setSaveFolderPath(
-                        NO_LAYOUT_CONSTANTS.noLayoutTimePath() +
-                            RunSettings.getFolderName() +
-                            '/'
-                    )
-                    logger.setPath(
-                        LOG_CONSTANTS.noLayoutTimeLog() +
-                            RunSettings.getFolderName() +
-                            '.log'
-                    )
-                    logger.log(
-                        'Log of time type with firstDate: ' +
-                            params.firstDate +
-                            ' lastDate: ' +
-                            params.lastDate
-                    )
-                    retriever
-                        .dateToBlocks({
+                        logger.setPath(
+                            LOG_CONSTANTS.noLayoutTimeLog() +
+                                RunSettings.getFolderName() +
+                                '.log'
+                        )
+                        logger.log(
+                            'Log of time type with firstDate: ' +
+                                params.firstDate +
+                                ' lastDate: ' +
+                                params.lastDate
+                        )
+                        dateToBlocks({
                             firstDate: params.firstDate,
                             lastDate: params.lastDate
-                        })
-                        .then(res => {
+                        }).then(res => {
                             RunSettings.setRange(res)
+                            console.log('time method')
+                            console.log(
+                                'firstDate: ' +
+                                    params.firstDate +
+                                    ' lastDate: ' +
+                                    params.lastDate
+                            )
+                            console.log('range')
+                            console.log(res)
                             downloadPhase(res)
                         })
-                }
-                if (block == 1) {
-                    const folderName =
-                        params.firstBlock + '-' + params.lastBlock
-                    ensureDirExists(
-                        NO_LAYOUT_CONSTANTS.noLayoutBlockPath() +
-                            folderName +
-                            '/'
-                    )
-
-                    RecoverySettings.setRequestedData(
-                        params.firstBlock + ' ' + params.lastBlock
-                    )
-
-                    RunSettings.setFolderName(folderName)
-                    RunSettings.setSaveFolderPath(
-                        NO_LAYOUT_CONSTANTS.noLayoutBlockPath() +
-                            RunSettings.getFolderName() +
-                            '/'
-                    )
-                    logger.setPath(
-                        LOG_CONSTANTS.noLayoutBlockLog() +
-                            RunSettings.getFolderName() +
-                            '.log'
-                    )
-                    logger.log(
-                        'Log of block type with firstBlock: ' +
-                            params.firstBlock +
-                            ' lastBlock: ' +
-                            params.lastBlock
-                    )
-                    const range = {
-                        start: parseInt(params.firstBlock),
-                        end: parseInt(params.lastBlock)
                     }
-                    RunSettings.setRange(range)
-                    downloadPhase(range)
-                }
-                if (all == 1) {
-                    ensureDirExists(NO_LAYOUT_CONSTANTS.noLayoutAllPath())
-                    RecoverySettings.setRequestedData('all')
+                    if (block == 1) {
+                        const folderName =
+                            params.firstBlock + '-' + params.lastBlock
 
-                    RunSettings.setFolderName('all')
-                    RunSettings.setSaveFolderPath(
-                        NO_LAYOUT_CONSTANTS.noLayoutAllPath()
-                    )
-                    logger.setPath(
-                        LOG_CONSTANTS.noLayoutAllLog() +
-                            RunSettings.getFolderName() +
-                            '.log'
-                    )
-                    logger.log('Log of all type')
+                        RunSettings.setFolderName(folderName)
 
-                    retriever.allToBlocks().then(res => {
-                        RunSettings.setRange(res)
-                        const range = checkAll(res.last)
+                        RunSettings.setSaveFolderPath(
+                            NO_LAYOUT_CONSTANTS.noLayoutBlockPath() +
+                                RunSettings.getFolderName() +
+                                '/' +
+                                RunSettings.getBlockchain().folder_name +
+                                '/'
+                        )
+
+                        ensureDirExists(RunSettings.getSaveFolderPath())
+
+                        RecoverySettings.setRequestedData(
+                            params.firstBlock + ' ' + params.lastBlock
+                        )
+
+                        logger.setPath(
+                            LOG_CONSTANTS.noLayoutBlockLog() +
+                                RunSettings.getFolderName() +
+                                '.log'
+                        )
+                        logger.log(
+                            'Log of block type with firstBlock: ' +
+                                params.firstBlock +
+                                ' lastBlock: ' +
+                                params.lastBlock
+                        )
+                        const range = {
+                            start: parseInt(params.firstBlock),
+                            end: parseInt(params.lastBlock)
+                        }
+                        RunSettings.setRange(range)
                         downloadPhase(range)
-                    })
+                    }
+                    if (all == 1) {
+                        RecoverySettings.setRequestedData('all')
+
+                        RunSettings.setFolderName('all')
+
+                        RunSettings.setSaveFolderPath(
+                            NO_LAYOUT_CONSTANTS.noLayoutAllPath() +
+                                RunSettings.getBlockchain().folder_name +
+                                '/'
+                        )
+
+                        ensureDirExists(RunSettings.getSaveFolderPath())
+
+                        logger.setPath(
+                            LOG_CONSTANTS.noLayoutAllLog() +
+                                RunSettings.getFolderName() +
+                                '.log'
+                        )
+                        logger.log('Log of all type')
+
+                        /*allToBlocks().then(res => {
+                        RunSettings.setRange(res)
+                        const range = checkAll(res.end)
+                        downloadPhase(range)
+                    })*/
+                        const range = { start: 1999998, end: 1999999 }
+                        //range.end = 2000000
+                        RunSettings.setRange(range)
+                        downloadPhase(range)
+                    }
                 }
-            }
-        })
+            })
     } else {
         console.log(optionsOutput())
     }
 
     function optionsOutput() {
+        const supportedBlockchain = Object.keys(CURRENT_BLOCKCHAINS)
+            .map(key => CURRENT_BLOCKCHAINS[key].type_name)
+            .join('/')
+
         return (
             'Choose one of these run options:\n' +
             '-help => show help list \n' +
-            '-api:hex -firstBlock:int -lastBlock:int => download transactions in range of block number\n' +
-            '-api:hex -firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY => download transactions in range of date\n' +
-            '-api:hex -all => download all transactions in blockchain\n' +
-            '-api:hex -resume => resume not completed previous download\n\n' +
+            '-type:' +
+            supportedBlockchain +
+            ' -api:hex -firstBlock:int -lastBlock:int => download transactions in range of block number\n' +
+            '-type:' +
+            supportedBlockchain +
+            ' -api:hex -firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY => download transactions in range of date\n' +
+            '-type:' +
+            supportedBlockchain +
+            ' -api:hex -all => download all transactions in blockchain\n' +
+            '-type:' +
+            supportedBlockchain +
+            ' -api:hex -resume => resume not completed previous download\n\n' +
             'Optional flags: \n' +
             '-memory:int => set memory used by program, number of MB or empty to default node value (1400)\n\n' +
             'Note: Control params format and last greater than first\n'
@@ -255,7 +295,7 @@ function main() {
         if (!isNaN(parseInt(params.memory))) {
             memory = Math.ceil(parseInt(params.memory / formatsNum))
         } else if (params.memory) {
-            const availableMemory = os.freemem() /1024 / 1024
+            const availableMemory = os.freemem() / 1024 / 1024
             memory = Math.ceil(availableMemory / formatsNum)
         }
         SpecsSettings.setProcessMemory(memory)

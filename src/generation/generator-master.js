@@ -9,7 +9,8 @@ const GENERATION_PROCESS_PHASES = require('./../shutdown/phases')
     .GENERATION_PROCESS_PHASES
 const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
     .GLOBAL_PROCESS_COMMAND
-const CURRENT_FORMATS = require('./current-formats').CURRENT_FORMATS
+const CURRENT_FORMATS = require('../current-project-state/current-formats')
+    .CURRENT_FORMATS
 
 const logger = require('./../utilities/log')
 

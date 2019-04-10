@@ -11,6 +11,7 @@ const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
     .GLOBAL_PROCESS_COMMAND
 const DOWNLOAD_PROCESS_COMMAND = require('./../utilities/process')
     .DOWNLOAD_PROCESS_COMMAND
+const RUN_SETTINGS = require('./../utilities/settings/run-settings')
 
 const logger = require('./../utilities/log')
 
@@ -61,7 +62,7 @@ module.exports = (start, end) => {
 
         for (var i = 0; i < SpecsSettings.getDownloadWorkers(); i++) {
             const child = child_process.fork(
-                './build/ethereum/downloader-worker'
+                './build/download/downloader-worker'
             )
             workers.set(child.pid, child)
             sendMessage(
@@ -71,7 +72,8 @@ module.exports = (start, end) => {
                         NO_LAYOUT_CONSTANTS.noLayoutTemporaryPath() +
                         i +
                         '.json',
-                    api: infuraApiKey
+                    api: infuraApiKey,
+                    blockchain_type: RUN_SETTINGS.getBlockchain().type_name
                 },
                 child
             )

@@ -10,7 +10,7 @@ const writer = require('./../writer')
 const reader = require('./../reader')
 const logger = require('./../../utilities/log')
 
-const { checkResourceExists } = require('./../../utilities/utils')
+const { checkResourceExists } = require('./../../utilities/file-utils')
 
 const TYPE = Object.freeze({
     node: 'node',
