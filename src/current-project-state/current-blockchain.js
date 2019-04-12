@@ -3,7 +3,8 @@ const ETHEREUM_CONSTANTS = require('../utilities/constants/blockchains-constants
 const BITCOIN_CONSTANTS = require('../utilities/constants/blockchains-constants')
     .BITCOIN_CONSTANTS
 
-const eth = require('../download/blockchain/ethereum')
+const eth = require('./../download/blockchain/ethereum')
+const btc = require('./../download/blockchain/bitcoin')
 
 const CURRENT_BLOCKCHAINS = Object.freeze({
     ethereum: {
@@ -18,9 +19,9 @@ const CURRENT_BLOCKCHAINS = Object.freeze({
         folder_name: BITCOIN_CONSTANTS.folderName(),
         type_name: BITCOIN_CONSTANTS.argumentsName(),
         first_date: BITCOIN_CONSTANTS.firstBlockDate(),
-        last_block_id: '',
-        get_block_time: '',
-        get_transactions: ''
+        last_block_id: btc.lastBlockId,
+        get_block_time: btc.getBlockTime,
+        get_transactions: btc.getTransactions
     }
 })
 

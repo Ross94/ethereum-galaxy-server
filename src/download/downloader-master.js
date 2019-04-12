@@ -11,7 +11,7 @@ const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
     .GLOBAL_PROCESS_COMMAND
 const DOWNLOAD_PROCESS_COMMAND = require('./../utilities/process')
     .DOWNLOAD_PROCESS_COMMAND
-const RUN_SETTINGS = require('./../utilities/settings/run-settings')
+const RunSettings = require('./../utilities/settings/run-settings')
 
 const logger = require('./../utilities/log')
 
@@ -73,7 +73,7 @@ module.exports = (start, end) => {
                         i +
                         '.json',
                     api: infuraApiKey,
-                    blockchain_type: RUN_SETTINGS.getBlockchain().type_name
+                    blockchain_type: RunSettings.getBlockchain().type_name
                 },
                 child
             )

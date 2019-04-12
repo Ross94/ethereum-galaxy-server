@@ -1,7 +1,7 @@
 const Web3 = require('web3')
 const _ = require('lodash')
 
-const RUN_SETTINGS = require('./../../utilities/settings/run-settings')
+const RunSettings = require('./../../utilities/settings/run-settings')
 
 const { timestampToDate } = require('./../../utilities/date-utils')
 
@@ -53,7 +53,14 @@ async function getTransactions(blocksIndexes, cb = () => {}) {
             .map(t => transformTransaction(t, web3.utils.fromWei))
             .filter(t => t.amount > 0 && t.source !== null && t.target !== null)
     }))
-    return onlyTransactions
+
+    const transactions = _.flatten(
+        onlyTransactions
+            .filter(block => block.transactions.length > 0)
+            .map(block => block.transactions)
+    ).map(t => JSON.stringify(t))
+
+    return transactions
 }
 
 function transformTransaction(transaction, convertWei) {
@@ -68,7 +75,7 @@ function initWeb3() {
     if (web3 == undefined) {
         web3 = new Web3(
             Web3.givenProvider ||
-                `https://mainnet.infura.io/${RUN_SETTINGS.getAPI()}:8546`
+                `https://mainnet.infura.io/${RunSettings.getAPI()}:8546`
         )
     }
 }

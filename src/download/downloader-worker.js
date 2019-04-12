@@ -6,7 +6,7 @@ const GLOBAL_PROCESS_COMMAND = require('./../utilities/process')
     .GLOBAL_PROCESS_COMMAND
 const DOWNLOAD_PROCESS_COMMAND = require('./../utilities/process')
     .DOWNLOAD_PROCESS_COMMAND
-const RUN_SETTINGS = require('./../utilities/settings/run-settings')
+const RunSettings = require('./../utilities/settings/run-settings')
 const CURRENT_BLOCKCHAINS = require('./../current-project-state/current-blockchain')
     .CURRENT_BLOCKCHAINS
 
@@ -18,17 +18,13 @@ const {
 } = require('./../utilities/files')
 const { sendMessage } = require('./../utilities/process')
 
-function convertTransaction(t) {
-    return JSON.stringify(t)
-}
-
 process.on('message', function(message) {
     switch (message.command) {
         case DOWNLOAD_PROCESS_COMMAND.configCommand():
             DownloadWorkerShutdown.setShutdownBehaviour()
 
-            RUN_SETTINGS.setAPI(message.data.api)
-            RUN_SETTINGS.setBlockchain(
+            RunSettings.setAPI(message.data.api)
+            RunSettings.setBlockchain(
                 CURRENT_BLOCKCHAINS[
                     Object.keys(CURRENT_BLOCKCHAINS).filter(
                         key =>
@@ -46,22 +42,15 @@ process.on('message', function(message) {
             break
         case DOWNLOAD_PROCESS_COMMAND.newTaskCommand():
             if (DownloadWorkerShutdown.isRunning()) {
-                RUN_SETTINGS.getBlockchain()
+                console.log(message.data.task)
+                RunSettings.getBlockchain()
                     .get_transactions(message.data.task)
                     .then(block_array => {
-                        dumpTransactions(
-                            _.flatten(
-                                block_array
-                                    .filter(
-                                        block => block.transactions.length > 0
-                                    )
-                                    .map(block => block.transactions)
-                            ).map(t => convertTransaction(t)),
-                            () =>
-                                sendMessage(
-                                    DOWNLOAD_PROCESS_COMMAND.newTaskCommand(),
-                                    { config: false }
-                                )
+                        dumpTransactions(block_array, () =>
+                            sendMessage(
+                                DOWNLOAD_PROCESS_COMMAND.newTaskCommand(),
+                                { config: false }
+                            )
                         )
                     })
             } else {

@@ -96,7 +96,13 @@ function main() {
         CPUsConfig()
 
         RunSettings.setAPI(params.api)
-        RunSettings.setBlockchain(CURRENT_BLOCKCHAINS.ethereum)
+        RunSettings.setBlockchain(
+            CURRENT_BLOCKCHAINS[
+                Object.keys(CURRENT_BLOCKCHAINS).filter(
+                    key => CURRENT_BLOCKCHAINS[key].type_name == params.type
+                )
+            ]
+        )
 
         RunSettings.getBlockchain()
             .last_block_id()
@@ -175,14 +181,9 @@ function main() {
                             lastDate: params.lastDate
                         }).then(res => {
                             RunSettings.setRange(res)
-                            console.log('time method')
                             console.log(
-                                'firstDate: ' +
-                                    params.firstDate +
-                                    ' lastDate: ' +
-                                    params.lastDate
+                                params.firstDate + ' ' + params.lastDate
                             )
-                            console.log('range')
                             console.log(res)
                             downloadPhase(res)
                         })
@@ -245,15 +246,11 @@ function main() {
                         )
                         logger.log('Log of all type')
 
-                        /*allToBlocks().then(res => {
-                        RunSettings.setRange(res)
-                        const range = checkAll(res.end)
-                        downloadPhase(range)
-                    })*/
-                        const range = { start: 1999998, end: 1999999 }
-                        //range.end = 2000000
-                        RunSettings.setRange(range)
-                        downloadPhase(range)
+                        allToBlocks().then(res => {
+                            RunSettings.setRange(res)
+                            const range = checkAll(res.end)
+                            downloadPhase(range)
+                        })
                     }
                 }
             })
