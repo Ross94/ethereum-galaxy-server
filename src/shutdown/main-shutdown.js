@@ -15,11 +15,12 @@ const { ensureDirExists } = require('../utilities/file-utils')
 var currentPhase = MAIN_PROCESS_PHASES.ParsePhase()
 
 const info = {
-    logger_path: logger.getPath(),
-    requested_data: RecoverySettings.getRequestedData(),
-    folder_path: RunSettings.getSaveFolderPath(),
-    folder_name: RunSettings.getFolderName(),
-    range: RunSettings.getRange(),
+    blockchain: undefined,
+    logger_path: undefined,
+    requested_data: undefined,
+    folder_path: undefined,
+    folder_name: undefined,
+    range: undefined,
     missing: {},
     phase: currentPhase,
     format: []
@@ -69,8 +70,9 @@ module.exports = {
     },
     save: changes => {
         //refresh fields
-        ;(info.logger_path = logger.getPath()),
-            (info.requested_data = RecoverySettings.getRequestedData())
+        info.blockchain = RunSettings.getBlockchain().type_name
+        info.logger_path = logger.getPath()
+        info.requested_data = RecoverySettings.getRequestedData()
         info.folder_path = RunSettings.getSaveFolderPath()
         info.folder_name = RunSettings.getFolderName()
         info.range = RunSettings.getRange()

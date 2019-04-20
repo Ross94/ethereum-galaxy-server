@@ -80,9 +80,10 @@ module.exports = (start, end) => {
             child.on('message', function(message) {
                 switch (message.command) {
                     case DOWNLOAD_PROCESS_COMMAND.newTaskCommand():
+                        var progressBarTextualForm
                         if (!message.data.config) {
                             lastChunk += 1
-                            const progressBarTextualForm =
+                            progressBarTextualForm =
                                 progressBarMsg +
                                 ' ' +
                                 lastChunk +
@@ -90,7 +91,6 @@ module.exports = (start, end) => {
                                 chunkNumber
                             if (MainShutdown.isRunning()) {
                                 progressBar.tick()
-                                logger.onlyLogFile(progressBarTextualForm)
                             } else {
                                 logger.log(progressBarTextualForm)
                             }
@@ -113,6 +113,7 @@ module.exports = (start, end) => {
                                     MainShutdown.save({ missing: task })
                                     MainShutdown.terminate()
                                 } else {
+                                    logger.onlyLogFile(progressBarTextualForm)
                                     generate()
                                 }
                             }

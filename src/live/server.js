@@ -3,7 +3,7 @@ const fs = require('mz/fs')
 
 import type { $Response } from 'express'
 
-const { ensureDirExists } = require('./../utilities/utils')
+const { ensureDirExists } = require('./../utilities/file-utils')
 const logger = require('./../utilities/log')
 
 const LIVE_CONSTANTS = require('./../utilities/constants/live-constants')

@@ -42,7 +42,6 @@ process.on('message', function(message) {
             break
         case DOWNLOAD_PROCESS_COMMAND.newTaskCommand():
             if (DownloadWorkerShutdown.isRunning()) {
-                console.log(message.data.task)
                 RunSettings.getBlockchain()
                     .get_transactions(message.data.task)
                     .then(block_array => {

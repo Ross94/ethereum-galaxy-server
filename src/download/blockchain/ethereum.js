@@ -26,7 +26,7 @@ async function getBlockTime(blockId) {
     return timestampToDate(block.timestamp)
 }
 
-async function getTransactions(blocksIndexes, cb = () => {}) {
+async function getTransactions(blocksIndexes) {
     initWeb3()
 
     //download blocks
@@ -34,7 +34,6 @@ async function getTransactions(blocksIndexes, cb = () => {}) {
         return web3.eth
             .getBlock(index, true)
             .then(block => {
-                cb()
                 return block
             })
             .catch(err => {
@@ -47,6 +46,7 @@ async function getTransactions(blocksIndexes, cb = () => {}) {
 
     //get blocks from Promises
     const blocks = _.compact(await Promise.all(blocksPromises))
+
     //get transactions from blocks
     const onlyTransactions = blocks.map(b => ({
         transactions: b.transactions

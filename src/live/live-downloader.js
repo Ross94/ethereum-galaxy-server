@@ -4,11 +4,11 @@ const saveGraph = require('ngraph.tobinary')
 const LIVE_CONSTANTS = require('../utilities/constants/live-constants')
     .LIVE_CONSTANTS
 
-const calculateNgraphLayout = require('../live/ngraph-layout')
+const calculateNgraphLayout = require('./ngraph-layout')
 const logger = require('../utilities/log')
 
-const { getTransactions } = require('./blockchain/ethereum')
-const { ensureDirExists } = require('../utilities/utils')
+const { getTransactions } = require('../download/blockchain/ethereum')
+const { ensureDirExists } = require('../utilities/file-utils')
 const { dumpJSON, dumpPajek, dumpInfo } = require('../utilities/files')
 
 export type Range = {
@@ -42,29 +42,13 @@ async function scanBlocks(range: Range, doLayout: boolean = true) {
     //divide array in chunck of 240 elems
     const blocksIndexesAtATime = _.chunk(blocksIndexes, 240)
 
-    const blockChunks = []
+    const transactions = []
     for (let i = 0; i < blocksIndexesAtATime.length; i++) {
         const blocksIndexes = blocksIndexesAtATime[i]
-        const progressBar = logger.progress(
-            `Retrieving chunk ${i + 1} of ${blocksIndexesAtATime.length}...`,
-            blocksIndexes.length
-        )
-        const blocksChunk = await getTransactions(blocksIndexes, () =>
-            progressBar.tick()
-        )
+        const blocksTransactions = await getTransactions(blocksIndexes)
 
-        blockChunks.push(blocksChunk)
+        transactions.push(blocksTransactions)
     }
-    const blocks = _.flatten(blockChunks)
-
-    const cleanedBlocks = _.compact(blocks) // I don't think we need this
-
-    logger.log('Processing transactions...')
-    const transactions = _.flatten(
-        cleanedBlocks
-            .filter(block => block.transactions.length > 0)
-            .map(block => block.transactions)
-    )
 
     logger.log('Processing nodes...')
 

@@ -43,6 +43,10 @@ function main() {
     var block = 0
     var all = 0
 
+    const types = Object.keys(CURRENT_BLOCKCHAINS).map(
+        key => CURRENT_BLOCKCHAINS[key].type_name
+    )
+
     if (params.help) {
         console.log(optionsOutput())
     } else if (params.resume) {
@@ -58,9 +62,20 @@ function main() {
             logger.setPath(config.logger_path)
             logger.log(
                 'Resume started! previous download settings: ' +
+                    config.blockchain +
+                    ' ' +
                     config.requested_data
             )
 
+            RunSettings.setBlockchain(
+                CURRENT_BLOCKCHAINS[
+                    Object.keys(CURRENT_BLOCKCHAINS).filter(
+                        key =>
+                            CURRENT_BLOCKCHAINS[key].type_name ==
+                            config.blockchain
+                    )
+                ]
+            )
             RunSettings.setSaveFolderPath(config.folder_path)
             RunSettings.setFolderName(config.folder_name)
             RunSettings.setRange(config.range)
@@ -87,10 +102,8 @@ function main() {
             console.log(optionsOutput())
         }
     } else if (
-        params.api != undefined &&
-        Object.keys(CURRENT_BLOCKCHAINS)
-            .map(key => CURRENT_BLOCKCHAINS[key].type_name)
-            .includes(params.type)
+        params.type == CURRENT_BLOCKCHAINS.bitcoin.type_name ||
+        (types.includes(params.type) && params.api != undefined)
     ) {
         memoryConfig()
         CPUsConfig()
@@ -167,6 +180,8 @@ function main() {
 
                         logger.setPath(
                             LOG_CONSTANTS.noLayoutTimeLog() +
+                                RunSettings.getBlockchain().folder_name +
+                                '/' +
                                 RunSettings.getFolderName() +
                                 '.log'
                         )
@@ -181,10 +196,6 @@ function main() {
                             lastDate: params.lastDate
                         }).then(res => {
                             RunSettings.setRange(res)
-                            console.log(
-                                params.firstDate + ' ' + params.lastDate
-                            )
-                            console.log(res)
                             downloadPhase(res)
                         })
                     }
@@ -210,6 +221,8 @@ function main() {
 
                         logger.setPath(
                             LOG_CONSTANTS.noLayoutBlockLog() +
+                                RunSettings.getBlockchain().folder_name +
+                                '/' +
                                 RunSettings.getFolderName() +
                                 '.log'
                         )
@@ -241,6 +254,8 @@ function main() {
 
                         logger.setPath(
                             LOG_CONSTANTS.noLayoutAllLog() +
+                                RunSettings.getBlockchain().folder_name +
+                                '/' +
                                 RunSettings.getFolderName() +
                                 '.log'
                         )
@@ -268,19 +283,20 @@ function main() {
             '-help => show help list \n' +
             '-type:' +
             supportedBlockchain +
-            ' -api:hex -firstBlock:int -lastBlock:int => download transactions in range of block number\n' +
+            ' -api:hex (only eth) -firstBlock:int -lastBlock:int => download transactions in range of block number\n' +
             '-type:' +
             supportedBlockchain +
-            ' -api:hex -firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY => download transactions in range of date\n' +
+            ' -api:hex (only eth) -firstDate:DD-MM-YYYY -lastDate:DD-MM-YYYY => download transactions in range of date\n' +
             '-type:' +
             supportedBlockchain +
-            ' -api:hex -all => download all transactions in blockchain\n' +
+            ' -api:hex (only eth) -all => download all transactions in blockchain\n' +
             '-type:' +
             supportedBlockchain +
-            ' -api:hex -resume => resume not completed previous download\n\n' +
+            ' -api:hex (only eth) -resume => resume not completed previous download\n\n' +
             'Optional flags: \n' +
-            '-memory:int => set memory used by program, number of MB or empty to default node value (1400)\n\n' +
-            'Note: Control params format and last greater than first\n'
+            '-memory:int => set memory used by program, number of MB, empty to max memory, no param default value(1400MB)\n\n' +
+            'Note: Control params format and last greater than first\n' +
+            '-cpu:int => set core used in download, number of core, empty for max num, or no param for one\n'
         )
     }
 
