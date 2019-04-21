@@ -33,7 +33,7 @@ export type Graph = {
 
 //used from live download
 async function scanBlocks(range: Range, doLayout: boolean = true) {
-    logger.log('Retrieving blocks...')
+    logger.log('Retrieving transactions...')
     //create an array, size = end - start
     const blocksIndexes = Array(range.end - range.start)
         .fill(1)
@@ -42,13 +42,16 @@ async function scanBlocks(range: Range, doLayout: boolean = true) {
     //divide array in chunck of 240 elems
     const blocksIndexesAtATime = _.chunk(blocksIndexes, 240)
 
-    const transactions = []
+    var transactions = []
     for (let i = 0; i < blocksIndexesAtATime.length; i++) {
         const blocksIndexes = blocksIndexesAtATime[i]
         const blocksTransactions = await getTransactions(blocksIndexes)
 
         transactions.push(blocksTransactions)
     }
+
+    //convert transaction from json string to obj
+    transactions = _.flattenDeep(transactions).map(t => JSON.parse(t))
 
     logger.log('Processing nodes...')
 
