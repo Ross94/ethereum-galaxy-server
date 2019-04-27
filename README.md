@@ -62,7 +62,7 @@ The web server will serve the files inside the `graph` folder, with the followin
 Clone the repository and install the dependencies:
 
 ```
-$ git clone https://github.com/loopingdoge/ethereum-galaxy-server
+$ git clone https://github.com/Ross94/ethereum-galaxy-server
 $ npm install
 ```
 
