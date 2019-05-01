@@ -18,7 +18,7 @@ const logger = require('./../utilities/log')
 const { generate } = require('./../generation/generator-master')
 const { sendMessage } = require('./../utilities/process')
 
-const chunkSize = 240
+const chunkSize = 50
 const progressBarMsg = `Retrieving chunk (each one has size of ${chunkSize})...`
 
 module.exports = (start, end) => {

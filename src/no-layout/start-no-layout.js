@@ -186,7 +186,9 @@ function main() {
                                 '.log'
                         )
                         logger.log(
-                            'Log of time type with firstDate: ' +
+                            'Log of time type of ' +
+                                params.type +
+                                ' with firstDate: ' +
                                 params.firstDate +
                                 ' lastDate: ' +
                                 params.lastDate
@@ -227,7 +229,9 @@ function main() {
                                 '.log'
                         )
                         logger.log(
-                            'Log of block type with firstBlock: ' +
+                            'Log of block type of ' +
+                                params.type +
+                                'with firstBlock: ' +
                                 params.firstBlock +
                                 ' lastBlock: ' +
                                 params.lastBlock
@@ -259,7 +263,7 @@ function main() {
                                 RunSettings.getFolderName() +
                                 '.log'
                         )
-                        logger.log('Log of all type')
+                        logger.log('Log of all type of ' + params.type)
 
                         allToBlocks().then(res => {
                             RunSettings.setRange(res)

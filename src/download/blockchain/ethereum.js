@@ -10,7 +10,18 @@ var web3 = undefined
 async function lastBlockId() {
     initWeb3()
 
-    const syncResult = await web3.eth.isSyncing()
+    function sync() {
+        return web3.eth
+            .isSyncing()
+            .then(res => {
+                return res
+            })
+            .catch(err => {
+                return sync()
+            })
+    }
+
+    const syncResult = await sync()
     if (syncResult) {
         return syncResult.currentBlock
     } else {
@@ -22,7 +33,18 @@ async function lastBlockId() {
 async function getBlockTime(blockId) {
     initWeb3()
 
-    const block = await web3.eth.getBlock(blockId)
+    function getBlock(blockID) {
+        return web3.eth
+            .getBlock(blockId)
+            .then(block => {
+                return block
+            })
+            .catch(err => {
+                return getBlock(blockID)
+            })
+    }
+
+    const block = await getBlock(blockId)
     return timestampToDate(block.timestamp)
 }
 

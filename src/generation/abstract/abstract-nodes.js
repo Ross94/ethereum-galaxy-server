@@ -54,7 +54,7 @@ function nodesAggregation(filePath, callback) {
     logger.log(
         'Start ' +
             FormatSettings.getFormat() +
-            ' nodes extraction of ' +
+            ' nodes extraction from ' +
             filePath
     )
     currentFile.nextLines()

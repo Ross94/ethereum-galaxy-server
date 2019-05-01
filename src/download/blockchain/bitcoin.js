@@ -56,40 +56,56 @@ async function getTransactions(blocksIndexes) {
             )
 
             bs.blocks.forEach(block => {
-                const txs = block.tx
-                txs.forEach(t => {
+                block.tx.forEach(t => {
                     const inputs = []
                     const outputs = []
 
                     var total = 0
 
-                    if (t.inputs[0].prev_out != undefined) {
-                        t.inputs.forEach(i =>
+                    t.inputs.forEach(i => {
+                        if (
+                            i.prev_out != undefined &&
+                            i.prev_out.addr != undefined
+                        ) {
                             inputs.push({
                                 address: i.prev_out.addr,
                                 amount: i.prev_out.value
                             })
-                        )
-                        t.out.forEach(o => {
-                            total += o.value
+                            total += i.prev_out.value
+                        }
+                    })
+                    t.out.forEach(o => {
+                        if (o.addr != undefined) {
                             outputs.push({ address: o.addr, amount: o.value })
-                        })
+                        }
+                    })
 
-                        inputs.forEach(i => {
-                            outputs.forEach(o => {
-                                const t = {
-                                    source: i.address,
-                                    target: o.address,
-                                    amount:
-                                        i.amount /
-                                        total *
-                                        o.amount /
-                                        SATOSHI_VALUE
-                                }
-                                transactions.push(JSON.stringify(t))
-                            })
+                    inputs.forEach(i => {
+                        outputs.forEach(o => {
+                            const e = {
+                                source: i.address,
+                                target: o.address,
+                                amount:
+                                    i.amount / total * o.amount / SATOSHI_VALUE
+                            }
+                            transactions.push(JSON.stringify(e))
                         })
-                    }
+                    })
+                    /*inputs.forEach(i => {
+                        outputs.forEach(o => {
+                            const e = {
+                                source: i.address,
+                                target: o.address,
+                                amount:
+                                    i.amount /
+                                    total *
+                                    o.amount /
+                                    SATOSHI_VALUE,
+                                hash: t.hash
+                            }
+                            transactions.push(JSON.stringify(e))
+                        })
+                    })*/
                 })
             })
         } catch (err) {
