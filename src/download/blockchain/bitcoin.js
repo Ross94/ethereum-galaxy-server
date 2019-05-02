@@ -11,11 +11,7 @@ async function lastBlockId() {
                 ).toString()
             )
         } catch (err) {
-            if (err.signal == 'SIGINT') {
-                return last()
-            } else {
-                console.log(err.stack)
-            }
+            return last()
         }
     }
 
@@ -33,11 +29,7 @@ async function getBlockTime(blockId) {
                 ).toString()
             )
         } catch (err) {
-            if (err.signal == 'SIGINT') {
-                return getBlock()
-            } else {
-                console.log(err.stack)
-            }
+            return getBlock()
         }
     }
 
@@ -45,6 +37,9 @@ async function getBlockTime(blockId) {
 }
 
 async function getTransactions(blocksIndexes) {
+    const SATOSHI_VALUE = 100000000
+    const transactions = []
+
     function download(bid) {
         try {
             const bs = JSON.parse(
@@ -91,34 +86,12 @@ async function getTransactions(blocksIndexes) {
                             transactions.push(JSON.stringify(e))
                         })
                     })
-                    /*inputs.forEach(i => {
-                        outputs.forEach(o => {
-                            const e = {
-                                source: i.address,
-                                target: o.address,
-                                amount:
-                                    i.amount /
-                                    total *
-                                    o.amount /
-                                    SATOSHI_VALUE,
-                                hash: t.hash
-                            }
-                            transactions.push(JSON.stringify(e))
-                        })
-                    })*/
                 })
             })
         } catch (err) {
-            if (err.signal == 'SIGINT') {
-                download(bid)
-            } else {
-                console.log(err.stack)
-            }
+            download(bid)
         }
     }
-
-    const SATOSHI_VALUE = 100000000
-    const transactions = []
 
     blocksIndexes.forEach(bid => {
         download(bid)
