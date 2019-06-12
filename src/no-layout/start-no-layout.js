@@ -24,7 +24,7 @@ const CURRENT_BLOCKCHAINS = require('../current-project-state/current-blockchain
 
 const logger = require('./../utilities/log')
 
-const { allToBlocks, dateToBlocks } = require('./../no-layout/block-retriever')
+const { allToBlocks, dateToBlocks } = require('./../no-layout/date-converter')
 const {
     checkResourceExists,
     ensureDirExists

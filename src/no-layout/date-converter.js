@@ -1,6 +1,6 @@
-const RUN_SETTINGS = require('./../utilities/settings/run-settings')
+const RUN_SETTINGS = require('../utilities/settings/run-settings')
 
-const { dateComparator } = require('./../utilities/date-utils')
+const { dateComparator } = require('../utilities/date-utils')
 var lastBlock
 
 function dateToBlocks(params) {
@@ -30,6 +30,7 @@ function dateToBlocks(params) {
                         ' and lastDate before ' +
                         lastDate
                 )
+                process.exit(1)
             }
         })
 }
